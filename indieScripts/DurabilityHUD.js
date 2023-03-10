@@ -122,7 +122,7 @@ let flags = 0
  * @param {number} flag bitfield  4: armor, 2: hands, 1: empty slot count
  */
 function updateNextTick(flag = 0) {
-  flags = flags | flag
+  flags |= flag
   if (nextTick || !flags) return
   nextTick = true
   JsMacros.once('Tick', wrappedUpdate)
