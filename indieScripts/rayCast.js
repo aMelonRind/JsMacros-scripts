@@ -1,7 +1,7 @@
 
-// a script that show a ray cast in d3d
-// is key script
+// can show a ray cast in d3d
 // discard the ray by left clicking
+// is key script
 
 const D2R = Math.PI / 180
 
