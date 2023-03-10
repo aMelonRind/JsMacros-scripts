@@ -1,0 +1,69 @@
+{
+  "$schema": "./schem/schem.json",
+  "humanlike": false,
+  "interval": 1,
+  "dimension": "overworld",
+  "skipTop": true,
+  "craftingTables": [
+    [4, -30, 6]
+  ],
+  "invDump": [4, -29, 6],
+  "walkingArea": [[0, -31, 10], [7, -31, 15]],
+  "materialFrom": [
+    {
+      "type": "container",
+      "box": [[2, -30, 6], [3, -29, 6]],
+      "has": ["coal", "bone"]
+    }
+  ],
+  "productTo": [
+    {
+      "type": "container",
+      "box": [[5, -30, 6], [5, -30, 6]],
+      "for": "coal_block"
+    },
+    {
+      "type": "container",
+      "box": [[5, -29, 6], [5, -29, 6]],
+      "for": "bone_block"
+    }
+  ],
+  "recipe": [
+    {
+      "on": "crafting_table",
+      "type": "recipe_book",
+      "id": "minecraft:coal_block",
+      "info": {
+        "input": {
+          "coal": 9
+        },
+        "output": "coal_block",
+        "count": 1
+      }
+    },
+    {
+      "on": "crafting_table",
+      "type": "recipe_book",
+      "id": "minecraft:bone_meal",
+      "info": {
+        "input": {
+          "bone": 1
+        },
+        "output": "bone_meal",
+        "count": 3
+      }
+    },
+    {
+      "on": "crafting_table",
+      "type": "recipe_book",
+      "id": "minecraft:bone_block",
+      "info": {
+        "input": {
+          "bone_meal": 9
+        },
+        "output": "bone_block",
+        "count": 1
+      }
+    }
+  ]
+}

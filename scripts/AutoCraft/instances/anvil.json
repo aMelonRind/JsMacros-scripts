@@ -1,0 +1,56 @@
+{
+  "$schema": "./schem/schem.json",
+  "humanlike": false,
+  "interval": 1,
+  "dimension": "overworld",
+  "skipTop": true,
+  "craftingTables": [
+    [9, -30, 6]
+  ],
+  "invDump": [9, -29, 6],
+  "walkingArea": [[9, -30, 8], [9, -30, 8]],
+  "materialFrom": [
+    {
+      "type": "container",
+      "box": [[7, -30, 6], [8, -29, 6]],
+      "has": ["iron_ingot"]
+    }
+  ],
+  "productTo": [
+    {
+      "type": "container",
+      "box": [[10, -30, 6], [10, -30, 6]],
+      "for": "anvil"
+    }
+  ],
+  "recipe": [
+    {
+      "on": "crafting_table",
+      "type": "recipe_book",
+      "id": "iron_block",
+      "info": {
+        "input": {
+          "iron_ingot": 9
+        },
+        "output": "iron_block",
+        "count": 1
+      },
+      "weight": {
+        "iron_ingot": 0.8709677419354839
+      }
+    },
+    {
+      "on": "crafting_table",
+      "type": "recipe_book",
+      "id": "anvil",
+      "info": {
+        "input": {
+          "iron_block": 3,
+          "iron_ingot": 4
+        },
+        "output": "anvil",
+        "count": 1
+      }
+    }
+  ]
+}

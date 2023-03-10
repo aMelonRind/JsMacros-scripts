@@ -1,0 +1,352 @@
+{
+  "$comment": "https://json-schema.org/understanding-json-schema/",
+  "Title": "schema for instances",
+  "type": "object",
+  "properties": {
+
+    "humanlike": {
+      "type": "boolean",
+      "default": false,
+      "description": "will try to target block, and look smoothly"
+    },
+
+    "interval": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 2,
+      "description": "wait ticks between actions"
+    },
+
+    "dimension": {
+      "$ref": "#/$defs/id",
+      "examples": [
+        "overworld",
+        "the_nether",
+        "the_end"
+      ],
+      "description": "for assert"
+    },
+
+    "walkingArea": {
+      "$ref": "#/$defs/box",
+      "description": "the area that player can move",
+      "default": [[], []]
+    },
+
+    "craftingTables": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/pos" }
+    },
+
+    "invDump": {
+      "$ref": "#/$defs/pos",
+      "description": "the container for inventory dumping\nenderchest is a good choice"
+    },
+
+    "dump": {
+      "$ref": "#/$defs/pos",
+      "description": "the container for unknown item dumping"
+    },
+
+    "materialFrom": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/materialFrom" },
+      "description": "material to take from"
+    },
+
+    "productTo": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/productTo" },
+      "description": "product to put at"
+    },
+
+    "recipe": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/recipe" },
+      "description": "the recipes. must be in order"
+    }
+
+  },
+  "required": [
+    "humanlike",
+    "interval",
+    "dimension",
+    "walkingArea",
+    "materialFrom",
+    "productTo",
+    "recipe"
+  ],
+
+  "$defs": {
+    "materialFrom": {
+      "type": "object",
+      "allOf": [ { "$ref": "#/$defs/container" } ],
+      "properties": {
+        "has": { "$ref": "#/$defs/itemIdList" }
+      },
+      "required": [ "has" ],
+      "examples": [
+        {
+          "type": "container",
+          "box": [[], []],
+          "has": []
+        },
+        {
+          "type": "shulker_machine",
+          "box": [[], []],
+          "has": [],
+          "flushButton": [],
+          "repairButton": []
+        },
+        {
+          "type": "shulker_macro",
+          "box": [[], []],
+          "has": [],
+          "shulkerSupply": [],
+          "placeBoxOn": []
+        }
+      ]
+    },
+    "productTo": {
+      "type": "object",
+      "allOf": [ { "$ref": "#/$defs/container" } ],
+      "properties": {
+        "for": { "$ref": "#/$defs/itemId" }
+      },
+      "required": [ "for" ],
+      "examples": [
+        {
+          "type": "container",
+          "box": [[], []],
+          "for": ""
+        },
+        {
+          "type": "shulker_machine",
+          "box": [[], []],
+          "for": "",
+          "flushButton": [],
+          "repairButton": []
+        },
+        {
+          "type": "shulker_macro",
+          "box": [[], []],
+          "for": "",
+          "shulkerSupply": [],
+          "placeBoxOn": []
+        }
+      ]
+    },
+    "recipe": {
+      "type": "object",
+      "properties": {
+        "on": {
+          "enum": [ "crafting_table" ],
+          "description": "the workbench for the recipe. may add furnace or something else support. idk"
+        },
+        "type": {
+          "enum": [ "recipe_book", "macro" ],
+          "description": "the way to do the recipe"
+        },
+        "info": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "patternProperties": {
+                "^([a-z_]+:)?[a-z_]+$": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9
+                }
+              },
+              "minProperties": 1,
+              "maxProperties": 9,
+              "additionalProperties": false
+            },
+            "output": { "$ref": "#/$defs/id" },
+            "count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            }
+          },
+          "required": [ "input", "output", "count" ],
+          "default": {
+            "input": {},
+            "output": {}
+          },
+          "description": "for calculating"
+        },
+        "weight": {
+          "type": "object",
+          "patternProperties": {
+            "^([a-z_]+:)?[a-z_]+$": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            }
+          },
+          "minProperties": 1,
+          "maxProperties": 9,
+          "additionalProperties": false,
+          "description": "for complex recipe.  for example crafting anvil from iron ingot, you'll need to set iron_block's iron_ingot weight to 0.8709677419354839 (27 / 31)  can't handle 3 or more layers i guess"
+        }
+      },
+      "required": [ "on", "type", "info" ],
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "recipe_book" } } },
+          "then": {
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id",
+                "description": "recipe id"
+              }
+            },
+            "required": [ "id" ]
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "macro" } } },
+          "then": {
+            "properties": {
+              "ingredients": {
+                "type": "object",
+                "patternProperties": {
+                  "^[1-9]$": { "$ref": "#/$defs/itemId" }
+                },
+                "minProperties": 1,
+                "additionalProperties": false
+              },
+              "pattern": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "string",
+                  "pattern": "^[ 1-9]{3}$",
+                  "default": "   ",
+                  "description": "2x2 recipe should offset to top left"
+                },
+                "default": [
+                  "   ",
+                  "   ",
+                  "   "
+                ]
+              }
+            },
+            "required": [ "ingredients", "pattern" ]
+          }
+        }
+      ],
+      "examples": [
+        {
+          "on": "",
+          "type": "recipe_book",
+          "id": "",
+          "info": {
+            "input": {},
+            "output": {}
+          }
+        },
+        {
+          "on": "",
+          "type": "macro",
+          "ingredients": {
+            "1": ""
+          },
+          "pattern": [
+            "   ",
+            "   ",
+            "   "
+          ],
+          "info": {
+            "input": {},
+            "output": {}
+          }
+        }
+      ]
+    },
+
+    "container": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [ "container", "shulker_machine", "shulker_macro" ]
+        }
+      },
+      "allOf": [
+        { "$ref": "#/$defs/boxProperty" },
+        {
+          "if": { "properties": { "type": { "const": "shulker_machine" } } },
+          "then": {
+            "properties": {
+              "flushButton": {
+                "$ref": "#/$defs/pos",
+                "description": "will interact when shulker is full(or empty if is material box)\nremove if not exist"
+              },
+              "repairButton": {
+                "$ref": "#/$defs/pos",
+                "description": "will interact when there's no shulker for too long\nremove if not exist"
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "shulker_macro" } } },
+          "then": {
+            "properties": {
+              "shulkerSupply": {
+                "$ref": "#/$defs/pos",
+                "description": "accepts shulker box or shulker shell with chest or logs\nwill dump shulker if is material box"
+              },
+              "placeBoxOn": {
+                "$ref": "#/$defs/pos",
+                "description": "will place shulker on this block"
+              }
+            },
+            "required": [ "shulkerSupply", "placeBoxOn" ]
+          }
+        }
+      ]
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^([a-z_]+:)?[a-z_\\/]+$"
+    },
+    "itemId": {
+      "type": "string",
+      "pattern": "^([a-z_]+:)?[a-z_]+$",
+      "description": "item id\nmodid for vanilla item is not necessary"
+    },
+    "itemIdList": {
+      "type": "array",
+      "uniqueItems": true,
+      "minContains": 1,
+      "items": { "$ref": "#/$defs/itemId" }
+    },
+    "pos": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "type": "integer", "description": "[x, y, z]" }
+    },
+    "box": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": { "$ref": "#/$defs/pos" }
+    },
+    "boxProperty": {
+      "type": "object",
+      "properties": {
+        "box": { "$ref": "#/$defs/box" }
+      },
+      "required": [ "box" ]
+    }
+  }
+}
