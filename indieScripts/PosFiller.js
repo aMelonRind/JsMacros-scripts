@@ -1,5 +1,6 @@
 
 /**
+ * to fill coords in the chat
  * keyword must be at the end
  * keywords:
  *  player block pos:
@@ -8,6 +9,8 @@
  *  looking at block pos:
  *    only space: bpos or $bpos
  *    with comma: bpos, or $bpos,
+ * 
+ * is service
  */
 
 const posReg = /\$?\bpos,? *$/

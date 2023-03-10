@@ -1,4 +1,7 @@
 
+// WIP auto crafting script
+// currently only support placed chests and recipe book
+
 const dup = require('../lib/DuplicateCheck')
 
 const util = require('../lib/util')

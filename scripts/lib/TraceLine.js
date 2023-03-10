@@ -1,10 +1,25 @@
 
+/**
+ * @typedef {{
+ *  x: number
+ *  y: number
+ *  z: number
+ *  color: number
+ *  remove: boolean
+ *  onTick: ?(line: Line) => void
+ *  onFrame: ?(line: Line) => void
+ *  line: _javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Draw3D$Line
+ * }} Line
+ * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Draw3D} Draw3D
+ */
+
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 
 let tickListener
 /** @type {Line[]} */
 let lines = []
 
+/** @type {Draw3D} */
 const d3d = Reflection.createClassProxyBuilder(Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Draw3D'))
             .addMethod('render', JavaWrapper.methodToJava((ref, args) => {
   cachePoint = undefined
