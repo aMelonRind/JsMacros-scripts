@@ -14,8 +14,6 @@
 
 const options = {
   // both
-  removeExtraSpace: true,
-  spaceAfterColon: true,
   dictifyJavaTypes: true, // remove the 500+ overloads (it's 957 in 1.8.4... jeez)
   shortifyTypes: true, // will shortify Class, Array, Collection, List, Map, _javatypes.xyz.*
   // graal
@@ -46,21 +44,13 @@ async function main() {
     }
     res()
   })
-  if (options.removeExtraSpace) {
-    console.log('processing removeExtraSpace: graal')
-    graal = graal.replace(/ +$/gm, '')
-    console.log('processing removeExtraSpace: jsm')
-    jsm   =   jsm.replace(/ +$/gm, '')
-  }
-  if (options.spaceAfterColon) {
-    console.log('processing spaceAfterColon: graal')
-    graal = graal.replace(/:(?=\S)/g, ': ')
-    console.log('processing spaceAfterColon: jsm')
-    jsm   =   jsm.replace(/:(?=\S)/g, ': ')
-  }
+  console.log('processing spaces: graal')
+  graal = graal.replace(/ +$/gm, '').replace(/:(?=\S)/g, ': ')
+  console.log('processing spaces: jsm')
+  jsm   =   jsm.replace(/ +$/gm, '').replace(/:(?=\S)/g, ': ')
   if (options.dictifyJavaTypes) {
-    const regex = /(?<=declare namespace Java {\n)(?:    export function type\(className: "[\w\.$]+"\): ?.+\n)+/
-    const singleRegex = /export function type\(className: ("[\w\.$]+")\): ?(.+)/gm
+    const regex = /(?<=declare namespace Java {\n)(?:    export function type\(className: "[\w\.$]+"\): .+\n)+/
+    const singleRegex = /export function type\(className: ("[\w\.$]+")\): (.+)/gm
     for (let i = 1; i >= 0; i--) {
       console.log(`processing dictifyJavaTypes: ${i ? 'graal' : 'jsm'}`)
       const to =
@@ -71,6 +61,19 @@ interface JavaTypeDict {
 ${(i ? graal : jsm).match(regex)?.[0].replace(singleRegex, '$1: $2')}`
       if (i) graal = graal.replace(regex, to)
       else   jsm   =   jsm.replace(regex, to)
+    }
+    const replaceTable = {
+      'function getClass<T>(name: string): _javatypes.java.lang.Class<T> & { new(...values): T }':
+        'function getClass<T extends keyof JavaTypeDict>(name: T): JavaTypeDict[T]',
+      'function getClass<T>(name: string, name2: string): _javatypes.java.lang.Class<T> & { new(...values): T }':
+        'function getClass<T extends keyof JavaTypeDict>(name: T, name2: string): JavaTypeDict[T]'
+    }
+    for (const from in replaceTable) {
+      if (!jsm.includes(from)) {
+        console.log(`can't find ${from}\nmaybe something changed?`)
+        continue
+      }
+      jsm = jsm.replace(from, replaceTable[from])
     }
   }
 
