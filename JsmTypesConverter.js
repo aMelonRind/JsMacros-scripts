@@ -3,7 +3,7 @@
  * 1) put this script in an empty folder (because this script will delete ./output)
  * 2) download typescript from https://github.com/JsMacros/JsMacros/releases
  * 3) extract both d.ts files to the same folder as this script
- * 4) run `node converter.js` in cmd
+ * 4) run `node JsmTypesConverter.js` in cmd (in same folder, obviously)
  * 5) close vscode
  * 6) move the node_modules folder in ./output/ to the same folder as Macros folder
  * 7) open vscode
