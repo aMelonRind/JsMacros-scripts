@@ -1,60 +1,63 @@
 
 /**
- * just put require('./lib/DuplicateCheck') at the very start to prevent duplicates
- * append .setOnDuplicate(q => q()) to make a toggle script
+ * just put require('./lib/DuplicateCheck') at the very beginning to prevent duplicates
  */
 
 const scriptPath = context.getCtx().getFile().getPath()
+
+const Enum = {
+  status: 0,
+  count: 1
+}
 
 let shouldStart = false
 const prev = GlobalVars.getObject(`MelonRind:DuplicateChecker:script<${scriptPath}>`)
 if (!prev) shouldStart = true
 else try {
-  if (!prev[0]) shouldStart = true
+  if (!prev[Enum.status]) shouldStart = true
 }catch (e) {
   shouldStart = true
 }
 
 if (!shouldStart) { // previous one is running
   try {
-    prev[0].onDuplicate?.(quit)
-    if (++prev[0].count >= 5)
-      if (prev[0].count >= 8) {
-        prev[0].context.getCtx().closeContext()
+    if (++prev[Enum.count] >= 5)
+      if (prev[Enum.count] >= 8) {
+        prev[Enum.status].context.getCtx().closeContext()
         Chat.log(`[Duplicate] killed previous context. (${scriptPath.match(/[^\\]+$/)[0]})`)
       }else {
-        const times = 8 - prev[0].count
+        const times = 8 - prev[Enum.count]
         Chat.log(
           `§c[Duplicate] previous context is still running! (${scriptPath.match(/[^\\]+$/)[0]})\n` +
           `  press ${times} more time${times === 1 ? '' : 's'} to kill it.`
         )
       }
   }catch (e) {
-    if (!e?.message?.includes('was closed')) throw e
+    throw e
   }
   quit()
 }
 
-const status = {
-  onDuplicate: null,
-  context,
-  count: 0
-}
+const status = Java.to([
+  {context},
+  0
+])
 
-GlobalVars.putObject(`MelonRind:DuplicateChecker:script<${scriptPath}>`, Java.to([status]))
+GlobalVars.putObject(`MelonRind:DuplicateChecker:script<${scriptPath}>`, status)
 
 /**
  * will halt the script and quit in 3 seconds  
- * without any message
+ * without any message (95% works i guess)
  */
 function quit() {
   const e = JsMacros.createCustomEvent('e')
-  e.putObject('ctx', context)
+  e.putObject('ctx', context.getCtx())
   JsMacros.runScript('js', `
     const history = Chat.getHistory()
     const del = [
       'Thread was interrupted.',
       'Context execution was cancelled.',
+      'java.lang.IllegalStateException',
       'java.lang.InterruptedException',
       'java.lang.RuntimeException',
       'IllegalStateException',
@@ -80,22 +83,7 @@ function quit() {
     Client.waitTick(60)
     frameListener.unregister()
     context.getCtx().closeContext()`,
-    null, e, JavaWrapper.methodToJava(() => null)
+    null, e, JavaWrapper.methodToJava(e => Chat.log(e))
   )
   while (true) Client.waitTick()
-}
-
-module.exports = {
-
-  /**
-   * will call when duplicate happens
-   * @param {(quit: () => never) => void} listener
-   * @default undefined
-   * @returns self
-   */
-  setOnDuplicate(listener) {
-    status.onDuplicate = (typeof listener === 'function') ? listener : null
-    return this
-  }
-
 }

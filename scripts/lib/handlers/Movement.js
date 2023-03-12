@@ -1,7 +1,15 @@
 
+// util.movement
+
 /**
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Vec3D} Vec3D
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D} Pos3D
+ * @typedef {{ [none: symbol]: undefined }} _ to trick vscode to rename types
+ * 
+ * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Vec3D&_} Vec3D
+ * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D&_} Pos3D
+ * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.ClientPlayerEntityHelper<any>} Player
+ * @typedef {Vec3D|number[]|number[][]} Vec3DLike
+ * @typedef {Pos3D|number[]|{x: number, y:number, z:number}|
+ *  {getX: () => number, getY: () => number, getZ: () => number}} Pos3DLike
  */
 
 /** @param {import('../util')} util */
@@ -36,27 +44,26 @@ module.exports = util => {
     _queue: [],
 
     /**
-     * 
-     * @param {number[][]} pos 
+     * set the area that player can walk
+     * @param {Vec3DLike} area 
      */
-    setArea(pos) {
-      this.area = util.math.toPositiveVec(util.Vec(...pos.flat()))
+    setArea(area) {
+      this.area = util.math.toPositiveVec(area)
     },
 
     /**
-     * Try to stand on the coordinate, strightly, no pathfinding
-     * @param {number[]} coords 
-     * @param {?(p: xyz.wagyourtail.jsmacros.client.api.helpers.ClientPlayerEntityHelper) => boolean} orCondition
+     * Try to stand on the coordinate, strightly, no pathfinding  
+     * sometimes break while in freecam mode
+     * @param {Pos3DLike} pos 
+     * @param {?(p: Player) => boolean} orCondition
      * @returns success
      */
-    async simpleWalk(coords, orCondition) {
-      if (!Array.isArray(coords)) coords = [coords.x, coords.y, coords.z]
-      coords.length = 3
+    async walkTo(pos, orCondition) {
+      pos = util.toPos(pos)
       if (this._queue[0]) await new Promise(res => this._queue.push(res))
       this._queue[0] = true
       if (Hud.isContainer()) Player.openInventory().close()
       p = Player.getPlayer()
-      const pos = util.Pos(...coords.map(Math.floor)).add(0.5, 0, 0.5)
       let lastPos = p.getPos()
       let timeout = 0
       let y, pit
@@ -94,19 +101,19 @@ module.exports = util => {
 
     /**
      * Try to reach the coordinate, strightly, no pathfinding
-     * @param {number[]} coords 
-     * @param {?(p: xyz.wagyourtail.jsmacros.client.api.helpers.ClientPlayerEntityHelper) => boolean} orCondition
+     * @param {Pos3DLike} pos 
+     * @param {?(p: Player) => boolean} orCondition
      * @returns success
      */
-    async simpleWalkReach(coords, orCondition) {
-      coords.length = 3
+    async walkReach(pos, orCondition) {
+      pos = util.toPos(pos)
       p = Player.getPlayer()
-      const pos = util.Pos(...coords).add(0.5, -p.getEyeHeight() + 0.5, 0.5)
+      pos = pos.add(0.5, -p.getEyeHeight() + 0.5, 0.5)
       if (p.getPos().toVector(pos).getMagnitudeSq() < this.reachSq) return true
-      const nearest = this.getNearestCoords(util.Pos(...coords))
-      if (pos.add(-0.5, -0.5, -0.5).toVector(nearest).getMagnitudeSq() > this.reachSq + 10)
+      const nearest = this.getNearestCoords(pos)
+      if (pos.toVector(nearest).getMagnitudeSq() > this.reachSq + 16)
         util.throw("can't reach out of area")
-      await this.simpleWalk(nearest, () =>
+      await this.walkTo(nearest, () =>
         p.getPos().toVector(pos).getMagnitudeSq() < this.reachSq || orCondition?.(p)
       )
       return p.getPos().toVector(pos).getMagnitudeSq() < this.reachSq + 2
@@ -114,11 +121,11 @@ module.exports = util => {
 
     /**
      * 
-     * @param {Pos3D} pos 
-     * @returns nearest coords in area
+     * @param {Pos3DLike} pos 
+     * @returns {Pos3D} nearest coords in area
      */
     getNearestCoords(pos) {
-      if (Array.isArray(pos)) pos = util.Pos(...pos)
+      pos = util.toPos(pos)
       return !this.area ? pos : util.Pos(
         util.math.clamp(Math.floor(pos.x), this.area.x1, this.area.x2) + 0.5,
         util.math.clamp(Math.floor(pos.y), this.area.y1, this.area.y2) + 0.5,

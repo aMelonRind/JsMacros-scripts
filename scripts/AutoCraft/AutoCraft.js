@@ -2,10 +2,9 @@
 // WIP auto crafting script
 // currently only support placed chests and recipe book
 
-const dup = require('../lib/DuplicateCheck')
+require('../lib/DuplicateCheck')
 
 const util = require('../lib/util')
-dup.setOnDuplicate(() => util.stopAll())
 util.scriptName = 'AutoCraft'
 util.debug.log = msg => util.log('[debug] ' + msg)
 util.run(main)
@@ -18,7 +17,7 @@ async function main() {
   util.container.interval  = instance.interval
   util.storage.skipTop     = instance.skipTop
   util.movement.setArea(instance.walkingArea)
-  util.storage.create({input: 
+  util.storage.create({input:
     instance.materialFrom.map(v => v.box)
   })
   const outputs = {}

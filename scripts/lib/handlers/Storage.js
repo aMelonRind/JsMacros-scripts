@@ -1,9 +1,14 @@
 
+// util.storage
+
 /**
  * @typedef {{ [id: string]: number }} dict
  * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Inventory<any>} Inventory
  * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Vec3D} Vec3D
  * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D} Pos3D
+ * @typedef {Vec3D|number[]|number[][]} Vec3DLike
+ * @typedef {Pos3D|number[]|{x: number, y:number, z:number}|
+ *  {getX: () => number, getY: () => number, getZ: () => number}} Pos3DLike
  */
 
 /** @param {import('../util')} util */
@@ -35,10 +40,10 @@ module.exports = util => {
     
     /**
      * 
-     * @param {Vec3D} box 
+     * @param {Vec3DLike} box 
      */
     constructor(box) {
-      this.box = box
+      this.box = util.math.toPositiveVec(box)
       this.anchor = {x: box.x1 >> 4, z: box.z1 >> 4}
       /**
        * @type {{ [pos: string]: {
@@ -153,7 +158,7 @@ module.exports = util => {
         }
         this.scanResult.chest.push(...chests.map(pos => {
           const state = World.getBlock(pos).getBlockState()
-          return {pos, facing: state.facing, type: state.type}
+          return { pos, facing: state.facing, type: state.type }
         }))
         this.scanResult.other.push(...others)
         // this.chunkToContainerMap[`${this.anchor.x + x},${this.anchor.z + z}`] =
@@ -185,7 +190,7 @@ module.exports = util => {
         }))
         util.debug.log?.(`[storage] trying to load chunk (${
           nearestx + this.anchor.x}, ${nearestz + this.anchor.z})`)
-        await util.movement.simpleWalk(
+        await util.movement.walkTo(
           util.movement.getNearestCoords(util.Pos(
             (nearestx + this.anchor.x) * 16 + 8,
             0,
@@ -304,7 +309,7 @@ module.exports = util => {
 
     /**
      * 
-     * @param {string|Pos3D} pos 
+     * @param {string|Pos3DLike} pos 
      * @param {Inventory} inv 
      */
     async update(pos, inv) {
@@ -334,7 +339,7 @@ module.exports = util => {
 
     /**
      * delete a container cache
-     * @param {string} pos 
+     * @param {string|Pos3DLike} pos 
      * @returns 
      */
     remove(pos) {
@@ -347,23 +352,20 @@ module.exports = util => {
     }
 
     /**
-     * 
+     * find nearest container that has {@link id}
      * @param {string} id 
-     * @returns not sorted
+     * @returns {?Pos3D} nearest container
      */
     find(id) {
       if (!this.scanned) util.throw('scan first')
       return util.math.nearest(Object.values(this.containers)
         .filter(c => id in c.items)
         .map(c => c.pos))
-        // .sort((a, b))
-        // .map(c => ({pos: c.pos, count: c.items[id]}))
     }
 
     /**
-     * 
-     * @param {string} id 
-     * @returns
+     * find nearest container that has empty slot
+     * @returns {?Pos3D}
      */
     findHasEmpty() {
       if (!this.scanned) util.throw('scan first')
@@ -390,7 +392,7 @@ module.exports = util => {
           if (!inv) return false
           await util.container.operate(inv, items)
           this.update(pos, inv)
-        }else {
+        }else { // need check
           const item = Object.keys(need).find(k => !dumping || need[k] < 0)
           const pos = this.find(item)
           if (!pos) return false
@@ -434,12 +436,12 @@ module.exports = util => {
 
     /**
      * create storage instance
-     * @param {{ [group: string]: number[][][] }} dict [[x1, y1, z1], [x2, y2, z2]][]
+     * @param {{ [group: string]: (Vec3D|number[][]|number[])[] }} dict 
      */
     create(dict) {
       Object.keys(dict).forEach(g => {
         storages[g] = dict[g].map(box =>
-          new ContainerChunk(util.math.toPositiveVec(util.Vec(...box.flat())))
+          new ContainerChunk(box)
         )
       })
     },
@@ -463,13 +465,13 @@ module.exports = util => {
 
     /**
      * update cache content of that container
-     * @param {string|Pos3D} pos 
+     * @param {string|Pos3DLike} pos 
      * @param {Inventory} inv 
      * @param {string} group 
      */
     async update(pos, inv, group) {
       for (const cchunk of storages[group])
-      if (await cchunk.update(pos, inv)) break
+        if (await cchunk.update(pos, inv)) break
     },
 
     // /**
@@ -509,7 +511,7 @@ module.exports = util => {
     /**
      * 
      * @param {string} group 
-     * @returns {dict}
+     * @returns {dict} total items in this group
      */
     totalItems(group) {
       if (!(group in storages)) return {}
@@ -535,10 +537,17 @@ module.exports = util => {
 
   }
 
-  function scanHalfChest(vec3, facL, facR) {
-    for (let y = vec3.y1; y <= vec3.y2; y++)
-    for (let z = vec3.z1; z <= vec3.z2; z++)
-    for (let x = vec3.x1; x <= vec3.x2; x++) {
+  /**
+   * check if the vec3d has half chest with condition
+   * @param {Vec3D} vec 
+   * @param {string} facL 
+   * @param {string} facR 
+   * @returns 
+   */
+  function scanHalfChest(vec, facL, facR) {
+    for (let y = vec.y1; y <= vec.y2; y++)
+    for (let z = vec.z1; z <= vec.z2; z++)
+    for (let x = vec.x1; x <= vec.x2; x++) {
       const block = World.getBlock(x, y, z)
       if (block.getId() !== 'minecraft:chest') continue
       const state = block.getBlockState()
@@ -550,14 +559,15 @@ module.exports = util => {
   
   /**
    * convert to 'x,y,z' format
-   * @param {Pos3D} pos 
+   * @param {string|Pos3DLike} pos 
    * @param {number} yoffset
    */
   function toStrPos(pos, yoffset = 0) {
     if (typeof pos === 'string')
     if (yoffset === 0) return pos
     else pos = toPos3D(pos)
-    return `${pos.x ?? pos[0]},${(pos.y ?? pos[1]) + yoffset},${pos.z ?? pos[2]}`
+    pos = util.toPos(pos)
+    return `${pos.x},${pos.y + yoffset},${pos.z}`
   }
   
   /**
@@ -575,10 +585,10 @@ module.exports = util => {
    * @param {Vec3D} vec2 
    */
   function isOverlapping(vec1, vec2) {
-    return true &&
+    return (
       ((vec2.x1 <= vec1.x2 && vec2.x1 >= vec1.x1) || (vec2.x2 <= vec1.x2 && vec2.x2 >= vec1.x1)) &&
       ((vec2.y1 <= vec1.y2 && vec2.y1 >= vec1.y1) || (vec2.y2 <= vec1.y2 && vec2.y2 >= vec1.y1)) &&
-      ((vec2.z1 <= vec1.z2 && vec2.z1 >= vec1.z1) || (vec2.z2 <= vec1.z2 && vec2.z2 >= vec1.z1))
+      ((vec2.z1 <= vec1.z2 && vec2.z1 >= vec1.z1) || (vec2.z2 <= vec1.z2 && vec2.z2 >= vec1.z1)))
   }
 
 }

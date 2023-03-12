@@ -6,7 +6,6 @@
   my scripts that use JsMacros to run
 
 ## TODO
-* unify position from array to Pos3D
 * craft macro support
 * shulker machine support
 * shulker macro support

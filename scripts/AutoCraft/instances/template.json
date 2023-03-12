@@ -1,12 +1,14 @@
 {
   "$schema": "./schem/schem.json",
   "humanlike": false,
-  "interactionInterval": 2,
-  "dimension": "",
-  "walkingArea": {
-    "pos1": [],
-    "pos2": []
-  },
+  "interval": 2,
+  "dimension": "overworld",
+  "skipTop": true,
+  "craftingTables": [
+    []
+  ],
+  "invDump": [],
+  "walkingArea": [[], []],
   "materialFrom": [],
   "productTo": [],
   "recipe": []

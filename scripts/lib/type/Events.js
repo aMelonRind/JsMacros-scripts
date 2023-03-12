@@ -1,21 +1,44 @@
 
-// use .ts will cause issues
+// use .ts will cause issues, idk why
+
 /**
+ * @typedef {{ [none: symbol]: undefined }} _ to trick vscode to rename types
+ * 
+ * @typedef {_&_javatypes.com.mojang.brigadier.context.StringRange} StringRange
+ * @typedef {_&_javatypes.io.noties.prism4j.Prism4j$Node} PrismNode
+ * @typedef {_&_javatypes.xyz.wagyourtail.StringHashTrie} StringHashTrie
+ * @typedef {_&_javatypes.xyz.wagyourtail.jsmacros.client.gui.editor.SelectCursor} SelectCursor
+ * @typedef {_&_javatypes.xyz.wagyourtail.jsmacros.client.gui.editor.highlighting.AutoCompleteSuggestion} AutoCompleteSuggestion
+ * @typedef {_&_javatypes.xyz.wagyourtail.jsmacros.client.gui.screens.EditorScreen} EditorScreen
+ * 
+ * @typedef {_&_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper} TextHelper
+ * @typedef {_&_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.BossBarHelper} BossBarHelper
+ * @typedef {_&_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper} ItemStackHelper
+ * @typedef {_&_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.BlockDataHelper} BlockDataHelper
+ * @typedef {_&_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>} EntityHelper
+ * @typedef {_&_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.CommandContextHelper} CommandContextHelper
+ * @typedef {_&_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerListEntryHelper} PlayerListEntryHelper
+ * @typedef {_&_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.ClientPlayerEntityHelper<any>} ClientPlayerEntityHelper
+ * @typedef {_&_javatypes.xyz.wagyourtail.jsmacros.client.api.classes.TextBuilder} TextBuilder
+ * @typedef {_&_javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Inventory<any>} Inventory
+ * @typedef {_&_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedinterfaces.IScreen} IScreen
+ * @typedef {_&_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D} Pos3D
+ * 
  * @type {{
  *  CodeRender: {
- *     readonly cursor: _javatypes.xyz.wagyourtail.jsmacros.client.gui.editor.SelectCursor,
+ *     readonly cursor: SelectCursor,
  *     readonly code: string,
  *     readonly language: string,
- *     readonly screen: _javatypes.xyz.wagyourtail.jsmacros.client.gui.screens.EditorScreen,
- *     readonly textLines: _javatypes.java.util.List<_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper>,
- *     readonly autoCompleteSuggestions: _javatypes.java.util.List<_javatypes.xyz.wagyourtail.jsmacros.client.gui.editor.highlighting.AutoCompleteSuggestion>,
+ *     readonly screen: EditorScreen,
+ *     readonly textLines: _javatypes.java.util.List<TextHelper>,
+ *     readonly autoCompleteSuggestions: _javatypes.java.util.List<AutoCompleteSuggestion>,
  *     rightClickActions: _javatypes.xyz.wagyourtail.jsmacros.core.MethodWrapper<number, any, _javatypes.java.util.Map<string, _javatypes.xyz.wagyourtail.jsmacros.core.MethodWrapper<any, any, any, any>>, any>,
- *     genPrismNodes(): _javatypes.java.util.List<_javatypes.io.noties.prism4j.Prism4j$Node>,
+ *     genPrismNodes(): _javatypes.java.util.List<PrismNode>,
  *     createMap(): _javatypes.java.util.Map<any, any>,
- *     createTextBuilder(): _javatypes.xyz.wagyourtail.jsmacros.client.api.classes.TextBuilder,
- *     createSuggestion(startIndex: number, suggestion: string): _javatypes.xyz.wagyourtail.jsmacros.client.gui.editor.highlighting.AutoCompleteSuggestion,
- *     createSuggestion(startIndex: number, suggestion: string, displayText: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper): _javatypes.xyz.wagyourtail.jsmacros.client.gui.editor.highlighting.AutoCompleteSuggestion,
- *     createPrefixTree(): _javatypes.xyz.wagyourtail.StringHashTrie,
+ *     createTextBuilder(): TextBuilder,
+ *     createSuggestion(startIndex: number, suggestion: string): AutoCompleteSuggestion,
+ *     createSuggestion(startIndex: number, suggestion: string, displayText: TextHelper): AutoCompleteSuggestion,
+ *     createPrefixTree(): StringHashTrie,
  *     getThemeData(): _javatypes.java.util.Map<string, number[]>,
  *   },
  *   DimensionChange: {
@@ -23,7 +46,7 @@
  *     toString(): string,
  *   },
  *   ItemDamage: {
- *     readonly item: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper,
+ *     readonly item: ItemStackHelper,
  *     readonly damage: number,
  *     toString(): string,
  *   },
@@ -36,14 +59,14 @@
  *   },
  *   ArmorChange: {
  *     readonly slot: string,
- *     readonly item: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper,
- *     readonly oldItem: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper,
+ *     readonly item: ItemStackHelper,
+ *     readonly oldItem: ItemStackHelper,
  *     toString(): string,
  *   },
  *   InteractEntity: {
  *     readonly offhand: boolean,
  *     readonly result: string,
- *     readonly entity: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>,
+ *     readonly entity: EntityHelper,
  *     toString(): string,
  *   },
  *   Heal: {
@@ -53,12 +76,12 @@
  *     toString(): string,
  *   },
  *   OpenScreen: {
- *     readonly screen: _javatypes.xyz.wagyourtail.jsmacros.client.api.sharedinterfaces.IScreen,
+ *     readonly screen: IScreen,
  *     readonly screenName: string,
  *     toString(): string,
  *   },
  *   Disconnect: {
- *     readonly message: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper,
+ *     readonly message: TextHelper,
  *     toString(): string,
  *   },
  *   SendMessage: {
@@ -71,16 +94,16 @@
  *   },
  *   Title: {
  *     readonly type: string,
- *     message: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper,
+ *     message: TextHelper,
  *     toString(): string,
  *   },
  *   OpenContainer: {
- *     readonly inventory: _javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Inventory<any>,
- *     readonly screen: _javatypes.xyz.wagyourtail.jsmacros.client.api.sharedinterfaces.IScreen,
+ *     readonly inventory: Inventory,
+ *     readonly screen: IScreen,
  *     cancelled: boolean,
  *   },
  *   Damage: {
- *     readonly attacker: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>,
+ *     readonly attacker: EntityHelper,
  *     readonly source: string,
  *     readonly health: number,
  *     readonly change: number,
@@ -90,11 +113,11 @@
  *     readonly sound: string,
  *     readonly volume: number,
  *     readonly pitch: number,
- *     readonly position: _javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D,
+ *     readonly position: Pos3D,
  *     toString(): string,
  *   },
  *   JoinServer: {
- *     readonly player: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.ClientPlayerEntityHelper<any>,
+ *     readonly player: ClientPlayerEntityHelper,
  *     readonly address: string,
  *     toString(): string,
  *   },
@@ -102,42 +125,42 @@
  *     readonly slot: number,
  *     readonly all: boolean,
  *     cancel: boolean,
- *     getInventory(): _javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Inventory<any>,
+ *     getInventory(): Inventory,
  *     toString(): string,
  *   },
  *   AttackBlock: {
- *     readonly block: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.BlockDataHelper,
+ *     readonly block: BlockDataHelper,
  *     readonly side: number,
  *   },
  *   EntityDamaged: {
- *     readonly entity: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>,
+ *     readonly entity: EntityHelper,
  *     readonly health: number,
  *     readonly damage: number,
  *     toString(): string,
  *   },
  *   BlockUpdate: {
- *     readonly block: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.BlockDataHelper,
+ *     readonly block: BlockDataHelper,
  *     readonly updateType: string,
  *     toString(): string,
  *   },
  *   EntityUnload: {
- *     readonly entity: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>,
+ *     readonly entity: EntityHelper,
  *     readonly reason: string,
  *     toString(): string,
  *   },
  *   EntityHealed: {
- *     readonly entity: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>,
+ *     readonly entity: EntityHelper,
  *     readonly health: number,
  *     readonly damage: number,
  *     toString(): string,
  *   },
  *   Riding: {
  *     readonly state: boolean,
- *     readonly entity: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>,
+ *     readonly entity: EntityHelper,
  *     toString(): string,
  *   },
  *   RecvMessage: {
- *     text: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper,
+ *     text: TextHelper,
  *     signature: number[],
  *     messageType: string,
  *     toString(): string,
@@ -155,15 +178,15 @@
  *   },
  *   PlayerLeave: {
  *     readonly UUID: string,
- *     readonly player: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerListEntryHelper,
+ *     readonly player: PlayerListEntryHelper,
  *     toString(): string,
  *   },
  *   ItemPickup: {
- *     readonly item: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper,
+ *     readonly item: ItemStackHelper,
  *     toString(): string,
  *   },
  *   SignEdit: {
- *     readonly pos: _javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D,
+ *     readonly pos: Pos3D,
  *     closeScreen: boolean,
  *     signText: _javatypes.java.util.List<string>,
  *     toString(): string,
@@ -175,10 +198,10 @@
  *     toString(): string,
  *   },
  *   AttackEntity: {
- *     readonly entity: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>,
+ *     readonly entity: EntityHelper,
  *   },
  *   Bossbar: {
- *     readonly bossBar: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.BossBarHelper,
+ *     readonly bossBar: BossBarHelper,
  *     readonly uuid: string,
  *     readonly type: string,
  *     toString(): string,
@@ -188,7 +211,7 @@
  *     toString(): string,
  *   },
  *   EntityLoad: {
- *     readonly entity: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>,
+ *     readonly entity: EntityHelper,
  *     toString(): string,
  *   },
  *   Key: {
@@ -199,13 +222,13 @@
  *   },
  *   PlayerJoin: {
  *     readonly UUID: string,
- *     readonly player: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerListEntryHelper,
+ *     readonly player: PlayerListEntryHelper,
  *     toString(): string,
  *   },
  *   InteractBlock: {
  *     readonly offhand: boolean,
  *     readonly result: string,
- *     readonly block: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.BlockDataHelper,
+ *     readonly block: BlockDataHelper,
  *     readonly side: number,
  *     toString(): string,
  *   },
@@ -214,7 +237,7 @@
  *     readonly button: number,
  *     readonly slot: number,
  *     cancel: boolean,
- *     getInventory(): _javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Inventory<any>,
+ *     getInventory(): Inventory,
  *     toString(): string,
  *   },
  *   ResourcePackLoaded: {
@@ -227,8 +250,8 @@
  *   },
  *   HeldItemChange: {
  *     readonly offHand: boolean,
- *     readonly item: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper,
- *     readonly oldItem: _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper,
+ *     readonly item: ItemStackHelper,
+ *     readonly oldItem: ItemStackHelper,
  *     toString(): string,
  *   },
  *   EXPChange: {
@@ -242,8 +265,8 @@
  *   },
  *   CommandContext: {
  *     getArg(name: string): any,
- *     getChild(): _javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.CommandContextHelper,
- *     getRange(): _javatypes.com.mojang.brigadier.context.StringRange,
+ *     getChild(): CommandContextHelper,
+ *     getRange(): StringRange,
  *     getInput(): string,
  *   },
  *   ProfileLoad: {
@@ -252,5 +275,4 @@
  *   }
  * }}
  */
-const Events = null
-module.exports = Events
+module.exports = null

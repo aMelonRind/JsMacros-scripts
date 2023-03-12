@@ -1,24 +1,31 @@
 
+// util.container
+
 /**
  * @typedef {{ [id: string]: number }} dict
  * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Inventory<any>} Inventory
  * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D} Pos3D
+ * @typedef {Pos3D|number[]|{x: number, y:number, z:number}|
+ *  {getX: () => number, getY: () => number, getZ: () => number}} Pos3DLike
  */
+
+const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Inventory')
+
+/** @type {string[][]} */
+const ClickPathCache = require('./ClickPathTable.json')
+const Click = {
+  leftA:  'A',
+  leftB:  'B',
+  rightA: 'a',
+  rightB: 'b'
+}
 
 /** @param {import('../util')} util */
 module.exports = util => {
   if (!util?.toJava) new Error('util needed')
   util.movement
-
-  /** @type {string[][]} */
-  const ClickPathCache = require('./ClickPathTable.json')
-  const Click = {
-    leftA:  'A',
-    leftB:  'B',
-    rightA: 'a',
-    rightB: 'b'
-  }
   
+  let safetyDelay
   let lastIntervalTime = 0, interval = 2
   let invMapCache = {}
 
@@ -64,14 +71,14 @@ module.exports = util => {
     /**
      * open container and operate items  
      * try to match inventory item counts to {@link items}
-     * @param {Pos3D|number[]|Inventory} chest 
+     * @param {Pos3D|Inventory} chest 
      * @param {dict} items 
      * @returns success
      */
     async operate(chest, items) {
       if (Object.keys(items).length === 0) return true
-      const inv = 'click' in chest ? chest : await this.waitGUI(chest)
-      if (!inv) return false
+      const inv = chest instanceof Inventory ? chest : await this.waitGUI(util.toPos(chest))
+      if (!(inv instanceof Inventory)) return false
       const CSlots = this.getContainerSlots(inv)
       const ISlots = this.getInventorySlots(inv)
       let res = true
@@ -90,7 +97,7 @@ module.exports = util => {
      * @returns success
      */
     async operateItem(inv, id, count, CSlots, ISlots) {
-      id = completeId(id)
+      id = util.completeId(id)
       CSlots ??= this.getContainerSlots(inv)
       ISlots ??= this.getInventorySlots(inv)
       let need = count - this.countItemInInventory(inv, id)
@@ -108,9 +115,7 @@ module.exports = util => {
         if (need >= 0) break
         if (inv.getSlot(slot)?.getItemId() !== id) continue
         if (inv.getSlot(slot).getCount() + need > 0) {
-          const s = await this.precisePick(inv, slot, -need)
-          await this.waitQuickInterval()
-          inv.quick(s)
+          await this.precisePick(inv, slot, inv.getSlot(slot).getCount() + need)
           break
         }
         need += inv.getSlot(slot).getCount()
@@ -122,15 +127,20 @@ module.exports = util => {
     },
 
     /**
-     * precisly make the count of item on {@link slot} to {@link count}
+     * precisly make the count of item on {@link slot} to {@link count}  
+     * will quick the remainder
      * @param {Inventory} inv 
      * @param {number} slot 
      * @param {number} count 
+     * @returns {Promise<number>} the result slot
      */
     async precisePick(inv, slot, count) {
       const temp = this.getEmptySlotInInventory(inv)
       let current = inv.getSlot(slot).getCount()
+      if (current <= count) return slot
       if (!temp) {
+        // change to remainder since there's only one slot
+        count = current - count
         if (count >= Math.floor(current / 2)) {
           await this.waitInterval()
           inv.click(slot, 1)
@@ -145,6 +155,9 @@ module.exports = util => {
         if (current === count) {
           await this.waitInterval()
           inv.quick(slot)
+          if (!inv.getSlot(slot).isEmpty()) util.throw(`slot is still occupied (${slot})`)
+          await this.waitInterval()
+          inv.click(slot)
           return slot
         }
         else {
@@ -154,8 +167,8 @@ module.exports = util => {
         }
       }else {
         const path = ClickPathCache[current - 2][count - 1]
-        outer:
-        for (const action of path) switch (action) {
+        let action
+        for (action of path) switch (action) {
           case Click.leftA:
             await this.waitInterval()
             inv.click(slot)
@@ -172,11 +185,14 @@ module.exports = util => {
             await this.waitInterval()
             inv.click(temp, 1)
             break
+          case '@':
+            await this.waitInterval()
+            inv.quick(path.endsWith('@b') ? slot : temp)
+            await util.waitTick()
+            return    path.endsWith('@a') ? slot : temp
           default:
-            break outer
+            util.throw(`unknown path char ${action}`)
         }
-        await util.waitTick()
-        return path.endsWith('@a') ? slot : temp
       }
     },
 
@@ -216,7 +232,7 @@ module.exports = util => {
      * @returns {number}
      */
     countItemInInventory(inv, id) {
-      id = completeId(id)
+      id = util.completeId(id)
       return this.getInventorySlots(inv)
         .reduce((p, i) => (i = inv.getSlot(i))?.getItemId() === id ? p + i.getCount() : p, 0)
     },
@@ -227,7 +243,7 @@ module.exports = util => {
      * @returns {number[]}
      */
     getInventorySlots(inv) {
-      return Java.from(inv.getMap().main).concat(inv.getMap().hotbar)
+      return Java.from(inv.getMap().hotbar).concat(inv.getMap().main ?? [])
     },
 
     /**
@@ -244,7 +260,7 @@ module.exports = util => {
      * @param {Inventory} inv 
      */
     getEmptySlotInInventory(inv) {
-      return this.getInventorySlots(inv).find(s => inv.getSlot(s).isEmpty())
+      return this.getInventorySlots(inv).reverse().find(s => inv.getSlot(s).isEmpty())
     },
 
     /**
@@ -263,7 +279,7 @@ module.exports = util => {
      * @param {?() => void} cb 
      */
     async waitQuickInterval(cb) {
-      return !this.quickInterval ? cb?.(null) : await this.waitInterval(cb)
+      return this.quickInterval ? await this.waitInterval(cb) : cb?.(null)
     },
 
     /**
@@ -278,25 +294,33 @@ module.exports = util => {
 
     /**
      * wait for a container gui
-     * @param {number[]|Pos3D} coords 
+     * @param {?Pos3DLike|string} pos Pos3D for container, string for command gui, null/undefined is other
      * @param {number} timeout 
+     * @param {boolean} safety for command gui, if your script need high freq command gui opening,
+     * set this to false
      * @returns {Promise<Inventory|null>}
      */
-    async waitGUI(coords, timeout = 300) {
-      if (coords.x != null) coords = [coords.x, coords.y, coords.z]
-      else coords.length = 3
-      if (Hud.isContainer()) Player.openInventory().close()
-      if (!(await util.movement.simpleWalkReach(coords))) return null
-      if (this.humanLike) await util.lookAt(...coords.map(v => v + 0.5))
-      Player.getPlayer().interactBlock(...coords, 0, false)
+    async waitGUI(pos, timeout = 300, safety = true) {
+      if (pos) if (typeof pos === 'string') {
+        if (Hud.isContainer()) Player.openInventory().close()
+        if (safety) await safetyDelay
+        safetyDelay = util.waitTick(12)
+        Chat.say(pos)
+      }else {
+        pos = util.toPos(pos)
+        if (Hud.isContainer()) Player.openInventory().close()
+        if (!(await util.movement.walkReach(pos))) return null
+        if (this.humanLike) await util.lookAt(...pos.add(0.5, 0.5, 0.5))
+        Player.getPlayer().interactBlock(pos.x, pos.y, pos.z, 0, false)
+      }
       let wfe, wfe2
       const start = util.ticks
       await new Promise(res => {
         wfe = util.waitForEvent(
           'BlockUpdate', // for short circuit, since some chest is stuck or locked
-          e => e.block.getX() === coords[0] &&
-               e.block.getY() === coords[1] &&
-               e.block.getZ() === coords[2],
+          e => e.block.getX() === pos.x &&
+               e.block.getY() === pos.y &&
+               e.block.getZ() === pos.z,
           () => util.waitTick((util.ticks - start) * 5 + 4, res),
           timeout
         )
@@ -318,8 +342,4 @@ module.exports = util => {
       }else return null
     }
   }
-}
-
-function completeId(id = 'air') {
-  return id.includes(':') ? id : 'minecraft:' + id
 }

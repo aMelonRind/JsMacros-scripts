@@ -1,8 +1,12 @@
 
 /**
+ * util.crafting
+ *
  * doesn't support complex recipe
  * doesn't support won't-consume ingredients
- * 
+ */
+
+/**
  * @typedef {{ [id: string]: number }} dict
  * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Inventory<any>} Inventory
  * @typedef {{
@@ -22,6 +26,7 @@
 module.exports = util => {
   if (!util?.toJava) throw new Error('util needed')
   util.container
+  util.storage
 
   class RecipeHandler {
     
@@ -31,13 +36,13 @@ module.exports = util => {
      * @param {string[]} outputs 
      */
     constructor(recipes, outputs) {
-      this.outputs = outputs.map(completeId)
+      this.outputs = outputs.map(util.completeId)
       /** @type {Recipe[]} */
       this.recipes = recipes.map((r, i) => {
-        completeIdKey(r.info.input)
-        r.info.output = completeId(r.info.output)
-        if (r.ingredients) completeIdKey(r.ingredients)
-        if (r.id) r.id = completeId(r.id)
+        util.completeIdKey(r.info.input)
+        r.info.output = util.completeId(r.info.output)
+        if (r.ingredients) util.completeIdKey(r.ingredients)
+        if (r.id) r.id = util.completeId(r.id)
 
         // max inventory calculate and mark it if it's becoming more
         /** @readonly color please */
@@ -50,7 +55,7 @@ module.exports = util => {
           util.dict.mul(util.dict.clone(r.info.input), inputRes)) > 36) inputRes--
         r.maxEachTime = Math.floor(Math.min(inputRes, Math.floor(36 / outputStacks)))
         if (outputStacks > inputStacks) r.more = true
-        completeIdKey(r.weight ??= {})
+        util.completeIdKey(r.weight ??= {})
         for (const id in r.weight) {
           r.weight[id] = util.math.clamp(r.weight[id])
           if (!(r.weight[id] > 0 && r.weight[id] <= 1))
@@ -356,18 +361,6 @@ module.exports = util => {
       }
     }
 
-  }
-
-  function completeId(id = 'air') {
-    return id.includes(':') ? id : `minecraft:${id}`
-  }
-
-  function completeIdKey(obj) {
-    for (const k in obj) {
-      if (k.includes(':')) continue
-      obj[`minecraft:${k}`] = obj[k]
-      delete obj[k]
-    }
   }
 
 }

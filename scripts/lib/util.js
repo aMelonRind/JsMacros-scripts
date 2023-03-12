@@ -1,13 +1,18 @@
 
+// useful multi-purpose module
+
 /**
- * useful multi-purpose module
+ * @typedef {{ [none: symbol]: undefined }} _ to trick vscode to rename types
  * 
- * @typedef {import('./type/Events.js')} Events
  * @typedef {_javatypes.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>} context
  * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Inventory<any>} Inventory
  * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper} ItemStackHelper
+ * @typedef {_javatypes.xyz.wagyourtail.jsmacros.core.event.IEventListener&_} IEventListener
  * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D} Pos3D
  * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Vec3D} Vec3D
+ * @typedef {Vec3D|number[]|number[][]} Vec3DLike
+ * @typedef {Pos3D|number[]|{x: number, y:number, z:number}|
+ *  {getX: () => number, getY: () => number, getZ: () => number}} Pos3DLike
  */
 
 if (context.getCtx().getFile().getPath() === __filename)
@@ -21,6 +26,9 @@ const ItemRegistry    = Java.type('net.minecraft.class_2378').field_11142
 
 const InvScreen = Java.type('net.minecraft.class_490')
 const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Inventory')
+
+const Pos3D = Java.type('xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D')
+const Vec3D = Java.type('xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Vec3D')
 
 const itemCache = {}
 
@@ -42,6 +50,36 @@ const util = {
 
   /** @alias {@link PositionCommon.createVec} */
   Vec: PositionCommon.createVec,
+
+  /**
+   * convert various pos to Pos3D
+   * @param {Pos3DLike} pos 
+   * @returns {Pos3D}
+   */
+  toPos(pos) {
+    if (pos instanceof Pos3D) return pos
+    // if (!pos) return util.Pos(0, 0, 0)
+    if (Array.isArray(pos))
+      return this.Pos(pos[0], pos[1], pos[2])
+    if ('x' in pos && 'y' in pos && 'z' in pos)
+      return this.Pos(pos.x, pos.y, pos.z)
+    if ('getX' in pos && 'getY' in pos && 'getZ' in pos)
+      return this.Pos(pos.getX(), pos.getY(), pos.getZ())
+    util.throw(`can't identify pos (${pos})`)
+  },
+
+  /**
+   * convert various vec to Vec3D
+   * @param {Vec3DLike} vec 
+   * @returns {Vec3D}
+   */
+  toVec(vec) {
+    if (vec instanceof Vec3D) return vec
+    // if (!vec) return util.Vec(0, 0, 0, 0, 0, 0)
+    if (Array.isArray(vec))
+      return this.Vec(...vec.flat())
+    util.throw(`can't identify vec (${vec})`)
+  },
 
   /**
    * enable smooth look or not
@@ -77,6 +115,7 @@ const util = {
       const del = [
         'Thread was interrupted.',
         'Context execution was cancelled.',
+        'java.lang.IllegalStateException',
         'java.lang.InterruptedException',
         'java.lang.RuntimeException',
         'IllegalStateException',
@@ -214,14 +253,14 @@ const util = {
   },
 
   /**
-   * returned promise has cancel method
+   * 
    * @async
-   * @template {keyof Events} E
+   * @template {keyof JsmEvents} E
    * @param {E} event 
-   * @param {?(event: Events[E], ctx: context) => boolean} condition 
-   * @param {?(event: Events[E], ctx: context) => void} callback 
+   * @param {?(event: JsmEvents[E], ctx: context) => boolean} condition 
+   * @param {?(event: JsmEvents[E], ctx: context) => void} callback 
    * @param {number | undefined} timeout 
-   * @returns {Promise<null|{event: Events[E], context: context}>}
+   * @returns {Promise<null|{event: JsmEvents[E], context: context}> & { cancel(): void }}
    */
   waitForEvent(event, condition, callback, timeout = 600) {
     const cb = { condition, callback }
@@ -463,10 +502,18 @@ const util = {
 
   /**
    * able to look smoothly
+   * @param {Pos3DLike} pos 
+   * @param {?() => boolean} condition will stop if match
+   */
+  async lookAt(pos, condition) {},
+
+  /**
+   * able to look smoothly
    * @param {number} yaw 
    * @param {number} pitch 
+   * @param {?() => boolean} condition will stop if match
    */
-  async lookAt(yaw, pitch) {},
+  async lookAt(yaw, pitch, condition) {},
 
   /**
    * able to look smoothly
@@ -476,6 +523,16 @@ const util = {
    * @param {?() => boolean} condition will stop if match
    */
   async lookAt(x, y, z, condition) {
+    if (typeof x === 'object') {
+      condition = y
+      ;({ x, y, z } = this.toPos(x))
+    }else 
+
+    if (typeof z === 'function') {
+      condition = z
+      z = undefined
+    }
+
     if ((typeof x !== 'number') ||
         (typeof y !== 'number') ||
         (typeof z !== 'number') && z != null)
@@ -485,8 +542,7 @@ const util = {
 
     const p = Player.getPlayer()
     if (!this.enableSmoothLook)
-    if (typeof z === 'number') return p.lookAt(x, y, z)
-    else return p.lookAt(x, y)
+      return typeof z === 'number' ? p.lookAt(x, y, z) : p.lookAt(x, y)
 
     let yaw, pitch
     if (typeof z === 'number') {
@@ -498,7 +554,7 @@ const util = {
       pitch = Math.min(Math.max(-90, y), 90)
     }
     // x2: yaw, z2: pitch
-    const delta = PositionCommon.createVec(0, 0, 0,
+    const delta = this.Vec(0, 0, 0,
       this.wrapYaw(yaw - p.getYaw()), 0,
       pitch - p.getPitch()
     )
@@ -508,7 +564,7 @@ const util = {
       // calculate next rotation
       rot = rot + this.wrapYaw(delta.getYaw() - rot) * (0.5 + Math.random() * 0.2)
       // convert rot to yaw pitch, multiply them
-      d = PositionCommon.createPos(-Math.sin(rot * D2R), Math.cos(rot * D2R))
+      d = this.Pos(-Math.sin(rot * D2R), Math.cos(rot * D2R))
         .scale(Math.min(delta.getMagnitude() * 0.6, this.lookMaxDegree) * (0.8 + Math.random() * 0.2))
       p.lookAt(p.getYaw() + d.x, p.getPitch() + d.y)
       delta.x2 = this.wrapYaw(yaw - p.getYaw())
@@ -536,7 +592,15 @@ const util = {
   },
 
   completeId(id = 'air') {
-    return id.includes(':') ? id : `minecraft:${id}`
+    return id.includes(':') ? id : 'minecraft:' + id
+  },
+
+  completeIdKey(obj) {
+    for (const k in obj) {
+      if (k.includes(':')) continue
+      obj['minecraft:' + k] = obj[k]
+      delete obj[k]
+    }
   },
 
   /**
@@ -656,8 +720,15 @@ const util = {
       return obj
     },
 
+    div(obj, byobj) {
+      let res = Infinity
+      for (const k in byobj)
+        if ((obj[k] ?? 0) / byobj[k] < res) res = (obj[k] ?? 0) / byobj[k]
+      return res
+    },
+
     mod(obj, byobj) {
-      const times = Math.floor(Math.min(...Object.keys(byobj).map(k => (obj[k] ?? 0) / byobj[k])))
+      const times = Math.floor(this.div(obj, byobj))
       if (times > 0) for (const k in byobj) {
         obj[k] -= byobj[k] * times
         if (!obj[k]) delete obj[k]
@@ -764,11 +835,12 @@ const util = {
     /**
      * 
      * @param {Pos3D[]} list 
-     * @param {?Pos3D} pos 
+     * @param {?Pos3D|number[]} pos 
      * @returns {null|Pos3D}
      */
     nearest(list, pos) {
       if (!pos) pos = Player.getPlayer().getPos()
+      else pos = util.toPos(pos)
       let dist = Infinity
       let res  = null
       list.forEach(p => {
@@ -782,10 +854,12 @@ const util = {
     },
 
     /**
-     * 
+     * convert the vec to positive, will call {@link util.toVec}
      * @param {Vec3D} vec 
+     * @returns {Vec3D}
      */
     toPositiveVec(vec) {
+      vec = util.toVec(vec)
       let temp
       if (vec.x1 > vec.x2) {
         temp   = vec.x1
@@ -814,6 +888,7 @@ const util = {
 
 }
 
+/** @type {IEventListener[]} */
 const listeners = [
   JsMacros.on('Tick', util.toJava(() => {
     tickClock++
@@ -834,14 +909,14 @@ const listeners = [
 
 /**
  * waitForEventListeners
- * @template {keyof Events} E
+ * @template {keyof JsmEvents} E
  * @type {{ [event: E]: {
  *  listener: _javatypes.xyz.wagyourtail.jsmacros.core.event.IEventListener,
  *  cbs: {
  *    res(): void,
  *    cancel: boolean,
- *    condition: (e: Events[E], c: context) => boolean,
- *    callback:  (e: Events[E], c: context) => void
+ *    condition: (e: JsmEvents[E], c: context) => boolean,
+ *    callback:  (e: JsmEvents[E], c: context) => void
  *  }[]
  * } }}
  */
