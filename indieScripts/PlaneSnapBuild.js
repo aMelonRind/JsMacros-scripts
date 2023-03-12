@@ -24,7 +24,7 @@ function lookToVec(pitch = p.getPitch(), yaw = p.getYaw()) {
   return Math.abs(pitch) == 90 ? [0, -pitch, 0] : [-Math.sin(yaw *= D2R), -Math.tan(pitch * D2R), Math.cos(yaw)]
 }
 
-/** @type {_javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Draw3D} */
+/** @type {Draw3D} */
 const d3d = Reflection.createClassProxyBuilder(
     Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Draw3D'))
     .addMethod('render', JavaWrapper.methodToJava((ref, args) => {

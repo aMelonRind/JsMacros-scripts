@@ -63,9 +63,9 @@ event.stopListener = JavaWrapper.methodToJava(() => {
 })
 
 class LeashedMob {
-  /** @param {Java.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper} e */
+  /** @param {EntityHelper<any>} e */
   constructor (e) {
-    /** @type {Java.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper} */
+    /** @type {EntityHelper<any>} */
     this.entity = e
     if (!rendering) {
       d2d.register()

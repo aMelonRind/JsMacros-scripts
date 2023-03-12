@@ -6,23 +6,9 @@
  * doesn't support won't-consume ingredients
  */
 
-/**
- * @typedef {{ [id: string]: number }} dict
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Inventory<any>} Inventory
- * @typedef {{
- *  on: string,
- *  type: string,
- *  id: string,
- *  info: {
- *    input: { [id: string]: number }
- *    output: string
- *    count: number
- *  },
- *  weight: { [id: string]: number }
- * }} Recipe
- */
+/** @typedef {import('./type/myTypes')} */
 
-/** @param {import('../util')} util */
+/** @param {Util} util */
 module.exports = util => {
   if (!util?.toJava) throw new Error('util needed')
   util.container
@@ -72,8 +58,8 @@ module.exports = util => {
 
     /**
      * get recipe perform times from items using divider
-     * @param {dict} items 
-     * @returns {{ performTimes: { [index: number]: number }, results: dict }}
+     * @param {Dict} items 
+     * @returns {{ performTimes: { [index: number]: number }, results: Dict }}
      */
     calculate(items) {
       const res = {
@@ -151,12 +137,12 @@ module.exports = util => {
      * execute crafting process
      * @param {{
      *  group: string,
-     *  getTotal: ?() => dict,
-     *  operate: ?(items: dict) => Promise }} input 
+     *  getTotal: ?() => Dict,
+     *  operate: ?(items: Dict) => Promise }} input 
      * @param {{ [id: string]: {
      *  group: string,
-     *  getTotal: ?() => dict,
-     *  operate: ?(items: dict) => Promise } }} output 
+     *  getTotal: ?() => Dict,
+     *  operate: ?(items: Dict) => Promise } }} output 
      * @param {Pos3D[]} craftingTables
      * @param {Pos3D} dump NOT TRASH CHEST!
      */
@@ -319,9 +305,9 @@ module.exports = util => {
 
     /**
      * 
-     * @param {Inventory} inv 
+     * @param {Inventory<any>} inv 
      * @param {string} id 
-     * @param {dict} inputInfo 
+     * @param {Dict} inputInfo 
      * @returns 
      */
     async recipeBookCraft(inv, id, inputInfo) {

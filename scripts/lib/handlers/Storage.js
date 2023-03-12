@@ -1,17 +1,9 @@
 
 // util.storage
 
-/**
- * @typedef {{ [id: string]: number }} dict
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Inventory<any>} Inventory
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Vec3D} Vec3D
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D} Pos3D
- * @typedef {Vec3D|number[]|number[][]} Vec3DLike
- * @typedef {Pos3D|number[]|{x: number, y:number, z:number}|
- *  {getX: () => number, getY: () => number, getZ: () => number}} Pos3DLike
- */
+/** @typedef {import('./type/myTypes')} */
 
-/** @param {import('../util')} util */
+/** @param {Util} util */
 module.exports = util => {
   if (!util?.toJava) throw new Error('util needed')
   util.movement
@@ -19,9 +11,6 @@ module.exports = util => {
 
   let skipTop = true
   let possibleContainer = [/(?<!minecraft:ender_)chest$/, /shulker_box$/, 'minecraft:barrel']
-  // const chestScanner = World.getWorldScanner()
-  //   .withStringBlockFilter().equals('minecraft:chest')
-  //   .build()
   const chestDirection = {
     northright: util.Pos(-1, 0,  0),
     northleft:  util.Pos( 1, 0,  0),
@@ -50,11 +39,11 @@ module.exports = util => {
        *  pos: Pos3D,
        *  onTop1: ?string,
        *  onTop2: ?string,
-       *  items: dict
+       *  items: Dict
        * } }}
        */
       this.containers = {}
-      /** @type {dict} */
+      /** @type {Dict} */
       this.total = {}
       /** @type {string[]} */
       this.empty = []
@@ -310,7 +299,7 @@ module.exports = util => {
     /**
      * 
      * @param {string|Pos3DLike} pos 
-     * @param {Inventory} inv 
+     * @param {Inventory<any>} inv 
      */
     async update(pos, inv) {
       pos = toStrPos(pos)
@@ -374,7 +363,7 @@ module.exports = util => {
 
     /**
      * operate items
-     * @param {dict} items 
+     * @param {Dict} items 
      * @param {boolean} clear should clear other items or not
      */
     async operate(items, clear = false) {
@@ -436,7 +425,7 @@ module.exports = util => {
 
     /**
      * create storage instance
-     * @param {{ [group: string]: (Vec3D|number[][]|number[])[] }} dict 
+     * @param {{ [group: string]: Vec3DLike[] }} dict 
      */
     create(dict) {
       Object.keys(dict).forEach(g => {
@@ -466,7 +455,7 @@ module.exports = util => {
     /**
      * update cache content of that container
      * @param {string|Pos3DLike} pos 
-     * @param {Inventory} inv 
+     * @param {Inventory<any>} inv 
      * @param {string} group 
      */
     async update(pos, inv, group) {
@@ -511,7 +500,7 @@ module.exports = util => {
     /**
      * 
      * @param {string} group 
-     * @returns {dict} total items in this group
+     * @returns {Dict} total items in this group
      */
     totalItems(group) {
       if (!(group in storages)) return {}
@@ -525,7 +514,7 @@ module.exports = util => {
      * operate items in group  
      * try to match inventory item counts to {@link items}
      * @param {string} group 
-     * @param {dict} items 
+     * @param {Dict} items 
      * @param {boolean} clear should clear other items or not
      */
     async operate(group, items, clear = false) {

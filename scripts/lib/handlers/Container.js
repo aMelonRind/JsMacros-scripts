@@ -1,13 +1,7 @@
 
 // util.container
 
-/**
- * @typedef {{ [id: string]: number }} dict
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Inventory<any>} Inventory
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D} Pos3D
- * @typedef {Pos3D|number[]|{x: number, y:number, z:number}|
- *  {getX: () => number, getY: () => number, getZ: () => number}} Pos3DLike
- */
+/** @typedef {import('./type/myTypes')} */
 
 const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Inventory')
 
@@ -20,11 +14,11 @@ const Click = {
   rightB: 'b'
 }
 
-/** @param {import('../util')} util */
+/** @param {Util} util */
 module.exports = util => {
   if (!util?.toJava) new Error('util needed')
   util.movement
-  
+
   let safetyDelay
   let lastIntervalTime = 0, interval = 2
   let invMapCache = {}
@@ -71,8 +65,8 @@ module.exports = util => {
     /**
      * open container and operate items  
      * try to match inventory item counts to {@link items}
-     * @param {Pos3D|Inventory} chest 
-     * @param {dict} items 
+     * @param {Pos3D|Inventory<any>} chest 
+     * @param {Dict} items 
      * @returns success
      */
     async operate(chest, items) {
@@ -89,7 +83,7 @@ module.exports = util => {
 
     /**
      * make item count in inventory matches {@link count}
-     * @param {Inventory} inv 
+     * @param {Inventory<any>} inv 
      * @param {string} id 
      * @param {number} count 
      * @param {?number[]} CSlots
@@ -129,7 +123,7 @@ module.exports = util => {
     /**
      * precisly make the count of item on {@link slot} to {@link count}  
      * will quick the remainder
-     * @param {Inventory} inv 
+     * @param {Inventory<any>} inv 
      * @param {number} slot 
      * @param {number} count 
      * @returns {Promise<number>} the result slot
@@ -198,8 +192,8 @@ module.exports = util => {
 
     /**
      * check if the inv has items
-     * @param {Inventory} inv 
-     * @param {dict} items 
+     * @param {Inventory<any>} inv 
+     * @param {Dict} items 
      * @param {?number[]} slots default hotbar + crafting_out + main, will cache
      */
     has(inv, items, slots) {
@@ -227,7 +221,7 @@ module.exports = util => {
 
     /**
      * 
-     * @param {Inventory} inv 
+     * @param {Inventory<any>} inv 
      * @param {string} id 
      * @returns {number}
      */
@@ -239,7 +233,7 @@ module.exports = util => {
 
     /**
      * 
-     * @param {Inventory} inv 
+     * @param {Inventory<any>} inv 
      * @returns {number[]}
      */
     getInventorySlots(inv) {
@@ -248,7 +242,7 @@ module.exports = util => {
 
     /**
      * 
-     * @param {Inventory} inv 
+     * @param {Inventory<any>} inv 
      * @returns {number[]}
      */
     getContainerSlots(inv) {
@@ -257,7 +251,7 @@ module.exports = util => {
 
     /**
      * 
-     * @param {Inventory} inv 
+     * @param {Inventory<any>} inv 
      */
     getEmptySlotInInventory(inv) {
       return this.getInventorySlots(inv).reverse().find(s => inv.getSlot(s).isEmpty())
@@ -265,7 +259,7 @@ module.exports = util => {
 
     /**
      * get slots needed based on items count
-     * @param {dict} items 
+     * @param {Dict} items 
      */
     calculateSlots(items) {
       let slots = 0
@@ -298,7 +292,7 @@ module.exports = util => {
      * @param {number} timeout 
      * @param {boolean} safety for command gui, if your script need high freq command gui opening,
      * set this to false
-     * @returns {Promise<Inventory|null>}
+     * @returns {Promise<Inventory<any>|null>}
      */
     async waitGUI(pos, timeout = 300, safety = true) {
       if (pos) if (typeof pos === 'string') {

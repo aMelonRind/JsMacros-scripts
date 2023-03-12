@@ -61,7 +61,7 @@ function renderUpdate(index, text = null, item = null, color = 0xf) {
 /**
    * 
    * @param {Number} index 
-   * @param {Java.xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper} item 
+   * @param {ItemStackHelper} item 
    * @returns 
    */
 function updateItem(index, item) {
@@ -160,7 +160,7 @@ const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Invento
 
 /**
  * Opens Survival Inventory regardless if there's any screen open
- * @returns {Java.xyz.wagyourtail.jsmacros.client.api.classes.Inventory}
+ * @returns {Inventory<any>}
  */
 function openSurvivalInv() {
   return Inventory.create(new InvScreen(Player.getPlayer()?.getRaw()))

@@ -1,7 +1,9 @@
 
 // util.container.shulkerMacro
 
-/** @param {import('../util')} util */
+/** @typedef {import('./type/myTypes')} */
+
+/** @param {Util} util */
 module.exports = util => {
   if (!util?.toJava) throw new Error('util needed')
 

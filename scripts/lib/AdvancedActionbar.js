@@ -1,4 +1,8 @@
 
+// util.actionbar
+
+/** @typedef {import('./type/myTypes')} */
+
 const Element = Java.type('xyz.wagyourtail.jsmacros.client.api.sharedclasses.RenderCommon$RenderElement')
 const Text = Java.type('xyz.wagyourtail.jsmacros.client.api.sharedclasses.RenderCommon$Text')
 const TextHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper')
@@ -12,7 +16,7 @@ const moveKeys = {
   ['key.keyboard.space']: 1 << 6
 }
 
-/** @param {import('./util')} util */
+/** @param {Util} util */
 module.exports = util => {
   if (!util?.toJava) throw new Error('util needed')
 
@@ -56,13 +60,13 @@ module.exports = util => {
   }
 
   const elements = {
-    /** @type {xyz.wagyourtail.jsmacros.client.api.sharedclasses.RenderCommon$Text[]} */
+    /** @type {RenderCommon$Text[]} */
     notify: [],
     notifyLine: d2d.addRect(0, 0, 0, 0, 0x01FFFFFF, 0, 0, 4),
     title: d2d.addText('Idle', 0, 0, 0xFFAF00, 3, true),
     subtitle: d2d.addText('', 0, 0, 0xFFFFFF, 2, true),
     actionLine: d2d.addRect(0, 0, 0, 0, 0x01FFFFFF, 0, 0, 4),
-    /** @type {xyz.wagyourtail.jsmacros.client.api.sharedclasses.RenderCommon$Text[]} */
+    /** @type {RenderCommon$Text[]} */
     action: []
   }
 
@@ -470,7 +474,7 @@ module.exports = util => {
     
     /**
      * change title
-     * @param {xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper} msg 
+     * @param {TextHelper|string} msg 
      */
     title(msg = 'Idle') {
       elements.title.setText(msg || 'Idle')
@@ -480,7 +484,7 @@ module.exports = util => {
     
     /**
      * change subtitle
-     * @param {xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper} msg 
+     * @param {TextHelper|string} msg 
      */
     subtitle(msg = '') {
       elements.subtitle.setText(msg)
@@ -490,7 +494,7 @@ module.exports = util => {
 
     /**
      * push notify
-     * @param {xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper} msg 
+     * @param {TextHelper|string} msg 
      */
     notify(msg = '') {
       elements.notify.push(msg)
@@ -499,7 +503,7 @@ module.exports = util => {
 
     /**
      * push action
-     * @param {xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper} msg 
+     * @param {TextHelper|string} msg 
      */
     action(msg = '') {
       elements.action.push(msg)

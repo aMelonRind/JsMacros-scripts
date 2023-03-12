@@ -8,9 +8,8 @@
  *  remove: boolean
  *  onTick: ?(line: Line) => void
  *  onFrame: ?(line: Line) => void
- *  line: _javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Draw3D$Line
+ *  line: Draw3D$Line
  * }} Line
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Draw3D} Draw3D
  */
 
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
@@ -112,7 +111,7 @@ function getStartingPoint() {
 
 /**
  * 
- * @param {_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper} entity 
+ * @param {EntityHelper<any>} entity 
  * @param {?number} offsetX 
  * @param {?number} offsetY 
  * @param {?number} offsetZ 

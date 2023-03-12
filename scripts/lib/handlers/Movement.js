@@ -1,23 +1,14 @@
 
 // util.movement
 
-/**
- * @typedef {{ [none: symbol]: undefined }} _ to trick vscode to rename types
- * 
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Vec3D&_} Vec3D
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D&_} Pos3D
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.ClientPlayerEntityHelper<any>} Player
- * @typedef {Vec3D|number[]|number[][]} Vec3DLike
- * @typedef {Pos3D|number[]|{x: number, y:number, z:number}|
- *  {getX: () => number, getY: () => number, getZ: () => number}} Pos3DLike
- */
+/** @typedef {import('./type/myTypes')} */
 
-/** @param {import('../util')} util */
+/** @param {Util} util */
 module.exports = util => {
   if (!util.toJava) throw new Error('util needed')
 
   /** 
-   * @type {xyz.wagyourtail.jsmacros.client.api.helpers.ClientPlayerEntityHelper}
+   * @type {ClientPlayer}
    * @readonly bec i prefer readonly color
    */
   let p
@@ -55,7 +46,7 @@ module.exports = util => {
      * Try to stand on the coordinate, strightly, no pathfinding  
      * sometimes break while in freecam mode
      * @param {Pos3DLike} pos 
-     * @param {?(p: Player) => boolean} orCondition
+     * @param {?(p: ClientPlayer) => boolean} orCondition
      * @returns success
      */
     async walkTo(pos, orCondition) {
@@ -102,7 +93,7 @@ module.exports = util => {
     /**
      * Try to reach the coordinate, strightly, no pathfinding
      * @param {Pos3DLike} pos 
-     * @param {?(p: Player) => boolean} orCondition
+     * @param {?(p: ClientPlayer) => boolean} orCondition
      * @returns success
      */
     async walkReach(pos, orCondition) {

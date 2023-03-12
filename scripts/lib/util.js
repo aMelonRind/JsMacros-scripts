@@ -1,19 +1,7 @@
 
 // useful multi-purpose module
 
-/**
- * @typedef {{ [none: symbol]: undefined }} _ to trick vscode to rename types
- * 
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>} context
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Inventory<any>} Inventory
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper} ItemStackHelper
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.core.event.IEventListener&_} IEventListener
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D} Pos3D
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Vec3D} Vec3D
- * @typedef {Vec3D|number[]|number[][]} Vec3DLike
- * @typedef {Pos3D|number[]|{x: number, y:number, z:number}|
- *  {getX: () => number, getY: () => number, getZ: () => number}} Pos3DLike
- */
+/** @typedef {import('./type/myTypes')} */
 
 if (context.getCtx().getFile().getPath() === __filename)
   throw 'util is a module!\nuse `const util = require(/* path to util.js */)` to load it.'
@@ -166,8 +154,8 @@ const util = {
   ],
 
   /**
-   * GLFW helper
    * @readonly
+   * @returns {GLFWHelper}
    */
   get glfw() {
     const value = require('./GLFW')
@@ -176,8 +164,8 @@ const util = {
   },
 
   /**
-   * movement handler
    * @readonly
+   * @returns {MovementHandler}
    */
   get movement() {
     const value = require('./handlers/Movement')(this)
@@ -186,8 +174,8 @@ const util = {
   },
 
   /**
-   * advanced actionbar
    * @readonly
+   * @returns {AdvancedActionbar}
    */
   get actionbar() {
     const value = require('./AdvancedActionbar')(this)
@@ -196,8 +184,8 @@ const util = {
   },
 
   /**
-   * crafting handler
    * @readonly
+   * @returns {CraftingHandler}
    */
   get crafting() {
     const value = require('./handlers/Crafting')(this)
@@ -206,8 +194,8 @@ const util = {
   },
 
   /**
-   * container handler
    * @readonly
+   * @returns {ContainerHandler}
    */
   get container() {
     const value = require('./handlers/Container')(this)
@@ -216,8 +204,8 @@ const util = {
   },
 
   /**
-   * storage handler
    * @readonly
+   * @returns {StorageHandler}
    */
   get storage() {
     const value = require('./handlers/Storage')(this)
@@ -585,7 +573,7 @@ const util = {
   /**
    * opens Survival Inventory regardless if there's any screen open  
    * only for information, not for interacting
-   * @returns {Inventory}
+   * @returns {Inventory<any>}
    */
   openSurvivalInv() {
     return Inventory.create(new InvScreen(Player.getPlayer()?.getRaw()))
@@ -911,7 +899,7 @@ const listeners = [
  * waitForEventListeners
  * @template {keyof JsmEvents} E
  * @type {{ [event: E]: {
- *  listener: _javatypes.xyz.wagyourtail.jsmacros.core.event.IEventListener,
+ *  listener: IEventListener,
  *  cbs: {
  *    res(): void,
  *    cancel: boolean,
@@ -922,4 +910,4 @@ const listeners = [
  */
 const wfeListeners = {}
 
-module.exports = util
+module.exports = null || util
