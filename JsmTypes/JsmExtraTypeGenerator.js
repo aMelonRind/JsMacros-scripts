@@ -182,7 +182,7 @@ const replaceToFile = type => {
   let res = ''
   if (!temp.length) res = ' string // not found'
   else if (temp.reduce((p, v) => p + v.length, 0) < 64)
-       res = temp.map(f =>     " '" + f + "'").join(' |')
+       res = temp.map(f =>    " '" + f + "'").join(' |')
   else res = temp.map(f => "\n| '" + f + "'").join('')
   file = file.replace(typeReg(type), res + '\n')
 }
