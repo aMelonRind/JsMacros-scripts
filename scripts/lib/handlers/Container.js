@@ -8,6 +8,17 @@
 
 const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Inventory')
 
+const asyncMethods = [
+  'swap',
+  'click',
+  'quick',
+  'split',
+  'grabAll',
+  'dropSlot',
+  'dragClick',
+  'swapHotbar'
+]
+
 /** @type {string[][]} */
 const ClickPathCache = require('./ClickPathTable.json')
 const Click = {
@@ -23,7 +34,7 @@ module.exports = util => {
   util.movement
 
   let safetyDelay
-  let lastIntervalTime = 0, interval = 2
+  let lastIntervalTime = 0, interval = 2, hasInterval = true
   let invMapCache = {}
 
   return {
@@ -40,7 +51,9 @@ module.exports = util => {
       return interval
     },
     set interval(ticks) {
-      if (typeof ticks === 'number') interval = ticks
+      if (typeof ticks !== 'number') return
+      interval = ticks
+      hasInterval = !!(ticks > 0)
     },
 
     quickInterval: false,
@@ -139,27 +152,22 @@ module.exports = util => {
         // change to remainder since there's only one slot
         count = current - count
         if (count >= Math.floor(current / 2)) {
-          await this.waitInterval()
-          inv.click(slot, 1)
+          await inv.click(slot, 1)
           current = Math.floor(current / 2)
         }
         while (current < count) {
-          await this.waitInterval()
-          inv.click(slot, 1)
+          await inv.click(slot, 1)
           if (count - current < 8) await util.waitTick(3)
           if (current >= count) await util.waitTick(interval)
         }
         if (current === count) {
-          await this.waitInterval()
-          inv.quick(slot)
+          await inv.quick(slot)
           if (!inv.getSlot(slot).isEmpty()) util.throw(`slot is still occupied (${slot})`)
-          await this.waitInterval()
-          inv.click(slot)
+          await inv.click(slot)
           return slot
         }
         else {
-          await this.waitInterval()
-          inv.click(slot)
+          await inv.click(slot)
           return await this.precisePick(inv, slot, count)
         }
       }else {
@@ -167,24 +175,20 @@ module.exports = util => {
         let action
         for (action of path) switch (action) {
           case Click.leftA:
-            await this.waitInterval()
-            inv.click(slot)
+            await inv.click(slot)
             break
           case Click.leftB:
-            await this.waitInterval()
-            inv.click(temp)
+            await inv.click(temp)
             break
           case Click.rightA:
-            await this.waitInterval()
-            inv.click(slot, 1)
+            await inv.click(slot, 1)
             break
           case Click.rightB:
-            await this.waitInterval()
-            inv.click(temp, 1)
+            await inv.click(temp, 1)
             break
           case '@':
             await this.waitInterval()
-            inv.quick(path.endsWith('@b') ? slot : temp)
+            await inv.quick(path.endsWith('@b') ? slot : temp)
             await util.waitTick()
             return    path.endsWith('@a') ? slot : temp
           default:
@@ -281,9 +285,11 @@ module.exports = util => {
 
     /**
      * await this before inventory operations
-     * @param {() => void} [cb] 
+     * @template R
+     * @param {() => R} [cb] 
      */
     async waitInterval(cb) {
+      if (!hasInterval) return cb?.(null)
       lastIntervalTime = Math.max(util.ticks, lastIntervalTime) + interval
       await util.waitTick(Math.floor(lastIntervalTime - util.ticks))
       return cb?.(null)
@@ -327,7 +333,7 @@ module.exports = util => {
       wfe?.cancel()
       wfe2?.cancel()
       if (Hud.isContainer()) {
-        const inv = Player.openInventory()
+        const inv = this.openInventory()
         await this.waitInterval()
         if (!('container' in inv.getMap())) return inv
         const last = Java.from(inv.getMap().container).at(-1)
@@ -341,10 +347,21 @@ module.exports = util => {
 
     /**
      * open an inventory proxy that can await at some method
+     * @returns {AsyncInventory}
      */
-    openInventory() { // wip
-      const inv = Player.openInventory()
-      return inv
+    openInventory() {
+      return new Proxy(Player.openInventory(), {
+        get(raw, key, proxy) {
+          if (key === 'raw' || key === 'sync') return raw
+          if (key === 'waitInterval') return util.container.waitInterval
+          return asyncMethods.includes(key) ? async (...args) => {
+            if (util.container.quickInterval || key !== 'quick')
+              await util.container.waitInterval()
+            const res = raw[key](...args)
+            return res === raw ? proxy : res
+          } : raw[key]
+        }
+      })
     }
   }
 }

@@ -224,16 +224,12 @@ module.exports = util => {
           }
         })
         // dump, hotbar first
-        for (const cSlot in dumpHotbar) {
-          await util.container.waitInterval()
-          inv.swapHotbar(+cSlot, dumpHotbar[cSlot])
-        }
+        for (const cSlot in dumpHotbar)
+          await inv.swapHotbar(+cSlot, dumpHotbar[cSlot])
         for (const cSlot in dumpInv) {
           if (cSlot === 'total') continue
-          await util.container.waitInterval()
-          inv.swapHotbar(dumpInv[cSlot], 0)
-          await util.container.waitInterval()
-          inv.swapHotbar(+cSlot, 0)
+          await inv.swapHotbar(dumpInv[cSlot], 0)
+          await inv.swapHotbar(+cSlot, 0)
         }
         await util.waitTick()
       }
@@ -291,14 +287,11 @@ module.exports = util => {
           util.throw(`slots doesn't match (${dumpInv.total}) (${inv.getTotalSlots()})`)
         for (const cSlot in dumpInv) {
           if (cSlot === 'total') continue
-          await util.container.waitInterval()
-          inv.swapHotbar(+cSlot, 0)
-          await util.container.waitInterval()
-          inv.swapHotbar(dumpInv[cSlot], 0)
+          await inv.swapHotbar(+cSlot, 0)
+          await inv.swapHotbar(dumpInv[cSlot], 0)
         }
         for (const cSlot in dumpHotbar) {
-          await util.container.waitInterval()
-          inv.swapHotbar(+cSlot, dumpHotbar[cSlot])
+          await inv.swapHotbar(+cSlot, dumpHotbar[cSlot])
         }
       }
       util.debug.log?.('[crafting] done')
@@ -333,14 +326,13 @@ module.exports = util => {
           }
           if (!recipe) return
           if (!(i % 20)) {
-            await util.container.waitInterval()
+            await inv.waitInterval()
             recipe.craft(true)
             await util.waitTick()
           }
           if (!inv.getSlot(output).isEmpty()) {
-            await util.container.waitInterval()
-            inv.quick(output)
-            await util.container.waitInterval()
+            await inv.quick(output)
+            await inv.waitInterval()
             continue outer
           }
         }
