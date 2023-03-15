@@ -16,4 +16,4 @@
 ## Note
 * This script is made on jsm1.8.3 and mc1.19.2. convert on other version may need some modification
 * If you're too lazy to run the script, there's a premade zip file. extract it and continue step 4
-* The premade file may have some extra modded type since I generated it with mods on
+* The premade file may have some extra modded type since I generated it with some client side mods on
