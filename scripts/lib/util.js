@@ -1,7 +1,13 @@
 
-// useful multi-purpose module
+/**
+ * useful multi-purpose module
+ * @exports util
+ */
 
-/** @typedef {import('./type/myTypes')} */
+/**
+ * @typedef {import('./type/myTypes')} myTypes
+ * @typedef {import('./type/fetchRawJsType')} fetch
+ */
 
 if (context.getCtx().getFile().getPath() === __filename)
   throw 'util is a module!\nuse `const util = require(/* path to util.js */)` to load it.'
@@ -24,6 +30,7 @@ const D2R = Math.PI / 180
 
 let tickClock = 1
 const tickQueue = {}
+/** @type {Promise<never>} */
 const never = new Promise(() => null)
 
 const util = {
@@ -81,7 +88,7 @@ const util = {
 
   /**
    * call all callback in {@link util.stopListeners} then try to close script
-   * @param {string} reason
+   * @param {string} [reason]
    */
   stopAll(reason) {
     this.stopListeners.splice(0).forEach(cb => cb())
@@ -135,16 +142,9 @@ const util = {
   },
 
   /**
-   * push JsMacros EventListener here
-   * @readonly
-   */
-  get listeners() {
-    return listeners
-  },
-
-  /**
    * push stop listener here  
    * better not async callback
+   * @readonly
    */
   stopListeners: [
     () => {
@@ -155,7 +155,7 @@ const util = {
 
   /**
    * @readonly
-   * @returns {GLFWHelper}
+   * @type {GLFWHelper}
    */
   get glfw() {
     const value = require('./GLFW')
@@ -165,7 +165,7 @@ const util = {
 
   /**
    * @readonly
-   * @returns {MovementHandler}
+   * @type {MovementHandler}
    */
   get movement() {
     const value = require('./handlers/Movement')(this)
@@ -175,7 +175,7 @@ const util = {
 
   /**
    * @readonly
-   * @returns {AdvancedActionbar}
+   * @type {AdvancedActionbar}
    */
   get actionbar() {
     const value = require('./AdvancedActionbar')(this)
@@ -185,7 +185,7 @@ const util = {
 
   /**
    * @readonly
-   * @returns {CraftingHandler}
+   * @type {CraftingHandler}
    */
   get crafting() {
     const value = require('./handlers/Crafting')(this)
@@ -195,7 +195,7 @@ const util = {
 
   /**
    * @readonly
-   * @returns {ContainerHandler}
+   * @type {ContainerHandler}
    */
   get container() {
     const value = require('./handlers/Container')(this)
@@ -205,7 +205,7 @@ const util = {
 
   /**
    * @readonly
-   * @returns {StorageHandler}
+   * @type {StorageHandler}
    */
   get storage() {
     const value = require('./handlers/Storage')(this)
@@ -222,10 +222,18 @@ const util = {
   },
 
   /**
-   * 
    * @async
-   * @param {number} ticks 
-   * @param {?(() => void)} callback 
+   * @param {number} ticks
+   * @returns {Promise<void>=}
+   */
+  waitTick(ticks = 1) {},
+
+  /**
+   * @async
+   * @template R
+   * @param {number} ticks
+   * @param {() => R} [callback]
+   * @returns {Promise<void> | R}
    */
   waitTick(ticks = 1, callback) {
     if (typeof ticks !== 'number') this.throw('ticks must be a number')
@@ -241,14 +249,30 @@ const util = {
   },
 
   /**
+   * alias for {@link JsMacros.on} but will also register to {@link listeners}  
+   * and don't need to wrap the callback
+   * @template {keyof JsmEvents} E
+   * @param {E} event 
+   * @param {EventCallback<E> | MethodWrapper<JsmEvents[E], Context, void, any>} callback 
+   * @returns {IEventListener}
+   */
+  on(event, callback) {
+    if (typeof callback === 'function')
+      callback = JavaWrapper.methodToJava(callback)
+    event = JsMacros.on(event, callback)
+    listeners.push(event)
+    return event
+  },
+
+  /**
    * 
    * @async
    * @template {keyof JsmEvents} E
    * @param {E} event 
-   * @param {?(event: JsmEvents[E], ctx: context) => boolean} condition 
-   * @param {?(event: JsmEvents[E], ctx: context) => void} callback 
-   * @param {number | undefined} timeout 
-   * @returns {Promise<null|{event: JsmEvents[E], context: context}> & { cancel(): void }}
+   * @param {EventCallback<E, boolean>} [condition] 
+   * @param {EventCallback<E>} [callback] 
+   * @param {number} timeout 
+   * @returns {Promise<?{event: JsmEvents[E], context: Context}> & { cancel(): void }}
    */
   waitForEvent(event, condition, callback, timeout = 600) {
     const cb = { condition, callback }
@@ -289,23 +313,25 @@ const util = {
   /**
    * 
    * @param {*} msg 
-   * @param {number|string|number[]} color 
+   * @param {number | string | number[]} [color] 
    */
   log(msg, color) {
     msg = this.getPrefix().append(`${msg}`)
-    if (typeof color === 'string' && /^#?[\da-f]{6}$/i.test(color)) // '#FFFFFF'
-      color = parseInt(color.slice(-6), 16)
-    if (color != null) if (color === color & 0xF) msg.withColor(color) // 0xF
-    else if (typeof color === 'number') // 0xFFFFFF
-      msg.withColor((color >>> 16) & 0xFF, (color >>> 8) & 0xFF, color & 0xFF)
-    else if (Array.isArray(color)) msg.withColor(...color) // [255, 255, 255]
+    if (color != null) {
+      if (typeof color === 'string' && /^#?[\da-f]{6}$/i.test(color)) // '#FFFFFF'
+        color = parseInt(color.slice(-6), 16)
+      if (color === color & 0xF) msg.withColor(color) // 0xF
+      else if (typeof color === 'number') // 0xFFFFFF
+        msg.withColor((color >>> 16) & 0xFF, (color >>> 8) & 0xFF, color & 0xFF)
+      else if (Array.isArray(color)) msg.withColor(...color) // [255, 255, 255]
+    }
     Chat.log(msg.build())
   },
 
   /**
    * override it to use  
    * always add optional chaining, ex: `util.warn?.('warning')`
-   * @type {?(msg: string) => void}
+   * @type {((msg: string) => void)=}
    */
   warn: undefined,
 
@@ -320,13 +346,13 @@ const util = {
     /**
      * override it to use  
      * always add optional chaining, ex: `util.debug.log?.('test')`
-     * @type {?(msg: string) => void}
+     * @type {((msg: string) => void)=}
      */
     log: undefined,
 
     /**
      * monitor variables #TODO
-     * @param {?() => any[]} watcher 
+     * @param {() => any[]} [watcher] 
      */
     monitor(watcher) {}
 
@@ -491,7 +517,7 @@ const util = {
   /**
    * able to look smoothly
    * @param {Pos3DLike} pos 
-   * @param {?() => boolean} condition will stop if match
+   * @param {() => boolean} [condition] will stop if match
    */
   async lookAt(pos, condition) {},
 
@@ -499,7 +525,7 @@ const util = {
    * able to look smoothly
    * @param {number} yaw 
    * @param {number} pitch 
-   * @param {?() => boolean} condition will stop if match
+   * @param {() => boolean} [condition] will stop if match
    */
   async lookAt(yaw, pitch, condition) {},
 
@@ -508,7 +534,7 @@ const util = {
    * @param {number} x 
    * @param {number} y 
    * @param {number} z 
-   * @param {?() => boolean} condition will stop if match
+   * @param {() => boolean} [condition] will stop if match
    */
   async lookAt(x, y, z, condition) {
     if (typeof x === 'object') {
@@ -573,10 +599,11 @@ const util = {
   /**
    * opens Survival Inventory regardless if there's any screen open  
    * only for information, not for interacting
-   * @returns {Inventory<any>}
+   * @returns {?Inventory<any>}
    */
   openSurvivalInv() {
-    return Inventory.create(new InvScreen(Player.getPlayer()?.getRaw()))
+    const p = Player.getPlayer()
+    return p ? Inventory.create(new InvScreen(p.getRaw())) : null
   },
 
   completeId(id = 'air') {
@@ -674,6 +701,7 @@ const util = {
      * 
      * @param {object} obj 
      * @param {string[]} expected 
+     * @param {object} bin 
      */
     cutExtra(obj, expected, bin = {}) {
       if (Object.keys(obj).every(k => expected.includes(k))) return null
@@ -682,7 +710,7 @@ const util = {
         bin[k] = obj[k]
         delete obj[k]
       }
-      return bin
+      return obj
     },
 
     add(obj, byobj) {
@@ -728,7 +756,15 @@ const util = {
       return list.some(k => k in obj)
     },
 
-    isEmpty(obj) {
+    /**
+     * 
+     * @param {object} obj 
+     * @param {boolean} removeEmpty 
+     * @returns 
+     */
+    isEmpty(obj, removeEmpty = false) {
+      if (removeEmpty)
+      for (const key in obj) if (!obj[key]) delete obj[key]
       for (const key in obj) if (obj[key]) return false
       return true
     },
@@ -823,8 +859,8 @@ const util = {
     /**
      * 
      * @param {Pos3D[]} list 
-     * @param {?Pos3D|number[]} pos 
-     * @returns {null|Pos3D}
+     * @param {Pos3D | number[]} [pos] 
+     * @returns {?Pos3D}
      */
     nearest(list, pos) {
       if (!pos) pos = Player.getPlayer().getPos()
@@ -872,28 +908,17 @@ const util = {
   /**
    * @type {(text: string) => number}
    */
-  getTextWidth: Client.getMinecraft().field_1772.method_1727 // .textRenderer.getWidth
+  getTextWidth: Client.getMinecraft().field_1772.method_1727, // .textRenderer.getWidth
+
+  /**
+   * @type {(packet: object) => void}
+   */
+  sendPacket: Client.getMinecraft().method_1562().method_2883
 
 }
 
 /** @type {IEventListener[]} */
-const listeners = [
-  JsMacros.on('Tick', util.toJava(() => {
-    tickClock++
-    // basically won't miss but just in case
-    if (!(tickClock & 7)) Object.keys(tickQueue).forEach(k => {
-      if (+k > tickClock) return
-      if (Array.isArray(tickQueue[k])) tickQueue[k].forEach(r => r())
-      else tickQueue[k]()
-      delete tickQueue[k]
-    })
-    else if (tickQueue[tickClock]) {
-      if (Array.isArray(tickQueue[tickClock])) tickQueue[tickClock].forEach(r => r())
-      else tickQueue[tickClock]()
-      delete tickQueue[tickClock]
-    }
-  }))
-]
+const listeners = []
 
 /**
  * waitForEventListeners
@@ -902,12 +927,28 @@ const listeners = [
  *  listener: IEventListener,
  *  cbs: {
  *    res(): void,
- *    cancel: boolean,
- *    condition: (e: JsmEvents[E], c: context) => boolean,
- *    callback:  (e: JsmEvents[E], c: context) => void
+ *    cancel?: boolean,
+ *    condition?: EventCallback<E, boolean>,
+ *    callback?:  EventCallback<E>
  *  }[]
  * } }}
  */
 const wfeListeners = {}
+
+util.on('Tick', () => {
+  tickClock++
+  // basically won't miss but just in case
+  if (!(tickClock & 7)) Object.keys(tickQueue).forEach(k => {
+    if (+k > tickClock) return
+    if (Array.isArray(tickQueue[k])) tickQueue[k].forEach(r => r())
+    else tickQueue[k]()
+    delete tickQueue[k]
+  })
+  else if (tickQueue[tickClock]) {
+    if (Array.isArray(tickQueue[tickClock])) tickQueue[tickClock].forEach(r => r())
+    else tickQueue[tickClock]()
+    delete tickQueue[tickClock]
+  }
+})
 
 module.exports = null || util

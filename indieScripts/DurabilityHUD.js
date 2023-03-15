@@ -119,7 +119,7 @@ const wrappedUpdate = JavaWrapper.methodToJava(_update)
 let nextTick = false
 let flags = 0
 /**
- * @param {number} flag bitfield  4: armor, 2: hands, 1: empty slot count
+ * @param {4 | 2 | 1} flag bitfield  4: armor, 2: hands, 1: empty slot count
  */
 function updateNextTick(flag = 0) {
   flags |= flag
@@ -128,7 +128,7 @@ function updateNextTick(flag = 0) {
   JsMacros.once('Tick', wrappedUpdate)
 }
 /**
- * @param {number} flag bitfield  4: armor, 2: hands, 1: empty slot count
+ * @param {4 | 2 | 1} flag bitfield  4: armor, 2: hands, 1: empty slot count
  */
 const wrapNextTick = (flag) => JavaWrapper.methodToJava(() => {updateNextTick(flag)})
 function _update() {

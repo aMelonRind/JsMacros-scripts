@@ -1,7 +1,7 @@
 
 // util.container.shulkerMacro
 
-/** @typedef {import('./type/myTypes')} */
+/** @typedef {import('../type/myTypes')} */
 
 /** @param {Util} util */
 module.exports = util => {

@@ -45,15 +45,15 @@ async function main() {
 }
 
 function listeners() {
-  const stop = extra => util.toJava(() => {
+  const stop = type => () => {
     util.glfw.requestAttention()
-    util.log(`stopped${extra ? ` (${extra})` : ''}`)
+    util.log(`stopped${type ? ` (${type})` : ''}`)
     util.stopAll()
-  })
-  util.listeners.push(...['DimensionChange', 'Death', 'Disconnect', 'JoinServer']
-    .map(l => JsMacros.on(l, stop(l))),
-    JsMacros.on('Key', util.toJava(e => {
-      if (e.key === 'key.keyboard.escape') stop('Escape')(null)
-    }))
+  }
+  ;['DimensionChange', 'Death', 'Disconnect', 'JoinServer']
+    .forEach(e => util.on(e, stop(e)))
+  util.waitForEvent('Key',
+    e => e.key === 'key.keyboard.escape',
+    stop('Escape')
   )
 }

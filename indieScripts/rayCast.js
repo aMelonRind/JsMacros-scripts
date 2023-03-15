@@ -44,7 +44,7 @@ class rayCastResult {
    * @param {number[]} pos 
    * @param {number[]} vec 
    * @param {boolean} coll 
-   * @param {?number[]} hitBlock 
+   * @param {number[]} hitBlock 
    * @param {number[][]} blockPath 
    * @param {number[]} pointDistPath 
    */

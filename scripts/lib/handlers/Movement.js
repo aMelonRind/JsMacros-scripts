@@ -1,7 +1,7 @@
 
 // util.movement
 
-/** @typedef {import('./type/myTypes')} */
+/** @typedef {import('../type/myTypes')} */
 
 /** @param {Util} util */
 module.exports = util => {
@@ -36,17 +36,17 @@ module.exports = util => {
 
     /**
      * set the area that player can walk
-     * @param {Vec3DLike} area 
+     * @param {?Vec3DLike} area 
      */
     setArea(area) {
-      this.area = util.math.toPositiveVec(area)
+      this.area = area ? util.math.toPositiveVec(area) : null
     },
 
     /**
      * Try to stand on the coordinate, strightly, no pathfinding  
      * sometimes break while in freecam mode
      * @param {Pos3DLike} pos 
-     * @param {?(p: ClientPlayer) => boolean} orCondition
+     * @param {(p: ClientPlayer) => boolean} [orCondition] 
      * @returns success
      */
     async walkTo(pos, orCondition) {
@@ -93,7 +93,7 @@ module.exports = util => {
     /**
      * Try to reach the coordinate, strightly, no pathfinding
      * @param {Pos3DLike} pos 
-     * @param {?(p: ClientPlayer) => boolean} orCondition
+     * @param {(p: ClientPlayer) => boolean} [orCondition] 
      * @returns success
      */
     async walkReach(pos, orCondition) {

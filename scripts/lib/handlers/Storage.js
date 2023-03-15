@@ -1,7 +1,7 @@
 
 // util.storage
 
-/** @typedef {import('./type/myTypes')} */
+/** @typedef {import('../type/myTypes')} */
 
 /** @param {Util} util */
 module.exports = util => {
@@ -37,8 +37,8 @@ module.exports = util => {
       /**
        * @type {{ [pos: string]: {
        *  pos: Pos3D,
-       *  onTop1: ?string,
-       *  onTop2: ?string,
+       *  onTop1?: string,
+       *  onTop2?: string,
        *  items: Dict
        * } }}
        */
@@ -298,7 +298,7 @@ module.exports = util => {
 
     /**
      * 
-     * @param {string|Pos3DLike} pos 
+     * @param {string | Pos3DLike} pos 
      * @param {Inventory<any>} inv 
      */
     async update(pos, inv) {
@@ -328,7 +328,7 @@ module.exports = util => {
 
     /**
      * delete a container cache
-     * @param {string|Pos3DLike} pos 
+     * @param {string | Pos3DLike} pos 
      * @returns 
      */
     remove(pos) {
@@ -372,7 +372,7 @@ module.exports = util => {
       while (true) {
         util.debug.log?.('[storage] operate looping')
         const need = util.dict.sub(util.dict.clone(items), util.dict.fromInv())
-        if (util.dict.isEmpty(need)) return true
+        if (util.dict.isEmpty(need, true)) return true
         const dumping = Object.values(need).some(v => v < 0)
         if (dumping) {
           const pos = this.findHasEmpty()
@@ -381,8 +381,8 @@ module.exports = util => {
           if (!inv) return false
           await util.container.operate(inv, items)
           this.update(pos, inv)
-        }else { // need check
-          const item = Object.keys(need).find(k => !dumping || need[k] < 0)
+        }else {
+          const item = Object.keys(need).find(k => need[k] > 0)
           const pos = this.find(item)
           if (!pos) return false
           const inv = await util.container.waitGUI(pos)
@@ -454,7 +454,7 @@ module.exports = util => {
 
     /**
      * update cache content of that container
-     * @param {string|Pos3DLike} pos 
+     * @param {string | Pos3DLike} pos 
      * @param {Inventory<any>} inv 
      * @param {string} group 
      */
@@ -529,8 +529,8 @@ module.exports = util => {
   /**
    * check if the vec3d has half chest with condition
    * @param {Vec3D} vec 
-   * @param {string} facL 
-   * @param {string} facR 
+   * @param {'north' | 'south' | 'west' | 'east'} facL 
+   * @param {'north' | 'south' | 'west' | 'east'} facR 
    * @returns 
    */
   function scanHalfChest(vec, facL, facR) {
@@ -548,7 +548,7 @@ module.exports = util => {
   
   /**
    * convert to 'x,y,z' format
-   * @param {string|Pos3DLike} pos 
+   * @param {string | Pos3DLike} pos 
    * @param {number} yoffset
    */
   function toStrPos(pos, yoffset = 0) {

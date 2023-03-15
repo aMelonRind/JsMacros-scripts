@@ -6,7 +6,7 @@
  * doesn't support won't-consume ingredients
  */
 
-/** @typedef {import('./type/myTypes')} */
+/** @typedef {import('../type/myTypes')} */
 
 /** @param {Util} util */
 module.exports = util => {
@@ -108,17 +108,17 @@ module.exports = util => {
 
     RecipeHandler,
 
-    /** @type {?RecipeHandler} */
+    /** @type {RecipeHandler=} */
     _handler: undefined,
 
-    /** @type {?{ [index: number]: number }} */
+    /** @type {{ [index: number]: number }=} */
     _result: undefined,
 
     /**
-     * @type {?{
+     * @type {{
      *  performTimes: { [index: number]: number },
      *  results: { [id: string]: number }
-     * }}
+     * }=}
      */
     res: undefined,
 
@@ -137,16 +137,17 @@ module.exports = util => {
      * execute crafting process
      * @param {{
      *  group: string,
-     *  getTotal: ?() => Dict,
-     *  operate: ?(items: Dict) => Promise }} input 
+     *  getTotal?: () => Dict,
+     *  operate?: (items: Dict) => Promise }} input 
      * @param {{ [id: string]: {
      *  group: string,
-     *  getTotal: ?() => Dict,
-     *  operate: ?(items: Dict) => Promise } }} output 
-     * @param {Pos3D[]} craftingTables
-     * @param {Pos3D} dump NOT TRASH CHEST!
+     *  getTotal?: () => Dict,
+     *  operate?: (items: Dict) => Promise } }} output 
+     * @param {Pos3DLike[]} craftingTables
+     * @param {Pos3DLike} dump NOT TRASH CHEST!
      */
     async exec(input, output, craftingTables, dump) {
+      craftingTables = craftingTables.map(util.toPos)
       if (typeof input === 'string') input = { group: input }
       for (const k in output) if (typeof output[k] === 'string') output[k] = { group: output[k] }
 
@@ -181,7 +182,7 @@ module.exports = util => {
       const inv = Player.openInventory()
       if (Java.from(inv.getMap().main).concat(inv.getMap().hotbar).some(s => !inv.getSlot(s).isEmpty())) {
         util.debug.log?.('[crafting] dumping inventory')
-        const inv = await util.container.waitGUI(dump)
+        const inv = await util.container.waitGUI(dump = util.toPos(dump))
         if (!inv || !inv.getMap().container) util.throw("can't open dump chest")
         dumpInv.total = inv.getTotalSlots()
         const invSlots   = Java.from(inv.getMap().main).concat(inv.getMap().hotbar)
@@ -320,7 +321,7 @@ module.exports = util => {
       const output = Java.from(inv.getMap().output ?? inv.getMap().crafting_out)[0]
       outer:
       while (true) {
-        /** @type {?_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers.RecipeHelper} */
+        /** @type {RecipeHelper=} */
         let recipe
         for (let i = 0; i < 200; i++) {
           recipe = undefined

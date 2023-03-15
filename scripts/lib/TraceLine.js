@@ -6,16 +6,16 @@
  *  z: number
  *  color: number
  *  remove: boolean
- *  onTick: ?(line: Line) => void
- *  onFrame: ?(line: Line) => void
+ *  onTick?: (line: TraceLine) => void
+ *  onFrame?: (line: TraceLine) => void
  *  line: Draw3D$Line
- * }} Line
+ * }} TraceLine
  */
 
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 
 let tickListener
-/** @type {Line[]} */
+/** @type {TraceLine[]} */
 let lines = []
 
 /** @type {Draw3D} */
@@ -39,11 +39,12 @@ d3d.register()
 /**
  * 
  * @param {number} color 
- * @param {?(line: Line) => void} onTick will run extra once on creation, won't have line property on first call
- * @param {?(line: Line) => void} onFrame 
- * @param {?number} x 
- * @param {?number} y 
- * @param {?number} z 
+ * @param {(line: TraceLine) => void} [onTick] will run extra once on creation, won't have line property on first call
+ * @param {(line: TraceLine) => void} [onFrame] 
+ * @param {number} x 
+ * @param {number} y 
+ * @param {number} z 
+ * @returns {TraceLine}
  */
 function newLine(color = 0xFFFFFF, onTick, onFrame, x = 0, y = 0, z = 0) {
   const obj = {
@@ -64,36 +65,6 @@ function newLine(color = 0xFFFFFF, onTick, onFrame, x = 0, y = 0, z = 0) {
   return obj
 }
 
-// class Line {
-//   /**
-//    * 
-//    * @param {number} color 
-//    * @param {?(line: Line) => void} onTick will run extra once on creation, won't have line property on first call
-//    * @param {?(line: Line) => void} onFrame 
-//    * @param {?number} x 
-//    * @param {?number} y 
-//    * @param {?number} z 
-//    */
-//   constructor(color = 0xFFFFFF, onTick, onFrame, x = 0, y = 0, z = 0) {
-//     this.onTick = onTick
-//     this.onFrame = onFrame
-//     this.x = x
-//     this.y = y
-//     this.z = z
-//     this.remove = false
-
-//     onTick?.(this)
-//     if (this.remove) return
-
-//     this.line = d3d.addLine(0, 0, 0, 0, 0, 0, color)
-//     lines.push(this)
-//     if (!tickListener && onTick) tickListener =
-//       JsMacros.on('Tick', JavaWrapper.methodToJava(() => 
-//         lines.forEach(l => l.onTick?.(l))
-//       ))
-//   }
-// }
-
 const D2R = Math.PI / 180
 let cachePoint
 let cam, camPos, pitch, yaw, vec, dist
@@ -112,10 +83,10 @@ function getStartingPoint() {
 /**
  * 
  * @param {EntityHelper<any>} entity 
- * @param {?number} offsetX 
- * @param {?number} offsetY 
- * @param {?number} offsetZ 
- * @returns 
+ * @param {number} offsetX 
+ * @param {number} offsetY 
+ * @param {number} offsetZ 
+ * @returns {(l: TraceLine) => void}
  */
 function traceEntityBuilder(entity, offsetX = 0, offsetY = 0.5, offsetZ = 0) {
   return l => {

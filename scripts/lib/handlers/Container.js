@@ -1,7 +1,10 @@
 
 // util.container
 
-/** @typedef {import('./type/myTypes')} */
+/**
+ * @typedef {import('../type/myTypes')} myTypes
+ * @typedef {import('../type/fetchRawJsType')} fetch
+ */
 
 const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Inventory')
 
@@ -43,8 +46,8 @@ module.exports = util => {
     quickInterval: false,
 
     /**
-     * shulker machine handler
      * @readonly
+     * @type {ShulkerMachineHandler}
      */
     get shulkerMachine() {
       const value = require('./ShulkerMachine')(util)
@@ -53,8 +56,8 @@ module.exports = util => {
     },
 
     /**
-     * shulker macro handler
      * @readonly
+     * @type {ShulkerMacroHandler}
      */
     get shulkerMacro() {
       const value = require('./ShulkerMacro')(util)
@@ -65,7 +68,7 @@ module.exports = util => {
     /**
      * open container and operate items  
      * try to match inventory item counts to {@link items}
-     * @param {Pos3D|Inventory<any>} chest 
+     * @param {Pos3DLike | Inventory<any>} chest 
      * @param {Dict} items 
      * @returns success
      */
@@ -86,8 +89,8 @@ module.exports = util => {
      * @param {Inventory<any>} inv 
      * @param {string} id 
      * @param {number} count 
-     * @param {?number[]} CSlots
-     * @param {?number[]} ISlots
+     * @param {number[]} [CSlots]
+     * @param {number[]} [ISlots]
      * @returns success
      */
     async operateItem(inv, id, count, CSlots, ISlots) {
@@ -194,7 +197,7 @@ module.exports = util => {
      * check if the inv has items
      * @param {Inventory<any>} inv 
      * @param {Dict} items 
-     * @param {?number[]} slots default hotbar + crafting_out + main, will cache
+     * @param {number[]} [slots] default hotbar + crafting_out + main, will cache
      */
     has(inv, items, slots) {
       if (!Array.isArray(slots))
@@ -270,7 +273,7 @@ module.exports = util => {
     /**
      * i thought shift double click with holding item is handled by another action  
      * realized i'm wrong, and understood why it's safe to chain without wait
-     * @param {?() => void} cb 
+     * @param {() => void} [cb] 
      */
     async waitQuickInterval(cb) {
       return this.quickInterval ? await this.waitInterval(cb) : cb?.(null)
@@ -278,7 +281,7 @@ module.exports = util => {
 
     /**
      * await this before inventory operations
-     * @param {?() => void} cb
+     * @param {() => void} [cb] 
      */
     async waitInterval(cb) {
       lastIntervalTime = Math.max(util.ticks, lastIntervalTime) + interval
@@ -288,11 +291,11 @@ module.exports = util => {
 
     /**
      * wait for a container gui
-     * @param {?Pos3DLike|string} pos Pos3D for container, string for command gui, null/undefined is other
+     * @param {Pos3DLike | string} [pos] Pos3D for container, string for command gui, null/undefined is other
      * @param {number} timeout 
      * @param {boolean} safety for command gui, if your script need high freq command gui opening,
      * set this to false
-     * @returns {Promise<Inventory<any>|null>}
+     * @returns {Promise<?Inventory<any>>}
      */
     async waitGUI(pos, timeout = 300, safety = true) {
       if (pos) if (typeof pos === 'string') {
@@ -334,6 +337,14 @@ module.exports = util => {
         await util.waitTick()
         return inv
       }else return null
+    },
+
+    /**
+     * open an inventory proxy that can await at some method
+     */
+    openInventory() { // wip
+      const inv = Player.openInventory()
+      return inv
     }
   }
 }

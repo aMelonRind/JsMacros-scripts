@@ -259,8 +259,8 @@ module.exports = util => {
 
   /**
    * convert to text if it's not
-   * @param {'notify'|'action'} type 
-   * @param {number|string} index 
+   * @param {'notify' | 'action'} type 
+   * @param {number | string} index 
    */
   function toText(type, index = 0) {
     if (elements[type][index] instanceof Text) return false
@@ -448,7 +448,7 @@ module.exports = util => {
           KeyBind.getPressedKeys().forEach(k => {
             if (moveKeys[k]) animData.pressingKey |= moveKeys[k]
           })
-          util.listeners.push(JsMacros.on('Key', util.toJava(e => {
+          util.on('Key', e => {
             if (!(e.key in moveKeys)) return
             if (e.action) animData.pressingKey |= moveKeys[e.key]
             else animData.pressingKey &= ~moveKeys[e.key]
@@ -456,8 +456,8 @@ module.exports = util => {
               animData.lastMoveTick = Infinity
               animation()
             }else animData.lastMoveTick = util.ticks
-          })))
-          util.listeners.push(JsMacros.on('Tick', util.toJava(() => {
+          })
+          util.on('Tick', () => {
             if (!animData.transparentOnMove || animData.lastMoveTick === Infinity) return
             p = Player.getPlayer()
             if (animData.lastYaw === p.getYaw() && animData.lastPitch === p.getPitch()) return
@@ -465,7 +465,7 @@ module.exports = util => {
             animData.lastPitch = p.getPitch()
             animData.lastMoveTick = util.ticks
             animation()
-          })))
+          })
           animData.tomListening = true
         }
       }else animData.lastMoveTick = -Infinity
@@ -474,7 +474,7 @@ module.exports = util => {
     
     /**
      * change title
-     * @param {TextHelper|string} msg 
+     * @param {TextHelper | string} msg 
      */
     title(msg = 'Idle') {
       elements.title.setText(msg || 'Idle')
@@ -484,7 +484,7 @@ module.exports = util => {
     
     /**
      * change subtitle
-     * @param {TextHelper|string} msg 
+     * @param {TextHelper | string} msg 
      */
     subtitle(msg = '') {
       elements.subtitle.setText(msg)
@@ -494,7 +494,7 @@ module.exports = util => {
 
     /**
      * push notify
-     * @param {TextHelper|string} msg 
+     * @param {TextHelper | string} msg 
      */
     notify(msg = '') {
       elements.notify.push(msg)
@@ -503,7 +503,7 @@ module.exports = util => {
 
     /**
      * push action
-     * @param {TextHelper|string} msg 
+     * @param {TextHelper | string} msg 
      */
     action(msg = '') {
       elements.action.push(msg)
