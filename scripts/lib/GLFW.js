@@ -8,7 +8,7 @@ const handle = Client.getMinecraft().method_22683().method_4490() // .getWindow(
  */
 function requestAttention() {
   if (!Client.getMinecraft().method_1569()) // .isWindowFocused()
-  GLFW.glfwRequestWindowAttention(handle)
+    GLFW.glfwRequestWindowAttention(handle)
 }
 
 /**
@@ -19,7 +19,11 @@ function setOpacity(opacity = 1.0) {
   GLFW.glfwSetWindowOpacity(handle, new Float(opacity))
 }
 
-module.exports = {
+/** @typedef {_&modu} GLFWHelper */
+const modu = {
   requestAttention,
   setOpacity
 }
+
+/** @type {GLFWHelper} */
+module.exports = null ?? modu

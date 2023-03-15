@@ -6,10 +6,12 @@
  * doesn't support won't-consume ingredients
  */
 
-/** @typedef {import('../type/myTypes')} */
-
-/** @param {Util} util */
+/**
+ * @param {import('../util')} util
+ * @returns {CraftingHandler}
+ */
 module.exports = util => {
+  /** @typedef {_&modu} CraftingHandler */
   if (!util?.toJava) throw new Error('util needed')
   util.container
   util.storage
@@ -104,7 +106,7 @@ module.exports = util => {
 
   }
 
-  return {
+  const modu = {
 
     RecipeHandler,
 
@@ -299,7 +301,7 @@ module.exports = util => {
 
     /**
      * 
-     * @param {Inventory<any>} inv 
+     * @param {AsyncInventory} inv 
      * @param {string} id 
      * @param {Dict} inputInfo 
      * @returns 
@@ -342,4 +344,5 @@ module.exports = util => {
 
   }
 
+  return modu
 }

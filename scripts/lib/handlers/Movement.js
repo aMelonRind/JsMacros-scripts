@@ -1,10 +1,12 @@
 
 // util.movement
 
-/** @typedef {import('../type/myTypes')} */
-
-/** @param {Util} util */
+/**
+ * @param {import('../util')} util
+ * @returns {MovementHandler}
+ */
 module.exports = util => {
+  /** @typedef {_&modu} MovementHandler */
   if (!util.toJava) throw new Error('util needed')
 
   /** 
@@ -13,7 +15,7 @@ module.exports = util => {
    */
   let p
   let wt
-  return {
+  const modu = {
 
     /**
      * xz1 <= xz2 && y1 == y2
@@ -125,4 +127,6 @@ module.exports = util => {
     }
 
   }
+
+  return modu
 }

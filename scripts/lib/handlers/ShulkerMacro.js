@@ -1,12 +1,17 @@
 
 // util.container.shulkerMacro
 
-/** @typedef {import('../type/myTypes')} */
-
-/** @param {Util} util */
+/**
+ * @param {import('../util')} util
+ * @returns {ShulkerMacroHandler}
+ */
 module.exports = util => {
+  /** @typedef {_&modu} ShulkerMacroHandler */
   if (!util?.toJava) throw new Error('util needed')
 
-  return {
+  const modu = {
+    notImplemented: true
   }
+
+  return modu
 }

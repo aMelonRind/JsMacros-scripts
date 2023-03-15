@@ -1,8 +1,6 @@
 
 // util.actionbar
 
-/** @typedef {import('./type/myTypes')} */
-
 const Element = Java.type('xyz.wagyourtail.jsmacros.client.api.sharedclasses.RenderCommon$RenderElement')
 const Text = Java.type('xyz.wagyourtail.jsmacros.client.api.sharedclasses.RenderCommon$Text')
 const TextHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper')
@@ -16,7 +14,10 @@ const moveKeys = {
   ['key.keyboard.space']: 1 << 6
 }
 
-/** @param {Util} util */
+/**
+ * @param {import('./util')} util
+ * @returns {AdvancedActionbar}
+ */
 module.exports = util => {
   if (!util?.toJava) throw new Error('util needed')
 
@@ -332,7 +333,8 @@ module.exports = util => {
 
   util.waitTick(1, animation)
 
-  return {
+  /** @typedef {_&modu} AdvancedActionbar */
+  const modu = {
 
     /**
      * Draw2D
@@ -511,4 +513,6 @@ module.exports = util => {
     }
 
   }
+
+  return modu
 }

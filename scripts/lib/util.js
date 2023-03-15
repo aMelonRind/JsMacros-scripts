@@ -4,11 +4,6 @@
  * @exports util
  */
 
-/**
- * @typedef {import('./type/myTypes')} myTypes
- * @typedef {import('./type/fetchRawJsType')} fetch
- */
-
 if (context.getCtx().getFile().getPath() === __filename)
   throw 'util is a module!\nuse `const util = require(/* path to util.js */)` to load it.'
 
@@ -153,60 +148,42 @@ const util = {
     }
   ],
 
-  /**
-   * @readonly
-   * @type {GLFWHelper}
-   */
+  /** @readonly */
   get glfw() {
     const value = require('./GLFW')
     Object.defineProperty(this, 'glfw', { value })
     return value
   },
 
-  /**
-   * @readonly
-   * @type {MovementHandler}
-   */
+  /** @readonly */
   get movement() {
     const value = require('./handlers/Movement')(this)
     Object.defineProperty(this, 'movement', { value })
     return value
   },
 
-  /**
-   * @readonly
-   * @type {AdvancedActionbar}
-   */
+  /** @readonly */
   get actionbar() {
     const value = require('./AdvancedActionbar')(this)
     Object.defineProperty(this, 'actionbar', { value })
     return value
   },
 
-  /**
-   * @readonly
-   * @type {CraftingHandler}
-   */
+  /** @readonly */
   get crafting() {
     const value = require('./handlers/Crafting')(this)
     Object.defineProperty(this, 'crafting', { value })
     return value
   },
 
-  /**
-   * @readonly
-   * @type {ContainerHandler}
-   */
+  /** @readonly */
   get container() {
     const value = require('./handlers/Container')(this)
     Object.defineProperty(this, 'container', { value })
     return value
   },
 
-  /**
-   * @readonly
-   * @type {StorageHandler}
-   */
+  /** @readonly */
   get storage() {
     const value = require('./handlers/Storage')(this)
     Object.defineProperty(this, 'storage', { value })
@@ -301,6 +278,14 @@ const util = {
     }
     wfeListeners[event].cbs.push(cb)
     return res
+  },
+
+  /**
+   * if there's expensive sync loop in async script  
+   * await this
+   */
+  waitImmediate() {
+    return new Promise(res => JavaWrapper.methodToJavaAsync(res).run())
   },
 
   getPrefix() {
@@ -599,7 +584,7 @@ const util = {
   /**
    * opens Survival Inventory regardless if there's any screen open  
    * only for information, not for interacting
-   * @returns {?Inventory<any>}
+   * @returns {?InfoInventory}
    */
   openSurvivalInv() {
     const p = Player.getPlayer()
@@ -951,4 +936,8 @@ util.on('Tick', () => {
   }
 })
 
-module.exports = null || util
+/**
+ * @typedef {{ [none: symbol]: undefined } & util} Util
+ * @type {Util}
+ */
+module.exports = null ?? util

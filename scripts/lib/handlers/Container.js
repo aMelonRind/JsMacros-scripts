@@ -1,11 +1,6 @@
 
 // util.container
 
-/**
- * @typedef {import('../type/myTypes')} myTypes
- * @typedef {import('../type/fetchRawJsType')} fetch
- */
-
 const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Inventory')
 
 const asyncMethods = [
@@ -28,8 +23,12 @@ const Click = {
   rightB: 'b'
 }
 
-/** @param {Util} util */
+/**
+ * @param {import('../util')} util
+ * @returns {ContainerHandler}
+ */
 module.exports = util => {
+  /** @typedef {_&modu} ContainerHandler */
   if (!util?.toJava) new Error('util needed')
   util.movement
 
@@ -37,7 +36,7 @@ module.exports = util => {
   let lastIntervalTime = 0, interval = 2, hasInterval = true
   let invMapCache = {}
 
-  return {
+  const modu = {
 
     /**
      * try to point at container
@@ -58,20 +57,7 @@ module.exports = util => {
 
     quickInterval: false,
 
-    /**
-     * @readonly
-     * @type {ShulkerMachineHandler}
-     */
-    get shulkerMachine() {
-      const value = require('./ShulkerMachine')(util)
-      Object.defineProperty(this, 'shulkerMachine', { value })
-      return value
-    },
-
-    /**
-     * @readonly
-     * @type {ShulkerMacroHandler}
-     */
+    /** @readonly */ // should i move this to util.storage?
     get shulkerMacro() {
       const value = require('./ShulkerMacro')(util)
       Object.defineProperty(this, 'shulkerMacro', { value })
@@ -99,7 +85,7 @@ module.exports = util => {
 
     /**
      * make item count in inventory matches {@link count}
-     * @param {Inventory<any>} inv 
+     * @param {AsyncInventory} inv 
      * @param {string} id 
      * @param {number} count 
      * @param {number[]} [CSlots]
@@ -139,7 +125,7 @@ module.exports = util => {
     /**
      * precisly make the count of item on {@link slot} to {@link count}  
      * will quick the remainder
-     * @param {Inventory<any>} inv 
+     * @param {AsyncInventory} inv 
      * @param {number} slot 
      * @param {number} count 
      * @returns {Promise<number>} the result slot
@@ -199,7 +185,7 @@ module.exports = util => {
 
     /**
      * check if the inv has items
-     * @param {Inventory<any>} inv 
+     * @param {InfoInventory | AsyncInventory | Inventory<any>} inv 
      * @param {Dict} items 
      * @param {number[]} [slots] default hotbar + crafting_out + main, will cache
      */
@@ -228,7 +214,7 @@ module.exports = util => {
 
     /**
      * 
-     * @param {Inventory<any>} inv 
+     * @param {InfoInventory | AsyncInventory | Inventory<any>} inv 
      * @param {string} id 
      * @returns {number}
      */
@@ -240,7 +226,7 @@ module.exports = util => {
 
     /**
      * 
-     * @param {Inventory<any>} inv 
+     * @param {InfoInventory | AsyncInventory | Inventory<any>} inv 
      * @returns {number[]}
      */
     getInventorySlots(inv) {
@@ -249,7 +235,7 @@ module.exports = util => {
 
     /**
      * 
-     * @param {Inventory<any>} inv 
+     * @param {InfoInventory | AsyncInventory | Inventory<any>} inv 
      * @returns {number[]}
      */
     getContainerSlots(inv) {
@@ -258,7 +244,7 @@ module.exports = util => {
 
     /**
      * 
-     * @param {Inventory<any>} inv 
+     * @param {InfoInventory | AsyncInventory | Inventory<any>} inv 
      */
     getEmptySlotInInventory(inv) {
       return this.getInventorySlots(inv).reverse().find(s => inv.getSlot(s).isEmpty())
@@ -301,7 +287,7 @@ module.exports = util => {
      * @param {number} timeout 
      * @param {boolean} safety for command gui, if your script need high freq command gui opening,
      * set this to false
-     * @returns {Promise<?Inventory<any>>}
+     * @returns {Promise<?AsyncInventory>}
      */
     async waitGUI(pos, timeout = 300, safety = true) {
       if (pos) if (typeof pos === 'string') {
@@ -364,4 +350,6 @@ module.exports = util => {
       })
     }
   }
+
+  return modu
 }

@@ -9,7 +9,9 @@ const options = {
   // jsmacros
   fixJsmTypes: true, // fix every type that has $ in it
   extraTypes: true, // suggest about ItemId, BlockId, EntityId and stuff. need runtime generation.
-  fixEventTypes: true // let vscode actually suggest about events
+  fixEventTypes: true, // let vscode actually suggest about events
+  // other
+  meloTypes: true // include the types used in my scripts
 }
 
 const jsmFileReg = /^JsMacros-([\d\.]+)\.d\.ts$/
@@ -23,6 +25,7 @@ async function main() {
   if (!dir.includes('Graal.d.ts')) throw "can't find Graal.d.ts file!"
   if (!jsmFile) throw "can't find JsMacros.d.ts file!"
   if (options.extraTypes && !dir.includes('JsmExtra.d.ts')) throw "can't find JsmExtra.d.ts file!"
+  if (options.meloTypes && !dir.includes('MeloTypes.d.ts')) throw "can't find MeloTypes.d.ts file!"
   let graal = await fs.readFile('Graal.d.ts', 'utf8')
   let jsm = await fs.readFile(jsmFile, 'utf8')
   const version = jsmFile.match(jsmFileReg)[1]
@@ -323,9 +326,11 @@ ${  Object.keys(types).sort().map(t =>
   console.log('exporting...')
   await rmd
   if (options.extraTypes)
-  await fs.mkdir('./output/node_modules/@types/jsmextra', {recursive: true})
-  await fs.mkdir('./output/node_modules/@types/graal',    {recursive: true})
-  await fs.mkdir('./output/node_modules/@types/jsmacros', {recursive: true})
+  await fs.mkdir('./output/node_modules/@types/jsmextra',  {recursive: true})
+  if (options.meloTypes)
+  await fs.mkdir('./output/node_modules/@types/melotypes', {recursive: true})
+  await fs.mkdir('./output/node_modules/@types/graal',     {recursive: true})
+  await fs.mkdir('./output/node_modules/@types/jsmacros',  {recursive: true})
   await Promise.all([
     fs.writeFile(`./output/node_modules/@types/graal/Graal.d.ts`, graal),
     fs.writeFile(`./output/node_modules/@types/jsmacros/${jsmFile}`, jsm),
@@ -354,6 +359,17 @@ ${  Object.keys(types).sort().map(t =>
         homepage: "https://github.com/aMelonRind/JsMacros-shared-script/tree/main/JsmTypes",
         license: "MIT",
         types: "JsmExtra.d.ts"
+      }, undefined, '  '))
+    ]),
+    ...(!options.meloTypes ? [] : [
+      fs.copyFile('./MeloTypes.d.ts', './output/node_modules/@types/melotypes/MeloTypes.d.ts'),
+      fs.writeFile(`./output/node_modules/@types/melotypes/package.json`, JSON.stringify({
+        name: "@types/melotypes",
+        version: "1.0.0",
+        description: "TypeScript definitions for my scripts",
+        homepage: "https://github.com/aMelonRind/JsMacros-shared-script/tree/main/JsmTypes",
+        license: "MIT",
+        types: "MeloTypes.d.ts"
       }, undefined, '  '))
     ])
   ])

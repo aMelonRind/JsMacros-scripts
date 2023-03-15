@@ -1,12 +1,17 @@
 
-// util.container.shulkerMachine
+// util.storage.shulkerMachine
 
-/** @typedef {import('../type/myTypes')} */
-
-/** @param {Util} util */
+/**
+ * @param {import('../util')} util
+ * @returns {ShulkerMachineHandler}
+ */
 module.exports = util => {
+  /** @typedef {_&modu} ShulkerMachineHandler */
   if (!util?.toJava) throw new Error('util needed')
 
-  return {
+  const modu = {
+    notImplemented: true
   }
+
+  return modu
 }

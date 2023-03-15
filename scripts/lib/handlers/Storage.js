@@ -1,10 +1,12 @@
 
 // util.storage
 
-/** @typedef {import('../type/myTypes')} */
-
-/** @param {Util} util */
+/**
+ * @param {import('../util')} util
+ * @returns {StorageHandler}
+ */
 module.exports = util => {
+  /** @typedef {_&modu} StorageHandler */
   if (!util?.toJava) throw new Error('util needed')
   util.movement
   util.container
@@ -299,7 +301,7 @@ module.exports = util => {
     /**
      * 
      * @param {string | Pos3DLike} pos 
-     * @param {Inventory<any>} inv 
+     * @param {InfoInventory | AsyncInventory | Inventory<any>} inv 
      */
     async update(pos, inv) {
       pos = toStrPos(pos)
@@ -395,7 +397,14 @@ module.exports = util => {
 
   }
 
-  return {
+  const modu = {
+
+    /** @readonly */
+    get shulkerMachine() {
+      const value = require('./ShulkerMachine')(util)
+      Object.defineProperty(this, 'shulkerMachine', { value })
+      return value
+    },
 
     /**
      * @readonly
@@ -455,7 +464,7 @@ module.exports = util => {
     /**
      * update cache content of that container
      * @param {string | Pos3DLike} pos 
-     * @param {Inventory<any>} inv 
+     * @param {InfoInventory | AsyncInventory | Inventory<any>} inv 
      * @param {string} group 
      */
     async update(pos, inv, group) {
@@ -525,6 +534,8 @@ module.exports = util => {
     }
 
   }
+
+  return modu
 
   /**
    * check if the vec3d has half chest with condition

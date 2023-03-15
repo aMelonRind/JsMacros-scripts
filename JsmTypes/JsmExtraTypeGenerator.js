@@ -133,6 +133,7 @@ type Dimension = string
 // s.getTitle()
 type ScreenName =// string
 | HandledScreenName
+| 'unknown'
 // | ScreenClass
 // Registry.field_17429
 type ScreenClass = string
