@@ -6,7 +6,7 @@
   1) Download typescript from [JsMacros Releases](https://github.com/JsMacros/JsMacros/releases)
   2) Extract both d.ts files to the same folder as JsmTypesConverter.js
   3) Run `node JsmTypesConverter.js` in cmd (in same folder, obviously)
-  * You need to have [NodeJs](https://nodejs.org/) installed.
+  * You need to have [NodeJs](https://nodejs.org/) installed
   * This script will delete ./output folder, be careful if you have some files in it
   4) Close vscode
   5) Move the node_modules folder in ./output/ to the same folder as Macros folder
