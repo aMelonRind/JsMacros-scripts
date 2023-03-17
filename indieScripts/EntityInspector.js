@@ -16,10 +16,7 @@ const LivingEntityHelper = Reflection.getClass(
   'xyz.wagyourtail.jsmacros.client.api.helpers.LivingEntityHelper',
   'xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.LivingEntityHelper'
 )
-const NBTElementHelper   = Reflection.getClass(
-  'xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper',
-  'xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper'
-)
+const NBTElementHelper   = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper')
 const ItemStackHelper    = Reflection.getClass(
   'xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper',
   'xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper'
