@@ -12,9 +12,18 @@ JsMacros.on('Key', JavaWrapper.methodToJava(e => {
   openEntityInspectScreen(trace)
 }))
 
-const LivingEntityHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.LivingEntityHelper')
-const NBTElementHelper   = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper')
-const ItemStackHelper    = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper')
+const LivingEntityHelper = Reflection.getClass(
+  'xyz.wagyourtail.jsmacros.client.api.helpers.LivingEntityHelper',
+  'xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.LivingEntityHelper'
+)
+const NBTElementHelper   = Reflection.getClass(
+  'xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper',
+  'xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper'
+)
+const ItemStackHelper    = Reflection.getClass(
+  'xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper',
+  'xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper'
+)
 const ItemStack          = Java.type('net.minecraft.class_1799')
 
 /** @type {(text: string) => number} mc.textRenderer.getWidth */
@@ -105,7 +114,7 @@ function openEntityInspectScreen(entity) {
         else if (nbt.isNumber())       nbt = nbt.asNumber()
         else if (nbt.isString())       nbt = nbt.asString()
         else nbt = nbt.toString()
-        if (nbt?.startsWith?.('NBTElement:')) nbt = nbt.slice(11)
+        if (nbt?.startsWith?.('NBT')) nbt = toSnbt(nbt)
         nbtOutput.setText(`${nbt}`)
       })
     ).setText(lastNbtPath)
@@ -155,16 +164,27 @@ function addItem(x, y, item, textIfEmpty = 'No Item!') {
 function getItem(item) {
   return () => {
     if (Player.getPlayer().getRaw().method_5687(2)) // .hasPermissionLevel
-      Chat.say(`/give @s ${item.getItemId()}${item.getNBT()?.toString().slice(11) ?? ''}`)
+      Chat.say(`/give @s ${item.getItemId()}${toSnbt(item.getNBT())}`)
     else Chat.log(Chat.createTextHelperFromJSON(`{
       "text": "Don't have /give permission to get ",
       "extra": [${item.getName().getJson()}, {
         "text": "\nClick here to copy tags to clipboard.",
         "clickEvent": {
           "action": "copy_to_clipboard",
-          "value": "${item.getItemId()}${item.getNBT()?.toString().slice(11).replace(/"/g, '\\"') ?? ''}"
+          "value": "${item.getItemId()}${toSnbt(item.getNBT()).replace(/"/g, '\\"')}"
         }
       }]
     }`))
   }
+}
+
+/**
+ * 
+ * @param {NBTElementHelper} nbt 
+ */
+function toSnbt(nbt) {
+  if (nbt instanceof NBTElementHelper) nbt = nbt.toString()
+  if (typeof nbt !== 'string') return ''
+  nbt = nbt.match(/^[^\{]*(\{.*\})$/)?.[1] ?? ''
+  return nbt.startsWith('{{') ? nbt.slice(1, -1) : nbt
 }
