@@ -7,7 +7,7 @@ const options = {
   fixGraalTypes: true, // Java. to _javatype.
   fixJavaFromTypes: true, // fix type template
   // jsmacros
-  fixJsmTypes: true, // fix every type that has $ in it
+  fixJsmTypes: true, // fix every type that has $ in it and missing extends(only works with shortify)
   extraTypes: true, // suggest about ItemId, BlockId, EntityId and stuff. need runtime generation.
   fixEventTypes: true, // let vscode actually suggest about events
   // other
@@ -119,7 +119,8 @@ ${(i ? graal : jsm).match(regex)?.[0].replace(singleRegex, '$1: $2')}`
     console.log(' helpers')
     for (let i = 0; i < extra.helper.length; i += 2) {
       const [ helper, method ] = slice(extra.helper[i])
-      const reg = RegExp(`(?<=\n {8}interface ${escape(helper)}.+\{\n+(?: {12}.*\n+)* {12})${escape(method)}`)
+      // const reg = RegExp(`(?<=\n {8}interface ${escape(helper)}.+\{\n+(?: {12}.*\n+)* {12})${escape(method)}`)
+      const reg = RegExp(`(?<=\n        interface ${escape(helper)}.+\{\n+(?:            .*\n+)*            )${escape(method)}`)
       if (!reg.test(api)) {
         console.log(`index ${i} not found`)
         continue
@@ -129,7 +130,8 @@ ${(i ? graal : jsm).match(regex)?.[0].replace(singleRegex, '$1: $2')}`
     console.log(' classes')
     for (let i = 0; i < extra.class.length; i += 2) {
       const [ clazz, method ] = slice(extra.class[i])
-      const reg = RegExp(`(?<=\n {8}interface ${escape(clazz)}.+\{\n+(?: {12}.*\n+)* {12})${escape(method)}`)
+      // const reg = RegExp(`(?<=\n {8}interface ${escape(clazz)}.+\{\n+(?: {12}.*\n+)* {12})${escape(method)}`)
+      const reg = RegExp(`(?<=\n        interface ${escape(clazz)}.+\{\n+(?:            .*\n+)*            )${escape(method)}`)
       if (!reg.test(api)) {
         console.log(`index ${i} not found`)
         continue
@@ -139,7 +141,8 @@ ${(i ? graal : jsm).match(regex)?.[0].replace(singleRegex, '$1: $2')}`
     console.log(' worldscanner')
     for (let i = 0; i < extra.worldscanner.length; i += 2) {
       const [ clazz, method ] = slice(extra.worldscanner[i])
-      const reg = RegExp(`(?<=\n {12}interface ${escape(clazz)}.+\{\n+(?: {16}.*\n+)* {16})${escape(method)}`)
+      // const reg = RegExp(`(?<=\n {12}interface ${escape(clazz)}.+\{\n+(?: {16}.*\n+)* {16})${escape(method)}`)
+      const reg = RegExp(`(?<=\n            interface ${escape(clazz)}.+\{\n+(?:                .*\n+)*                )${escape(method)}`)
       if (!reg.test(api)) {
         console.log(`index ${i} not found`)
         continue
@@ -149,7 +152,8 @@ ${(i ? graal : jsm).match(regex)?.[0].replace(singleRegex, '$1: $2')}`
     console.log(' sharedinterfaces')
     for (let i = 0; i < extra.sharedinterfaces.length; i += 2) {
       const [ interface, method ] = slice(extra.sharedinterfaces[i])
-      const reg = RegExp(`(?<=\n {8}interface ${escape(interface)}.+\{\n+(?: {12}.*\n+)* {12})${escape(method)}`)
+      // const reg = RegExp(`(?<=\n {8}interface ${escape(interface)}.+\{\n+(?: {12}.*\n+)* {12})${escape(method)}`)
+      const reg = RegExp(`(?<=\n        interface ${escape(interface)}.+\{\n+(?:            .*\n+)*            )${escape(method)}`)
       if (!reg.test(api)) {
         console.log(`index ${i} not found`)
         continue
@@ -159,7 +163,7 @@ ${(i ? graal : jsm).match(regex)?.[0].replace(singleRegex, '$1: $2')}`
     console.log(' sharedclasses')
     for (let i = 0; i < extra.sharedclasses.length; i += 2) {
       const [ clazz, method ] = slice(extra.sharedclasses[i])
-      const reg = RegExp(`(?<=\n {8}interface ${escape(clazz)}.+\{\n+(?: {12}.*\n+)* {12})${escape(method)}`)
+      const reg = RegExp(`(?<=\n        interface ${escape(clazz)}.+\{\n+(?:            .*\n+)*            )${escape(method)}`)
       if (!reg.test(api)) {
         console.log(`index ${i} not found`)
         continue
@@ -212,24 +216,24 @@ ${(i ? graal : jsm).match(regex)?.[0].replace(singleRegex, '$1: $2')}`
 
   if (options.shortifyTypes) {
     const the6 = {
-      JavaClass:      /_javatypes\.java\.lang\.Class(?=<)/g,
-      JavaArray:      /_javatypes\.java\.lang\.Array(?=<)/g,
-      JavaCollection: /_javatypes\.java\.util\.Collection(?=<)/g,
-      JavaList:       /_javatypes\.java\.util\.List(?=<)/g,
-      JavaSet:        /_javatypes\.java\.util\.Set(?=<)/g,
-      JavaMap:        /_javatypes\.java\.util\.Map(?=<)/g,
-      JavaHashMap:    /_javatypes\.java\.util\.HashMap(?=<)/g
+      JavaClass:      /_javatypes\.java\.lang\.Class(?![\.\w$])/g,
+      JavaArray:      /_javatypes\.java\.lang\.Array(?![\.\w$])/g,
+      JavaCollection: /_javatypes\.java\.util\.Collection(?![\.\w$])/g,
+      JavaList:       /_javatypes\.java\.util\.List(?![\.\w$])/g,
+      JavaSet:        /_javatypes\.java\.util\.Set(?![\.\w$])/g,
+      JavaMap:        /_javatypes\.java\.util\.Map(?![\.\w$])/g,
+      JavaHashMap:    /_javatypes\.java\.util\.HashMap(?![\.\w$])/g
     }
     console.log('shortifyTypes: graal')
     for (const type in the6) graal = graal.replace(the6[type], type)
     graal = `
-type JavaClass<T>      = _javatypes.java.lang.Class<T>
-type JavaArray<T>      = _javatypes.java.lang.Array<T>
-type JavaCollection<T> = _javatypes.java.util.Collection<T>
-type JavaList<T>       = _javatypes.java.util.List<T>
-type JavaSet<T>        = _javatypes.java.util.Set<T>
-type JavaMap<K, V>     = _javatypes.java.util.Map<K, V>
-type JavaHashMap<K, V> = _javatypes.java.util.HashMap<K, V>
+type JavaClass<T = any>            = _javatypes.java.lang.Class<T>
+type JavaArray<T = any>            = _javatypes.java.lang.Array<T>
+type JavaCollection<T = any>       = _javatypes.java.util.Collection<T>
+type JavaList<T = any>             = _javatypes.java.util.List<T>
+type JavaSet<T = any>              = _javatypes.java.util.Set<T>
+type JavaMap<K = any, V = any>     = _javatypes.java.util.Map<K, V>
+type JavaHashMap<K = any, V = any> = _javatypes.java.util.HashMap<K, V>
 
 ` + graal.trimStart()
 
@@ -243,6 +247,27 @@ type JavaHashMap<K, V> = _javatypes.java.util.HashMap<K, V>
       'PositionCommon$Vec2D': 'Vec2D',
       'PositionCommon$Vec3D': 'Vec3D'
     }
+    const missingExtends = {
+      ScriptScreen: 'IScreen',
+      NBTElementHelper: 'NBTElementHelper$NBTCompoundHelper & NBTElementHelper$NBTListHelper & NBTElementHelper$NBTNumberHelper'
+    }
+    const temp = jsm
+      .match(/^                    .+$/gm)
+      .map(s => s.slice(19))
+      .filter(s => s.includes('_javatypes.xyz.wagyourtail.jsmacros.client.api.helpers'))
+      .join()
+    const redirectNeeded = temp
+      .match(/_javatypes\.xyz\.wagyourtail\.jsmacros\.client\.api\.helpers(?:\.[\w$]+)+/g)
+      .map(m => m.match(nameRegex)?.[0])
+      .sort()
+      .filter((v, i, a) => v && v !== a[i - 1])
+      .map(s => s in overrides ? overrides[s] : s)
+    const redirectArgsNeeded = temp
+      .match(/_javatypes\.xyz\.wagyourtail\.jsmacros\.client\.api\.helpers(?:\.[\w$]+)+(?= *<(?!(?:\/\*.*?\*\/|any|,| )+>))/g)
+      .map(m => m.match(nameRegex)?.[0])
+      .sort()
+      .filter((v, i, a) => v && v !== a[i - 1])
+      .map(s => s in overrides ? overrides[s] : s)
     const T = [
       '',
       '<T>',
@@ -250,9 +275,10 @@ type JavaHashMap<K, V> = _javatypes.java.util.HashMap<K, V>
       '<T, U, R>',
       '<T, U, R, C>'
     ]
-    const anyT = T.map(s => s.replace(/[A-Z]/g, 'any'))
     /** @type {{ [type: string]: { name: string, Targs: number } }} */
     const types = {}
+    /** @type {{ [typeName: string]: number }} number is type args count */
+    const redirects = {}
     let jsmbuf = ''
     while (true) {
       jsmbuf += jsm[0] // prevent infinite loop
@@ -304,22 +330,57 @@ type JavaHashMap<K, V> = _javatypes.java.util.HashMap<K, V>
       }
       if (name === 'static') continue
       if (name in overrides) name = overrides[name]
-      const forRegExp = escape(match[0])
-      jsm = jsm
-        .replace(RegExp(forRegExp + '(?![\\.A-Za-z$>])', 'g'), name)
-        .replace(RegExp(forRegExp + '(?=>)', 'g'), name + anyT[Targs])
+      const forRegExp = escape(match[0]) + '(?![\\.\\w$])'
+      if (redirectNeeded.includes(name)) {
+        redirects[name] = Targs
+        let i = jsmbuf.lastIndexOf('\n')
+        if (i !== -1) {
+          i = Math.max(i, 3) - 3
+          jsm = jsmbuf.slice(i) + jsm
+          jsmbuf = jsmbuf.slice(0, i)
+        }
+        jsm = jsm.replace(RegExp(
+          '^(                    .*)' + forRegExp +
+          (redirectArgsNeeded.includes(name) ? '' : '(?: *<(?:\\/\\*.*?\\*\\/|any|,| )+>)?'), 'gm'
+        ), '$1JsmTypeRedirect.$' + name)
+      }
+      jsm = jsm.replace(RegExp(forRegExp, 'g'), name)
+        // .replace(RegExp(forRegExp + '(?=>)', 'g'), name + anyT[Targs])
       types[match[0]] = { name, Targs }
     }
     jsm = jsmbuf + jsm
+    const Tany = [
+      '',
+      '<T = any>',
+      '<T = any, U = any>',
+      '<T = any, U = any, R = any>',
+      '<T = any, U = any, R = any, C = any>'
+    ]
     const maxLength = Object.values(types)
-      .reduce((p, v) => Math.max(p, (v.name + T[v.Targs]).length), 0)
+      .reduce((p, v) => Math.max(p, (v.name + Tany[v.Targs]).length), 0)
+    const maxRedirLength = Object.keys(redirects)
+      .reduce((p, v) => Math.max(p, (v + (redirectArgsNeeded.includes(v) ? Tany[redirects[v]] : '')).length), 0)
     jsm = `
 type _ = { [none: symbol]: undefined } // to trick vscode to rename types
 
-${  Object.keys(types).sort().map(t => 
-      `type ${(types[t].name + T[types[t].Targs]).padEnd(maxLength)} = ${
-        types[t].Targs ? '  ' : '_&'}${t + T[types[t].Targs]}`
-    ).join('\n')}
+${ 
+  Object.keys(types).sort().map(t => 
+    `type ${(types[t].name + Tany[types[t].Targs]).padEnd(maxLength)} = ${
+      types[t].Targs || (types[t].name in missingExtends) ? '  ' : '_&'
+    }${
+      t + T[types[t].Targs]
+    }${
+      types[t].name in missingExtends ? ' & ' + missingExtends[types[t].name] : ''
+    }`
+  ).join('\n')
+}${
+  !maxRedirLength ? '' : '\n\nnamespace JsmTypeRedirect {\n' +
+  Object.keys(redirects).sort().map(n =>
+    `    type $${
+      (n + (redirectArgsNeeded.includes(n) ? Tany[redirects[n]] : '')).padEnd(maxRedirLength)
+    } = ${n}${redirectArgsNeeded.includes(n) ? T[redirects[n]] : ''}`
+  ).join('\n') + '\n}'
+}
 
 ` + jsm.trimStart()
   }
