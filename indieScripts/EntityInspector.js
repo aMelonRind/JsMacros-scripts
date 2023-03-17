@@ -25,7 +25,7 @@ let lastNbtPath = ''
 
 /**
  * 
- * @param {LivingEntityHelper<any>} entity 
+ * @param {LivingEntityHelper} entity 
  * @returns 
  */
 function openEntityInspectScreen(entity) {
@@ -72,7 +72,7 @@ function openEntityInspectScreen(entity) {
       JavaWrapper.methodToJava(txt => {
         lastNbtPath = txt
         if (txt === '') return nbtOutput.setText('NBT Inspector')
-        /** @type {NBTElementHelper<any>} */
+        /** @type {NBTElementHelper} */
         let nbt = entity.getNBT()
         const path = txt.split(/[\.\[\]\s]/).filter(v => v)
         try {

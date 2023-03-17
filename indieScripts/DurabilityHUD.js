@@ -160,7 +160,7 @@ const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Invento
 
 /**
  * Opens Survival Inventory regardless if there's any screen open
- * @returns {Inventory<any>}
+ * @returns {InfoInventory}
  */
 function openSurvivalInv() {
   return Inventory.create(new InvScreen(Player.getPlayer()?.getRaw()))

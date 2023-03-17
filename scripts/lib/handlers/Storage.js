@@ -301,7 +301,7 @@ module.exports = util => {
     /**
      * 
      * @param {string | Pos3DLike} pos 
-     * @param {InfoInventory | AsyncInventory | Inventory<any>} inv 
+     * @param {InfoInventory} inv 
      */
     async update(pos, inv) {
       pos = toStrPos(pos)
@@ -464,7 +464,7 @@ module.exports = util => {
     /**
      * update cache content of that container
      * @param {string | Pos3DLike} pos 
-     * @param {InfoInventory | AsyncInventory | Inventory<any>} inv 
+     * @param {InfoInventory} inv 
      * @param {string} group 
      */
     async update(pos, inv, group) {

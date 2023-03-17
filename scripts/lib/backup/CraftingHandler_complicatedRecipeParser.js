@@ -7,7 +7,6 @@
  * doesn't support complex recipe
  * doesn't support won't-consume ingredients
  * @typedef {{ [id: string]: number }} dict
- * @typedef {_javatypes.xyz.wagyourtail.jsmacros.client.api.classes.Inventory<any>} Inventory
  */
 
 /** @param {import('./util')} util */

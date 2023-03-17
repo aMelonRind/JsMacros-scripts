@@ -82,7 +82,7 @@ function getStartingPoint() {
 
 /**
  * 
- * @param {EntityHelper<any>} entity 
+ * @param {EntityHelper} entity 
  * @param {number} offsetX 
  * @param {number} offsetY 
  * @param {number} offsetZ 

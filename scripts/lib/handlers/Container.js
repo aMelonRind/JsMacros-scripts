@@ -67,7 +67,7 @@ module.exports = util => {
     /**
      * open container and operate items  
      * try to match inventory item counts to {@link items}
-     * @param {Pos3DLike | Inventory<any>} chest 
+     * @param {Pos3DLike | Inventory} chest 
      * @param {Dict} items 
      * @returns success
      */
@@ -185,7 +185,7 @@ module.exports = util => {
 
     /**
      * check if the inv has items
-     * @param {InfoInventory | AsyncInventory | Inventory<any>} inv 
+     * @param {InfoInventory} inv 
      * @param {Dict} items 
      * @param {number[]} [slots] default hotbar + crafting_out + main, will cache
      */
@@ -214,7 +214,7 @@ module.exports = util => {
 
     /**
      * 
-     * @param {InfoInventory | AsyncInventory | Inventory<any>} inv 
+     * @param {InfoInventory} inv 
      * @param {string} id 
      * @returns {number}
      */
@@ -226,7 +226,7 @@ module.exports = util => {
 
     /**
      * 
-     * @param {InfoInventory | AsyncInventory | Inventory<any>} inv 
+     * @param {InfoInventory} inv 
      * @returns {number[]}
      */
     getInventorySlots(inv) {
@@ -235,7 +235,7 @@ module.exports = util => {
 
     /**
      * 
-     * @param {InfoInventory | AsyncInventory | Inventory<any>} inv 
+     * @param {InfoInventory} inv 
      * @returns {number[]}
      */
     getContainerSlots(inv) {
@@ -244,7 +244,7 @@ module.exports = util => {
 
     /**
      * 
-     * @param {InfoInventory | AsyncInventory | Inventory<any>} inv 
+     * @param {InfoInventory} inv 
      */
     getEmptySlotInInventory(inv) {
       return this.getInventorySlots(inv).reverse().find(s => inv.getSlot(s).isEmpty())
