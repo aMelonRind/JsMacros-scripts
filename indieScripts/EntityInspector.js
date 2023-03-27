@@ -93,7 +93,7 @@ function openEntityInspectScreen(entity) {
           const keys = nbt.getKeys()
           if (keys.contains(path[0])) nbt = nbt.get(path[0])
           else {
-            const filtered = keys.toArray().filter(k => k.startsWith(path[0]))
+            const filtered = keys.toArray().filter(k => k.toLowerCase().startsWith(path[0].toLowerCase()))
             if (filtered.length === 1) {
               nbt = nbt.get(filtered[0])
               if (lastNbtPath.endsWith(' ')) // press space to autocomplete

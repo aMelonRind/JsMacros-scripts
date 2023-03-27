@@ -45,7 +45,7 @@ JsMacros.on('OpenScreen', JavaWrapper.methodToJava(e => {
     if (!input) return Chat.log(`[PosFiller err] null input in class ${Reflection.getClassName(screen)}`)
     const composed = changedListenerF.get(input)?.andThen(JavaWrapper.methodToJava(text => {
       if (posReg.test(text)) {
-        const {x, y, z} = Player.getPlayer().getBlockPos()
+        const {x, y, z} = Player.getPlayer().getBlockPos() // add .toPos3D() in 1.8.4
         const index = text.search(posReg)
         suggest(screen, text.slice(0, index), index, text.length,
           text.trim().at(-1) === ',' ? `${x}, ${y}, ${z}` : `${x} ${y} ${z} `)

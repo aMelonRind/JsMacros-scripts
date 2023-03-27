@@ -19,6 +19,7 @@ const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Invento
 const Pos3D = Java.type('xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D')
 const Vec3D = Java.type('xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Vec3D')
 
+/** @type {{ [data: string]: ItemStackHelper }} */
 const itemCache = {}
 
 const D2R = Math.PI / 180
@@ -805,7 +806,7 @@ const util = {
     /**
      * 
      * @param {number} n 
-     * @returns primes
+     * @returns {{ [prime: number]: number }} primes
      */
     primes(n) {
       n = Math.floor(Math.abs(n))
