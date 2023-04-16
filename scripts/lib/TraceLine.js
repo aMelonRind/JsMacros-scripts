@@ -19,7 +19,7 @@ let tickListener
 let lines = []
 
 /** @type {Draw3D} */
-const d3d = Reflection.createClassProxyBuilder(Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Draw3D'))
+const d3d = Reflection.createClassProxyBuilder(Packages.xyz.wagyourtail.jsmacros.client.api.classes.Draw3D)
             .addMethod('render', JavaWrapper.methodToJava((ref, args) => {
   cachePoint = undefined
   if (!lines[0]) return ref.parent(args) // super

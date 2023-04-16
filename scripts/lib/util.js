@@ -7,17 +7,17 @@
 if (context.getCtx().getFile().getPath() === __filename)
   throw 'util is a module!\nuse `const util = require(/* path to util.js */)` to load it.'
 
-const StringNbtReader = Java.type('net.minecraft.class_2522')
-const ItemStack       = Java.type('net.minecraft.class_1799')
-const ItemStackHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper')
-const Identifier      = Java.type('net.minecraft.class_2960')
-const ItemRegistry    = Java.type('net.minecraft.class_2378').field_11142
+const StringNbtReader = Packages.net.minecraft.class_2522
+const ItemStack       = Packages.net.minecraft.class_1799
+const ItemStackHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper
+const Identifier      = Packages.net.minecraft.class_2960
+const ItemRegistry    = Packages.net.minecraft.class_2378.field_11142
 
-const InvScreen = Java.type('net.minecraft.class_490')
-const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Inventory')
+const InvScreen = Packages.net.minecraft.class_490
+const Inventory = Packages.xyz.wagyourtail.jsmacros.client.api.classes.Inventory
 
-const Pos3D = Java.type('xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D')
-const Vec3D = Java.type('xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Vec3D')
+const Pos3D = Packages.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D
+const Vec3D = Packages.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Vec3D
 
 /** @type {{ [data: string]: ItemStackHelper }} */
 const itemCache = {}
@@ -114,7 +114,7 @@ const util = {
         'java.lang.NullPointerException: Cannot invoke "com.oracle.truffle.js.lang.JavaScriptLanguage.getJSContext()"'
       ]
       const frameListener = Reflection.createClassProxyBuilder(
-          Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Draw2D'))
+          Packages.xyz.wagyourtail.jsmacros.client.api.classes.Draw2D)
           .addMethod('render', JavaWrapper.methodToJava(() => {
         try {
           for (let x = 0, s; x <= 10; x++) {
@@ -229,9 +229,9 @@ const util = {
   /**
    * alias for {@link JsMacros.on} but will also register to {@link listeners}  
    * and don't need to wrap the callback
-   * @template {keyof JsmEvents} E
+   * @template {keyof Events} E
    * @param {E} event 
-   * @param {EventCallback<E> | MethodWrapper<JsmEvents[E], Context, void, any>} callback 
+   * @param {EventCallback<E> | MethodWrapper<Events[E], Context, void, any>} callback 
    * @returns {IEventListener}
    */
   on(event, callback) {
@@ -245,12 +245,12 @@ const util = {
   /**
    * 
    * @async
-   * @template {keyof JsmEvents} E
+   * @template {keyof Events} E
    * @param {E} event 
    * @param {EventCallback<E, boolean>} [condition] 
    * @param {EventCallback<E>} [callback] 
    * @param {number} timeout 
-   * @returns {Promise<?{event: JsmEvents[E], context: Context}> & { cancel(): void }}
+   * @returns {Promise<?{event: Events[E], context: Context}> & { cancel(): void }}
    */
   waitForEvent(event, condition, callback, timeout = 600) {
     const cb = { condition, callback }
@@ -908,7 +908,7 @@ const listeners = []
 
 /**
  * waitForEventListeners
- * @template {keyof JsmEvents} E
+ * @template {keyof Events} E
  * @type {{ [event: E]: {
  *  listener: IEventListener,
  *  cbs: {

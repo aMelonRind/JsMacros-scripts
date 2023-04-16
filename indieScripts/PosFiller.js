@@ -16,18 +16,18 @@
 const posReg = /\$?\bpos,? *$/
 const bposReg = /\$?\bbpos,? *$/
 
-const Arrays = Java.type('java.util.Arrays')
-const StringRange = Java.type('com.mojang.brigadier.context.StringRange')
-const Suggestion = Java.type('com.mojang.brigadier.suggestion.Suggestion')
-const InputSuggestorF = Reflection.getDeclaredField(Java.type('net.minecraft.class_408'), 'field_21616')
+const Arrays = java.util.Arrays
+const StringRange = com.mojang.brigadier.context.StringRange
+const Suggestion = com.mojang.brigadier.suggestion.Suggestion
+const InputSuggestorF = Packages.net.minecraft.class_408.class.getDeclaredField('field_21616')
 InputSuggestorF.setAccessible(true)
-const suggestorWindowF = Reflection.getDeclaredField(Java.type('net.minecraft.class_4717'), 'field_21612')
+const suggestorWindowF = Packages.net.minecraft.class_4717.class.getDeclaredField('field_21612')
 suggestorWindowF.setAccessible(true)
-const SuggestionWindow = Reflection.getClass('net.minecraft.class_4717$class_464').getDeclaredConstructors()[0]
+const SuggestionWindow = Packages.net.minecraft.class_4717$class_464.class.getDeclaredConstructors()[0]
 SuggestionWindow.setAccessible(true)
-const chatFieldF = Reflection.getDeclaredField(Java.type('net.minecraft.class_408'), 'field_2382')
+const chatFieldF = Packages.net.minecraft.class_408.class.getDeclaredField('field_2382')
 chatFieldF.setAccessible(true)
-const changedListenerF = Reflection.getDeclaredField(Java.type('net.minecraft.class_342'), 'field_2088')
+const changedListenerF = Packages.net.minecraft.class_342.class.getDeclaredField('field_2088')
 changedListenerF.setAccessible(true)
 
 JsMacros.on('OpenScreen', JavaWrapper.methodToJava(e => {
@@ -42,7 +42,7 @@ JsMacros.on('OpenScreen', JavaWrapper.methodToJava(e => {
     const input = chatFieldF.get(screen)
 
     // i sure hope this message won't appear anymore COPIUM
-    if (!input) return Chat.log(`[PosFiller err] null input in class ${Reflection.getClassName(screen)}`)
+    if (!input) return Chat.log(`[PosFiller err] null input in class ${screen.getClass()}`)
     const composed = changedListenerF.get(input)?.andThen(JavaWrapper.methodToJava(text => {
       if (posReg.test(text)) {
         const {x, y, z} = Player.getPlayer().getBlockPos() // add .toPos3D() in 1.8.4

@@ -9,19 +9,19 @@ const { newLine } = require('./lib/TraceLine')
 // field_17829	PARTICLE_SHEET_TRANSLUCENT
 // field_17828	PARTICLE_SHEET_OPAQUE
 // field_17827	TERRAIN_SHEET
-const pSheet = Java.type('net.minecraft.class_3999').field_17828
-const Particle = Java.type('net.minecraft.class_703')
-const DamageParticle = Java.type('net.minecraft.class_657')
+const pSheet = Packages.net.minecraft.class_3999.field_17828
+const Particle = Packages.net.minecraft.class_703
+const DamageParticle = Packages.net.minecraft.class_657
 const ParticleManager = Client.getMinecraft().field_1713
-const particlesF = Reflection.getDeclaredField(Java.type('net.minecraft.class_702'), 'field_3830')
+const particlesF = Packages.net.minecraft.class_702.class.getDeclaredField('field_3830')
 particlesF.setAccessible(true)
 
-const ageF = Reflection.getDeclaredField(Particle, 'field_3866')
+const ageF = Particle.class.getDeclaredField('field_3866')
 ageF.setAccessible(true)
 
-const xF = Reflection.getDeclaredField(Particle, 'field_3874')
-const yF = Reflection.getDeclaredField(Particle, 'field_3854')
-const zF = Reflection.getDeclaredField(Particle, 'field_3871')
+const xF = Particle.class.getDeclaredField('field_3874')
+const yF = Particle.class.getDeclaredField('field_3854')
+const zF = Particle.class.getDeclaredField('field_3871')
 xF.setAccessible(true)
 yF.setAccessible(true)
 zF.setAccessible(true)

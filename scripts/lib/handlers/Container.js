@@ -1,7 +1,7 @@
 
 // util.container
 
-const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Inventory')
+const Inventory = Packages.xyz.wagyourtail.jsmacros.client.api.classes.Inventory
 
 const asyncMethods = [
   'swap',

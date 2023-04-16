@@ -3,7 +3,7 @@
 // requires /setblock perm
 // is service
 
-const BlockPosHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.BlockPosHelper')
+const BlockPosHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.BlockPosHelper
 const P2A = pos => [pos.getX(), pos.getY(), pos.getZ()]
 const cast = raycast()
 if (!cast) throw 'look at block'
@@ -15,9 +15,9 @@ const axis  = (Math.abs(yaw) > 45 && Math.abs(yaw) <= 135) ? 0 : 2
 const value = cast.result[axis] + 0.5
 Chat.log(`bound to ${axis ? 'z' : 'x'} = ${value - 0.5}`)
 
-const CreativeInventoryActionC2SPacket = Java.type("net.minecraft.class_2873")
+const CreativeInventoryActionC2SPacket = Packages.net.minecraft.class_2873
 const ClientPlayNetworkHandler = Client.getMinecraft().method_1562()
-const Identifier = Java.type("net.minecraft.class_2960")
+const Identifier = Packages.net.minecraft.class_2960
 
 const D2R = Math.PI / 180
 function lookToVec(pitch = p.getPitch(), yaw = p.getYaw()) {
@@ -26,7 +26,7 @@ function lookToVec(pitch = p.getPitch(), yaw = p.getYaw()) {
 
 /** @type {Draw3D} */
 const d3d = Reflection.createClassProxyBuilder(
-    Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Draw3D'))
+    Packages.xyz.wagyourtail.jsmacros.client.api.classes.Draw3D)
     .addMethod('render', JavaWrapper.methodToJava((ref, args) => {
   if (pitch === p.getPitch() && yaw === p.getYaw() && pos === P2A(p.getPos()).join(',')) return ref.parent(args)
   pitch = p.getPitch()
@@ -105,7 +105,7 @@ function pickBlock() {
   }
   ClientPlayNetworkHandler.method_2883(new CreativeInventoryActionC2SPacket(
     inv.getMap().hotbar[inv.getSelectedHotbarSlotIndex()],
-    Java.type("net.minecraft.class_2378").field_11142.method_10223(new Identifier(blockid)).method_7854()
+    Packages.net.minecraft.class_2378.field_11142.method_10223(new Identifier(blockid)).method_7854()
   ))
 }
 

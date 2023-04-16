@@ -1,6 +1,6 @@
 // https://javadoc.lwjgl.org/org/lwjgl/glfw/GLFW.html
-const GLFW = Java.type('org.lwjgl.glfw.GLFW')
-const Float = Java.type('java.lang.Float')
+const GLFW = org.lwjgl.glfw.GLFW
+const Float = java.lang.Float
 const handle = Client.getMinecraft().method_22683().method_4490() // .getWindow().getHandle()
 
 /**

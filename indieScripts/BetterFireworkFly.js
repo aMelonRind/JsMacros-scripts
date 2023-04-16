@@ -6,7 +6,7 @@ if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 const mc = Client.getMinecraft()
 const interactItem = mc.field_1761.method_2919
 // .interactionManager.interactItem(player, hand)
-const Hand = Java.type('net.minecraft.class_1268')
+const Hand = Packages.net.minecraft.class_1268
 const MAIN_HAND = Hand.field_5808
 const OFF_HAND = Hand.field_5810
 

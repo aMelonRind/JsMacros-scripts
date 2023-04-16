@@ -16,12 +16,12 @@ const LivingEntityHelper = Reflection.getClass(
   'xyz.wagyourtail.jsmacros.client.api.helpers.LivingEntityHelper',
   'xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.LivingEntityHelper'
 )
-const NBTElementHelper   = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper')
+const NBTElementHelper   = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper
 const ItemStackHelper    = Reflection.getClass(
   'xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper',
   'xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper'
 )
-const ItemStack          = Java.type('net.minecraft.class_1799')
+const ItemStack          = Packages.net.minecraft.class_1799
 
 /** @type {(text: string) => number} mc.textRenderer.getWidth */
 const getTextWidth = Client.getMinecraft().field_1772.method_1727

@@ -1,9 +1,9 @@
 
 // util.actionbar
 
-const Element = Java.type('xyz.wagyourtail.jsmacros.client.api.sharedclasses.RenderCommon$RenderElement')
-const Text = Java.type('xyz.wagyourtail.jsmacros.client.api.sharedclasses.RenderCommon$Text')
-const TextHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper')
+const Element = Packages.xyz.wagyourtail.jsmacros.client.api.sharedclasses.RenderCommon$RenderElement
+const Text = Packages.xyz.wagyourtail.jsmacros.client.api.sharedclasses.RenderCommon$Text
+const TextHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper
 const moveKeys = {
   ['key.mouse.left']:     1 << 0,
   ['key.mouse.right']:    1 << 1,
