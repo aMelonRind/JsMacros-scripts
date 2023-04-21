@@ -26,7 +26,7 @@ const listeners = [
   { // pos
     onKeyword(keyword, sym) {
       if (keyword !== 'pos') return
-      const {x, y, z} = Player.getPlayer().getBlockPos()
+      const {x, y, z} = Player.getPlayer().getBlockPos() // add .toPos3D() in 1.8.4
       if (sym === ',') return `${x}, ${y}, ${z}`
       if (sym === '')  return `${x} ${y} ${z} `
     }
@@ -190,6 +190,7 @@ function getF(f, name) {
 /**
  * @typedef {object} SuggestingListener
  * @property {OpenChatScreenListener} [onOpenChatScreen]
+ *  might call 2 times with optifine installed, not sure
  * @property {ChangeListener} [onChange]
  * @property {KeywordListener} [onKeyword]
  */
