@@ -1,0 +1,4 @@
+{
+    "$schema": "https://raw.githubusercontent.com/egoist/tsup/dev/schema.json",
+    "entry": ["./src/scripts/*.js"]
+}
