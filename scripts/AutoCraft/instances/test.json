@@ -5,65 +5,58 @@
   "dimension": "overworld",
   "skipTop": true,
   "craftingTables": [
-    [4, -30, 6]
+    [9, -30, 6]
   ],
-  "invDump": [4, -29, 6],
-  "walkingArea": [[0, -31, 10], [7, -31, 15]],
+  "invDump": [9, -29, 6],
+  "walkingArea": [[9, -30, 8], [9, -30, 8]],
   "materialFrom": [
     {
       "type": "container",
-      "box": [[2, -30, 6], [3, -29, 6]],
-      "has": ["coal", "bone"]
+      "box": [[7, -30, 6], [8, -29, 6]],
+      "has": ["iron_ingot"]
     }
   ],
   "productTo": [
     {
       "type": "container",
-      "box": [[5, -30, 6], [5, -30, 6]],
-      "for": "coal_block"
-    },
-    {
-      "type": "container",
-      "box": [[5, -29, 6], [5, -29, 6]],
-      "for": "bone_block"
+      "box": [[10, -30, 6], [10, -30, 6]],
+      "for": "anvil"
     }
   ],
   "recipe": [
     {
-      "on": "crafting_table",
-      "type": "recipe_book",
-      "id": "minecraft:coal_block",
+      "type": "macro",
       "info": {
         "input": {
-          "coal": 9
+          "iron_ingot": 9
         },
-        "output": "coal_block",
+        "output": "iron_block",
         "count": 1
+      },
+      "pattern": [
+        "iron_ingot", "iron_ingot", "iron_ingot",
+        "iron_ingot", "iron_ingot", "iron_ingot",
+        "iron_ingot", "iron_ingot", "iron_ingot"
+      ],
+      "weight": {
+        "iron_ingot": 0.8709677419354839
       }
     },
     {
-      "on": "crafting_table",
-      "type": "recipe_book",
-      "id": "minecraft:bone_meal",
+      "type": "macro",
       "info": {
         "input": {
-          "bone": 1
+          "iron_block": 3,
+          "iron_ingot": 4
         },
-        "output": "bone_meal",
-        "count": 3
-      }
-    },
-    {
-      "on": "crafting_table",
-      "type": "recipe_book",
-      "id": "minecraft:bone_block",
-      "info": {
-        "input": {
-          "bone_meal": 9
-        },
-        "output": "bone_block",
+        "output": "anvil",
         "count": 1
-      }
+      },
+      "pattern": [
+        "iron_block", "iron_block", "iron_block",
+        "air",        "iron_ingot", "air",
+        "iron_ingot", "iron_ingot", "iron_ingot"
+      ]
     }
   ]
 }

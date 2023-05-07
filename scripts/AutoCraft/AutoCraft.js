@@ -33,7 +33,7 @@ async function main() {
     await util.storage.scan(k)
   }
   util.crafting.loadRecipes(
-    instance.recipe.filter(r => r.on === 'crafting_table'),
+    instance.recipe,
     Object.keys(outputs)
   )
   await util.crafting.exec('input', outputs,

@@ -143,10 +143,6 @@
     "recipe": {
       "type": "object",
       "properties": {
-        "on": {
-          "enum": [ "crafting_table" ],
-          "description": "the workbench for the recipe. may add furnace or something else support. idk"
-        },
         "type": {
           "enum": [ "recipe_book", "macro" ],
           "description": "the way to do the recipe"
@@ -196,7 +192,7 @@
           "description": "for complex recipe.  for example crafting anvil from iron ingot, you'll need to set iron_block's iron_ingot weight to 0.8709677419354839 (27 / 31)  can't handle 3 or more layers i guess"
         }
       },
-      "required": [ "on", "type", "info" ],
+      "required": [ "type", "info" ],
       "allOf": [
         {
           "if": { "properties": { "type": { "const": "recipe_book" } } },
@@ -214,38 +210,25 @@
           "if": { "properties": { "type": { "const": "macro" } } },
           "then": {
             "properties": {
-              "ingredients": {
-                "type": "object",
-                "patternProperties": {
-                  "^[1-9]$": { "$ref": "#/$defs/itemId" }
-                },
-                "minProperties": 1,
-                "additionalProperties": false
-              },
               "pattern": {
                 "type": "array",
-                "minItems": 3,
-                "maxItems": 3,
-                "items": {
-                  "type": "string",
-                  "pattern": "^[ 1-9]{3}$",
-                  "default": "   ",
-                  "description": "2x2 recipe should offset to top left"
-                },
+                "minItems": 9,
+                "maxItems": 9,
+                "items": { "$ref": "#/$defs/itemId" },
+                "description": "left to right, top to bottom",
                 "default": [
-                  "   ",
-                  "   ",
-                  "   "
+                  "air", "air", "air",
+                  "air", "air", "air",
+                  "air", "air", "air"
                 ]
               }
             },
-            "required": [ "ingredients", "pattern" ]
+            "required": [ "pattern" ]
           }
         }
       ],
       "examples": [
         {
-          "on": "",
           "type": "recipe_book",
           "id": "",
           "info": {
@@ -254,7 +237,6 @@
           }
         },
         {
-          "on": "",
           "type": "macro",
           "ingredients": {
             "1": ""

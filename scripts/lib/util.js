@@ -29,18 +29,18 @@ const tickQueue = {}
 /** @type {Promise<never>} */
 const never = new Promise(() => null)
 
-const util = {
+class Util {
 
-  scriptName: 'UnnamedScript',
+  scriptName = 'UnnamedScript'
 
   /** @alias {@link JavaWrapper.methodToJava} */
-  toJava: JavaWrapper.methodToJava,
+  toJava = JavaWrapper.methodToJava
 
   /** @alias {@link PositionCommon.createPos} */
-  Pos: PositionCommon.createPos,
+  Pos = PositionCommon.createPos
 
   /** @alias {@link PositionCommon.createVec} */
-  Vec: PositionCommon.createVec,
+  Vec = PositionCommon.createVec
 
   /**
    * convert various pos to Pos3D
@@ -57,7 +57,7 @@ const util = {
     if ('getX' in pos && 'getY' in pos && 'getZ' in pos)
       return this.Pos(pos.getX(), pos.getY(), pos.getZ())
     util.throw(`can't identify pos (${pos})`)
-  },
+  }
 
   /**
    * convert various vec to Vec3D
@@ -70,17 +70,17 @@ const util = {
     if (Array.isArray(vec))
       return this.Vec(...vec.flat())
     util.throw(`can't identify vec (${vec})`)
-  },
+  }
 
   /**
    * enable smooth look or not
    */
-  enableSmoothLook: true,
+  enableSmoothLook = true
 
   /**
    * max degree for smooth look
    */
-  lookMaxDegree: 50,
+  lookMaxDegree = 50
 
   /**
    * call all callback in {@link util.stopListeners} then try to close script
@@ -90,13 +90,15 @@ const util = {
     this.stopListeners.splice(0).forEach(cb => cb())
     if (reason) Chat.log(this.getPrefix().append(`${reason}`).withColor(0x6).build())
     this.quit()
-  },
+  }
 
   /**
-   * wag refuses to add quit method? just make one!  
    * will halt the script and quit in 3 seconds  
    * without any message  
-   * (technically it's deleting error with onFrame)
+   * (technically it's deleting error with onFrame)  
+   * not recommended, but i've implemented it anyways  
+   * [reason of it's not recommended](https://discord.com/channels/732004268948586545/1098255667371982858/1098375801222738001)
+   * @returns {never}
    */
   quit() {
     const e = JsMacros.createCustomEvent('e')
@@ -135,61 +137,61 @@ const util = {
       null, e, JavaWrapper.methodToJava(() => null)
     )
     while (true) Client.waitTick()
-  },
+  }
 
   /**
    * push stop listener here  
    * better not async callback
    * @readonly
    */
-  stopListeners: [
+  stopListeners = [
     () => {
       listeners.splice(0).forEach(l => JsMacros.off(l))
       Object.values(wfeListeners).forEach(l => JsMacros.off(l.listener))
     }
-  ],
+  ]
 
   /** @readonly */
   get glfw() {
     const value = require('./GLFW')
     Object.defineProperty(this, 'glfw', { value })
     return value
-  },
+  }
 
   /** @readonly */
   get movement() {
-    const value = require('./handlers/Movement')(this)
+    const value = require('./handlers/Movement')
     Object.defineProperty(this, 'movement', { value })
     return value
-  },
+  }
 
   /** @readonly */
   get actionbar() {
-    const value = require('./AdvancedActionbar')(this)
+    const value = require('./AdvancedActionbar')
     Object.defineProperty(this, 'actionbar', { value })
     return value
-  },
+  }
 
   /** @readonly */
   get crafting() {
-    const value = require('./handlers/Crafting')(this)
+    const value = require('./handlers/Crafting')
     Object.defineProperty(this, 'crafting', { value })
     return value
-  },
+  }
 
   /** @readonly */
   get container() {
-    const value = require('./handlers/Container')(this)
+    const value = require('./handlers/Container')
     Object.defineProperty(this, 'container', { value })
     return value
-  },
+  }
 
   /** @readonly */
   get storage() {
-    const value = require('./handlers/Storage')(this)
+    const value = require('./handlers/Storage')
     Object.defineProperty(this, 'storage', { value })
     return value
-  },
+  }
 
   /**
    * current tick time  
@@ -197,14 +199,14 @@ const util = {
    */
   get ticks() {
     return tickClock
-  },
+  }
 
   /**
    * @async
    * @param {number} ticks
    * @returns {Promise<void>=}
    */
-  waitTick(ticks = 1) {},
+  waitTick(ticks = 1) {}
 
   /**
    * @async
@@ -222,9 +224,9 @@ const util = {
       if (tickQueue[ticks]) {
         if (Array.isArray(tickQueue[ticks])) tickQueue[ticks].push(res)
         else tickQueue[ticks] = [ tickQueue[ticks], res ]
-      }else tickQueue[ticks] = res
+      } else tickQueue[ticks] = res
     }).then(() => callback?.())
-  },
+  }
 
   /**
    * alias for {@link JsMacros.on} but will also register to {@link listeners}  
@@ -240,7 +242,7 @@ const util = {
     event = JsMacros.on(event, callback)
     listeners.push(event)
     return event
-  },
+  }
 
   /**
    * 
@@ -259,7 +261,7 @@ const util = {
       cb.res(null)
       cb.cancel = true
     }
-    if (timeout) this.waitTick(timeout, res.cancel)
+    if (timeout > 0) this.waitTick(timeout, res.cancel)
     wfeListeners[event] ??= {
       listener: JsMacros.on(event, this.toJava((e, c) => {
         if (!wfeListeners[event]) return
@@ -279,7 +281,7 @@ const util = {
     }
     wfeListeners[event].cbs.push(cb)
     return res
-  },
+  }
 
   /**
    * if there's expensive sync loop in async script  
@@ -287,14 +289,14 @@ const util = {
    */
   waitImmediate() {
     return new Promise(res => JavaWrapper.methodToJavaAsync(res).run())
-  },
+  }
 
   getPrefix() {
     return Chat.createTextBuilder()
       .append('[').withColor(0x6)
       .append(this.scriptName).withColor(0xd)
       .append(']').withColor(0x6).append(' ').withColor(0xF)
-  },
+  }
 
   /**
    * 
@@ -312,20 +314,20 @@ const util = {
       else if (Array.isArray(color)) msg.withColor(...color) // [255, 255, 255]
     }
     Chat.log(msg.build())
-  },
+  }
 
   /**
    * override it to use  
    * always add optional chaining, ex: `util.warn?.('warning')`
    * @type {((msg: string) => void)=}
    */
-  warn: undefined,
+  warn = undefined
 
   /**
    * some debug util
    * @readonly
    */
-  debug: {
+  debug = {
 
     _monitorEnabled: false,
 
@@ -342,153 +344,185 @@ const util = {
      */
     monitor(watcher) {}
 
-  },
+  }
 
   /**
    * since throw in async function is problematic  
    * will call {@link util.stopAll}
+   * @returns {never}
    */
   throw(err) {
     try {
-      if (!(err instanceof Error)) err = new Error(err)
-      const builder = this.getPrefix()
-      const noOverloadRegex = /^TypeError: invokeMember \((\w+)\) on ([^@\s]+@[0-9a-f]+) failed due to: no applicable overload found \(overloads: \[/
-      const errPathRegex = /(?<=^\s+at\s.*)(\(?[^\(\s]+:\d+:\d+\)?)$/gm
-      const match = noOverloadRegex.exec(err.stack)
-      let stack = err.stack
-      if (match) { // messy parser
-        const canAccept = {
-          boolean: ['Boolean'],
-          char:    ['Character'],
-          String:  ['String'],
-          byte:    ['Byte'],
-          short:   ['Byte', 'Short'],
-          int:     ['Byte', 'Short', 'Character', 'Integer'],
-          long:    ['Byte', 'Short', 'Character', 'Integer', 'Long'],
-          float:   ['Byte', 'Short', 'Character', 'Integer', 'Long', 'Float'],
-          double:  ['Byte', 'Short', 'Character', 'Integer', 'Long', 'Float', 'Double']
+      if (err instanceof java.lang.Throwable) {
+        const stackBuilder = Chat.createTextBuilder()
+        let fullstack = ''
+        let /** @type {Packages.java.lang.StackTraceElement} */ stack
+        for (stack of err.getStackTrace()) {
+          if (stack.getClassName().startsWith('com.oracle.truffle')) continue
+          const call = `\n  at ${stack.getClassName()}.${stack.getMethodName()} `
+          const location = `(${stack.getFileName()}:${stack.getLineNumber()})`
+          fullstack += call + location
+          stackBuilder
+            .append(call).withColor(0xFF, 0x3F, 0x00)
+            .append(location).withColor(0xFF, 0x7F, 0x00)
         }
-        const paramColors = {
-          unknown:  0xf,
-          match:    0xa,
-          wrong:    0xc,
-          notexist: 0x7
-        }
-        builder.append('TypeError: invokeMember').withColor(0xFF, 0x3F, 0x00)
-          .withShowTextHover(Chat.createTextHelperFromString('Click to copy full stacktrace'))
-          .withClickEvent('copy_to_clipboard', stack)
-          .append(' (').withColor(0xFF, 0x3F, 0x00)
-          .append(match[1]).withColor(0xd)
-          .append(') on ').withColor(0xFF, 0x3F, 0x00)
-          .append(match[2].match(/([^\.]+)@[0-9a-f]+/)[1]).withColor(0xd)
-          .withShowTextHover(Chat.createTextHelperFromString(match[2]))
-          .append(' failed due to:\n  no applicable overload found. overloads:')
-          .withColor(0xFF, 0x3F, 0x00)
-        stack = stack.slice(match[0].length)
-        const methods = []
-        while (stack[0] === 'M') { // overloads
-          const methodMatch = stack.match(/^Method\[(?:public )?([^\]]+)\](?:, )?/)
-          const typeMatch   = methodMatch[1].match(/^\S*?([^. ]+)(?= )/)
-          const nameMatch   = methodMatch[1].match(/(?<=^\S+ ).*?([^\(\.]+)(?=\()/)
-          const method = {prefix: undefined, params: [], rawParams: []}
-          method.prefix = [typeMatch[1], typeMatch[0], nameMatch[1], nameMatch[0]]
-          const params = methodMatch[0].slice(methodMatch[0].indexOf('(') + 1, methodMatch[0].lastIndexOf(')')).split(',')
-          params.forEach((p, i) => {
-            method.params.push(p.match(/[^\.]+$/)[0])
-            method.rawParams.push(p)
-          })
-          stack = stack.slice(methodMatch[0].length)
-          methods.push(method)
-        }
-        stack = ', ' + stack.slice('], arguments: ['.length)
-        const args = {name: [], raw: []}
-        let max = 100
-        while (stack.startsWith(', ') && max-- > 0) { // arguments
-          stack = stack.slice(2)
-          const argMatch =
-            stack.match(/^JavaObject\[.*?([^\.\(]+)\)\] \(HostObject\)(?=, |\]\))/) ||
-            stack.match(/^com\.oracle\.truffle\.js\.runtime\.objects\.(.*?)\$DefaultLayout@[0-9a-z]{1,9} \(DefaultLayout\)(?=, |\]\))/) ||
-            stack.match(/^.*?[\w\$]+ \((\w+)\)(?=, |\]\))/)
-          args.name.push(argMatch[1] === 'TruffleString' ? 'String' : argMatch[1])
-          args.raw .push(argMatch[0])
-          stack = stack.slice(argMatch[0].length)
-        }
-        stack = stack.slice(2)
-        methods.forEach(m => {
-          builder.append('\n  ').append(m.prefix[0]).withColor(0xd)
-          if (m.prefix[0] !== m.prefix[1])
-            builder.withShowTextHover(Chat.createTextHelperFromString(m.prefix[1]))
-              .withClickEvent('copy_to_clipboard', m.prefix[1])
-          builder.append(' ').append(m.prefix[2]).withColor(0xd)
-            .withShowTextHover(Chat.createTextHelperFromString(m.prefix[3]))
-            .withClickEvent('copy_to_clipboard', m.prefix[3])
-            .append('(')
-          m.params.forEach((p, i) => {
-            let color = paramColors.unknown
-            if (!(i in args.name)) color = paramColors.notexist
-            else if (p in canAccept)
-              color = canAccept[p].includes(args.name[i]) ? paramColors.match : paramColors.wrong
-            else if (m.rawParams[i].includes('.')) {
-              if (args.raw[i].startsWith('JavaObject[')) try {
-                const paramClass = Reflection.getClass(m.rawParams[i])
-                const argClass = Reflection.getClass(args.raw[i].match(/\(([^\(]+)\)\] \(HostObject\)$/)[1])
-                color = paramClass.isAssignableFrom(argClass) ? paramColors.match : paramColors.wrong
-              }catch (e) { // might not be a java class, who knows?
-                color = paramColors.wrong
-              }else color = paramColors.wrong
-            }
 
-            builder.append(p).withColor(color)
-            if (p !== m.rawParams[i])
-              builder.withShowTextHover(Chat.createTextHelperFromString(m.rawParams[i]))
-                .withClickEvent('copy_to_clipboard', m.rawParams[i])
-            if (i !== m.params.length - 1) builder.append(', ')
-          })
-          builder.append(') (').append(m.params.length)
-            .withColor(m.params.length === args.name.length ? paramColors.match : paramColors.wrong)
-            .append(')')
-        })
-        builder.append('\n  arguments:').withColor(0xFF, 0x3F, 0x00).append(' [')
-        args.name.forEach((n, i) => {
-          let name  = n
-          let hover = args.raw[i]
-          if (canAccept.double.includes(name)) {
-            name = `${name} (${hover.match(/^\S+/)[0]})`
-            hover = null
-          }else if (name === 'Nullish') {
-            name = hover.match(/^JS(\S+)/)[1]
-            hover = null
+        const name = err.getClass().getSimpleName()
+        const msg = ': ' + err.getLocalizedMessage()
+        fullstack = name + msg + fullstack
+
+        Chat.log(
+          this.getPrefix()
+            .append(name)
+            .withShowTextHover(Chat.createTextHelperFromString('Click to copy full stacktrace'))
+            .withClickEvent('copy_to_clipboard', fullstack).withColor(0xFF, 0x3F, 0x00)
+            .append(msg).withColor(0xFF, 0x3F, 0x00)
+            .append(stackBuilder)
+            .build()
+        )
+      } else {
+        if (!(err instanceof Error)) err = new Error(err)
+        const builder = this.getPrefix()
+        const noOverloadRegex = /^TypeError: invokeMember \((\w+)\) on ([^@\s]+@[0-9a-f]+) failed due to: no applicable overload found \(overloads: \[/
+        const errPathRegex = /(?<=^\s+at\s.*)(\(?[^\(\s]+:\d+:\d+\)?)$/gm
+        let stack = err.stack
+        const match = noOverloadRegex.exec(stack)
+        if (match) { // messy parser
+          const canAccept = {
+            boolean: ['Boolean'],
+            char:    ['Character'],
+            String:  ['String'],
+            byte:    ['Byte'],
+            short:   ['Byte', 'Short'],
+            int:     ['Byte', 'Short', 'Character', 'Integer'],
+            long:    ['Byte', 'Short', 'Character', 'Integer', 'Long'],
+            float:   ['Byte', 'Short', 'Character', 'Integer', 'Long', 'Float'],
+            double:  ['Byte', 'Short', 'Character', 'Integer', 'Long', 'Float', 'Double']
           }
-          builder.append(name).withColor(0xFF, 0x7F, 0x00)
-          if (hover) builder.withShowTextHover(Chat.createTextHelperFromString(hover))
-            .withClickEvent('copy_to_clipboard', args.raw[i])
-          if (i !== args.name.length - 1) builder.append(', ')
-        })
-        builder.append(`] (${args.name.length})`)
-        if (stack[0] !== '\n') builder.append(`\nparse error: not a new line: ${stack}`).withColor(0xc)
-        else  stack.split(errPathRegex)
-          .forEach((m, i) => builder.append(m).withColor(0xFF, i % 2 ? 0x7F : 0x3F, 0x00))
-      }else {
-        let name = stack.match(/^\S+/)[0]
-        builder.append(name)
-          .withShowTextHover(Chat.createTextHelperFromString('Click to copy full stacktrace'))
-          .withClickEvent('copy_to_clipboard', stack).withColor(0xFF, 0x3F, 0x00)
-        stack = stack.slice(name.length)
-        stack.split(errPathRegex)
-          .forEach((m, i) => builder.append(m).withColor(0xFF, i % 2 ? 0x7F : 0x3F, 0x00))
+          const paramColors = {
+            unknown:  0xf,
+            match:    0xa,
+            wrong:    0xc,
+            notexist: 0x7
+          }
+          builder.append('TypeError: invokeMember').withColor(0xFF, 0x3F, 0x00)
+            .withShowTextHover(Chat.createTextHelperFromString('Click to copy full stacktrace'))
+            .withClickEvent('copy_to_clipboard', stack)
+            .append(' (').withColor(0xFF, 0x3F, 0x00)
+            .append(match[1]).withColor(0xd)
+            .append(') on ').withColor(0xFF, 0x3F, 0x00)
+            .append(match[2].match(/([^\.]+)@[0-9a-f]+/)[1]).withColor(0xd)
+            .withShowTextHover(Chat.createTextHelperFromString(match[2]))
+            .append(' failed due to:\n  no applicable overload found. overloads:')
+            .withColor(0xFF, 0x3F, 0x00)
+          stack = stack.slice(match[0].length)
+          const methods = []
+          while (stack[0] === 'M') { // overloads
+            const methodMatch = stack.match(/^Method\[(?:public )?([^\]]+)\](?:, )?/)
+            const typeMatch   = methodMatch[1].match(/^\S*?([^. ]+)(?= )/)
+            const nameMatch   = methodMatch[1].match(/(?<=^\S+ ).*?([^\(\.]+)(?=\()/)
+            const method = {prefix: undefined, params: [], rawParams: []}
+            method.prefix = [typeMatch[1], typeMatch[0], nameMatch[1], nameMatch[0]]
+            const params = methodMatch[0].slice(methodMatch[0].indexOf('(') + 1, methodMatch[0].lastIndexOf(')')).split(',')
+            params.forEach((p, i) => {
+              method.params.push(p.match(/[^\.]+$/)[0])
+              method.rawParams.push(p)
+            })
+            stack = stack.slice(methodMatch[0].length)
+            methods.push(method)
+          }
+          stack = ', ' + stack.slice('], arguments: ['.length)
+          const args = {name: [], raw: []}
+          let max = 100
+          while (stack.startsWith(', ') && max-- > 0) { // arguments
+            stack = stack.slice(2)
+            const argMatch =
+              stack.match(/^JavaObject\[.*?([^\.\(]+)\)\] \(HostObject\)(?=, |\]\))/) ||
+              stack.match(/^com\.oracle\.truffle\.js\.runtime\.objects\.(.*?)\$DefaultLayout@[0-9a-z]{1,9} \(DefaultLayout\)(?=, |\]\))/) ||
+              stack.match(/^.*?[\w\$]+ \((\w+)\)(?=, |\]\))/)
+            args.name.push(argMatch[1] === 'TruffleString' ? 'String' : argMatch[1])
+            args.raw .push(argMatch[0])
+            stack = stack.slice(argMatch[0].length)
+          }
+          stack = stack.slice(2)
+          methods.forEach(m => {
+            builder.append('\n  ').append(m.prefix[0]).withColor(0xd)
+            if (m.prefix[0] !== m.prefix[1])
+              builder.withShowTextHover(Chat.createTextHelperFromString(m.prefix[1]))
+                .withClickEvent('copy_to_clipboard', m.prefix[1])
+            builder.append(' ').append(m.prefix[2]).withColor(0xd)
+              .withShowTextHover(Chat.createTextHelperFromString(m.prefix[3]))
+              .withClickEvent('copy_to_clipboard', m.prefix[3])
+              .append('(')
+            m.params.forEach((p, i) => {
+              let color = paramColors.unknown
+              if (!(i in args.name)) color = paramColors.notexist
+              else if (p in canAccept)
+                color = canAccept[p].includes(args.name[i]) ? paramColors.match : paramColors.wrong
+              else if (m.rawParams[i].includes('.')) {
+                if (args.raw[i].startsWith('JavaObject[')) try {
+                  const paramClass = Reflection.getClass(m.rawParams[i])
+                  const argClass = Reflection.getClass(args.raw[i].match(/\(([^\(]+)\)\] \(HostObject\)$/)[1])
+                  color = paramClass.isAssignableFrom(argClass) ? paramColors.match : paramColors.wrong
+                }catch (e) { // might not be a java class, who knows?
+                  color = paramColors.wrong
+                } else color = paramColors.wrong
+              }
+
+              builder.append(p).withColor(color)
+              if (p !== m.rawParams[i])
+                builder.withShowTextHover(Chat.createTextHelperFromString(m.rawParams[i]))
+                  .withClickEvent('copy_to_clipboard', m.rawParams[i])
+              if (i !== m.params.length - 1) builder.append(', ')
+            })
+            builder.append(') (').append(m.params.length)
+              .withColor(m.params.length === args.name.length ? paramColors.match : paramColors.wrong)
+              .append(')')
+          })
+          builder.append('\n  arguments:').withColor(0xFF, 0x3F, 0x00).append(' [')
+          args.name.forEach((n, i) => {
+            let name  = n
+            let hover = args.raw[i]
+            if (canAccept.double.includes(name)) {
+              name = `${name} (${hover.match(/^\S+/)[0]})`
+              hover = null
+            } else if (name === 'Nullish') {
+              name = hover.match(/^JS(\S+)/)[1]
+              hover = null
+            }
+            builder.append(name).withColor(0xFF, 0x7F, 0x00)
+            if (hover) builder.withShowTextHover(Chat.createTextHelperFromString(hover))
+              .withClickEvent('copy_to_clipboard', args.raw[i])
+            if (i !== args.name.length - 1) builder.append(', ')
+          })
+          builder.append(`] (${args.name.length})`)
+          if (stack[0] !== '\n') builder.append(`\nparse error: not a new line: ${stack}`).withColor(0xc)
+          else  stack.split(errPathRegex)
+            .forEach((m, i) => builder.append(m).withColor(0xFF, i % 2 ? 0x7F : 0x3F, 0x00))
+        } else {
+          let name = stack.split(/\s/, 1)[0]
+          builder.append(name)
+            .withShowTextHover(Chat.createTextHelperFromString('Click to copy full stacktrace'))
+            .withClickEvent('copy_to_clipboard', stack).withColor(0xFF, 0x3F, 0x00)
+          stack = stack.slice(name.length)
+          stack.split(errPathRegex)
+            .forEach((m, i) => builder.append(m).withColor(0xFF, i % 2 ? 0x7F : 0x3F, 0x00))
+        }
+        Chat.log(builder.build())
       }
-      Chat.log(builder.build())
-      this.stopAll()
-    }catch (e) {
-      Chat.log(this.getPrefix().append(`An error accurred while parsing error!\nThe Error: ${
-        err.stack}\nError while parsing: ${e.stack}`).withColor(0xFF, 0x3F, 0x00).build())
-      this.stopAll()
+    } catch (e) {
+      Chat.log(this.getPrefix().append(
+        'An error accurred while parsing error!\n' +
+        `The Error: ${err.stack ?? err}\n` +
+        `Error while parsing: ${e.stack}`
+      ).withColor(0xFF, 0x3F, 0x00).build())
     }
-  },
+    this.stopAll()
+  }
 
   /**
    * run {@link cb} in try catch and has util error stack parser
-   * @param {() => void} cb 
+   * @param {() => Promise<*>} cb 
    * @param {boolean} stopWhenDone 
    */
   async run(cb, stopWhenDone = true) {
@@ -498,14 +532,14 @@ const util = {
       this.throw(e)
     }
     if (stopWhenDone) this.stopAll()
-  },
+  }
 
   /**
    * able to look smoothly
    * @param {Pos3DLike} pos 
    * @param {() => boolean} [condition] will stop if match
    */
-  async lookAt(pos, condition) {},
+  async lookAt(pos, condition) {}
 
   /**
    * able to look smoothly
@@ -513,7 +547,7 @@ const util = {
    * @param {number} pitch 
    * @param {() => boolean} [condition] will stop if match
    */
-  async lookAt(yaw, pitch, condition) {},
+  async lookAt(yaw, pitch, condition) {}
 
   /**
    * able to look smoothly
@@ -526,7 +560,7 @@ const util = {
     if (typeof x === 'object') {
       condition = y
       ;({ x, y, z } = this.toPos(x))
-    }else 
+    } else 
 
     if (typeof z === 'function') {
       condition = z
@@ -549,7 +583,7 @@ const util = {
       const vec = p.getPos().add(0, p.getEyeHeight(), 0).toReverseVector(x, y, z)
       yaw = vec.getYaw()
       pitch = vec.getPitch()
-    }else {
+    } else {
       yaw = this.wrapYaw(x)
       pitch = Math.min(Math.max(-90, y), 90)
     }
@@ -572,29 +606,33 @@ const util = {
       await this.waitTick()
     }
     if (!condition?.()) p.lookAt(yaw, pitch)
-  },
+  }
 
   wrapYaw(yaw) {
     return ((yaw + 180) % 360 - 360) % 360 + 180
-  },
+  }
 
   getYawFromXZ(x = 0, z = 0) {
     return Player.getPlayer().getPos().toReverseVector(x, 0, z).getYaw()
-  },
+  }
 
   /**
    * opens Survival Inventory regardless if there's any screen open  
    * only for information, not for interacting
-   * @returns {?InfoInventory}
+   * @returns {InfoInventory}
    */
   openSurvivalInv() {
-    const p = Player.getPlayer()
-    return p ? Inventory.create(new InvScreen(p.getRaw())) : null
-  },
+    return Inventory.create(new InvScreen(Player.getPlayer().getRaw()))
+  }
 
+  /**
+   * @template {string} T
+   * @param {T} id
+   * @returns {T extends `${string}:${string}` ? T : `minecraft:${T}`}
+   */
   completeId(id = 'air') {
     return id.includes(':') ? id : 'minecraft:' + id
-  },
+  }
 
   completeIdKey(obj) {
     for (const k in obj) {
@@ -602,7 +640,7 @@ const util = {
       obj['minecraft:' + k] = obj[k]
       delete obj[k]
     }
-  },
+  }
 
   /**
    * get item from string
@@ -616,11 +654,11 @@ const util = {
       return itemCache[this.completeId(data)] ??= new ItemStackHelper(
         ItemRegistry.method_10223(new Identifier(this.completeId(data))).method_7854())
         // ItemRegistry.get(id).getDefaultStack()
-    }else return itemCache[data] ??= new ItemStackHelper(
+    } else return itemCache[data] ??= new ItemStackHelper(
       ItemStack.method_7915(StringNbtReader.method_10718(data))
       // ItemStack.fromNbt(StringNbtReader.parse())
     )
-  },
+  }
 
   /**
    * returns max count of the item
@@ -630,13 +668,13 @@ const util = {
   getMaxCount(id) {
     return ItemRegistry.method_10223(new Identifier(id)).method_7882()
     // ItemRegistry.get(id).getMaxCount()
-  },
+  }
 
   /**
    * will recover on stop
    * @readonly
    */
-  option: {
+  option = {
 
     /**
      * @readonly
@@ -669,14 +707,19 @@ const util = {
       AutoJump.method_41748(!!bool)
     }
 
-  },
+  }
 
   /**
    * dict operations
    * @readonly
    */
-  dict: {
-    
+  dict = {
+
+    /**
+     * @template T
+     * @param {T} obj 
+     * @returns {T}
+     */
     clone(obj) {
       const nobj = {}
       for (const k in obj) nobj[k] = obj[k]
@@ -781,13 +824,13 @@ const util = {
       return res
     }
 
-  },
+  }
 
   /**
    * @readonly
    */
-  math: {
-    
+  math = {
+
     /**
      * 
      * @param {number} a 
@@ -887,21 +930,37 @@ const util = {
         vec.z2 = temp
       }
       return vec
+    },
+
+    /**
+     * @template {Pos2D | Pos3D} T
+     * @param {T} pos1 
+     * @param {T} pos2
+     * @returns {boolean} 
+     */
+    posEquals(pos1, pos2) {
+      if ('x' in pos1) {
+        if (pos1.x !== pos2.x || pos1.y !== pos2.y) return false
+        if ('z' in pos1 && pos1.z !== pos2.z) return false
+      } else util.throw(`not pos (${pos1})`)
+      return true
     }
 
-  },
+  }
 
   /**
    * @type {(text: string) => number}
    */
-  getTextWidth: Client.getMinecraft().field_1772.method_1727, // .textRenderer.getWidth
+  getTextWidth = Client.getMinecraft().field_1772.method_1727 // .textRenderer.getWidth
 
   /**
    * @type {(packet: object) => void}
    */
-  sendPacket: Client.getMinecraft().method_1562().method_2883
+  sendPacket = Client.getMinecraft().method_1562().method_2883
 
 }
+
+const util = new Util
 
 /** @type {IEventListener[]} */
 const listeners = []
@@ -937,8 +996,4 @@ util.on('Tick', () => {
   }
 })
 
-/**
- * @typedef {{ [none: symbol]: undefined } & util} Util
- * @type {Util}
- */
-module.exports = null ?? util
+module.exports = util
