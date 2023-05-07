@@ -295,7 +295,7 @@ type Biome =
 | 'minecraft:wooded_badlands'
 | string & {}
 // Registry.field_11156
-type Sound =
+type SoundId =
 | 'minecraft:ambient.basalt_deltas.additions'
 | 'minecraft:ambient.basalt_deltas.loop'
 | 'minecraft:ambient.basalt_deltas.mood'
@@ -4066,7 +4066,7 @@ type EntityId =
 | 'minecraft:zombified_piglin'
 | string & {}
 // Registry.field_17597
-type RecipeId = string
+type RecipeId = string & {}
 // class_1934.method_8381
 type Gamemode = 'adventure' | 'creative' | 'spectator' | 'survival'
 // Registry.field_25490
@@ -4078,12 +4078,12 @@ type Dimension =
 | string & {}
 // s.getClass().getName()
 // s.getTitle()
-type ScreenName =// string
+type ScreenName =// string & {}
 | HandledScreenName
 | string & {}
 // | ScreenClass
 // Registry.field_17429
-type ScreenClass = string
+type ScreenClass = string & {}
 // class_1269.toString
 type ActionResult = 'CONSUME' | 'CONSUME_PARTIAL' | 'FAIL' | 'PASS' | 'SUCCESS'
 // class_1282.method_5525
@@ -4114,7 +4114,7 @@ type DamageSource =
 | 'wither'
 | string & {}
 // same as screenName but check if is container
-type InventoryType =// string
+type InventoryType =// string & {}
 | HandledScreenName
 | string & {}
 // Registry.field_11159
@@ -4196,3 +4196,47 @@ type VillagerProfession =
 | 'toolsmith'
 | 'weaponsmith'
 | string & {}
+
+type InvMapId = InvMapType.All;
+declare namespace InvMapType {
+    type _inv = 'hotber' | 'main';
+    type _invio = _inv | 'input' | 'output';
+
+    type Inventory = _inv | 'offhand' | 'boots' | 'leggings' | 'chestplate' | 'helmet'
+    | 'crafting_in' | 'craft_out';
+    type CreativeInvInvTab = Exclude<Inventory, 'crafting_in' | 'crafting_out'> | 'delete';
+    type CreativeInv = 'hotbar' | 'creative';
+    type Container        = _inv | 'container';
+    type Beacon           = _inv | 'slot';
+    type Furnace          = _invio | 'fuel';
+    type BrewingStand     = _invio | 'fuel';
+    type Crafting         = _invio;
+    type Enchantment      = _inv | 'lapis' | 'item';
+    type Loom             = _inv | 'output' | 'pattern' | 'dye' | 'banner';
+    type Stonecutter      = _invio;
+    type Horse            = _inv | 'saddle' | 'armor' | 'container';
+    type Anvil            = _invio;
+    type Merchant         = _invio;
+    type Smithing         = _invio;
+    type Grindstone       = _invio;
+    type CartographyTable = _invio;
+
+    type All =
+    | Inventory
+    | CreativeInvInvTab
+    | CreativeInv
+    | Container
+    | Beacon
+    | Furnace
+    | BrewingStand
+    | Crafting
+    | Enchantment
+    | Loom
+    | Stonecutter
+    | Horse
+    | Anvil
+    | Merchant
+    | Smithing
+    | Grindstone
+    | CartographyTable
+}
