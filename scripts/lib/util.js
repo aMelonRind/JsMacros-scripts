@@ -7,17 +7,17 @@
 if (context.getCtx().getFile().getPath() === __filename)
   throw 'util is a module!\nuse `const util = require(/* path to util.js */)` to load it.'
 
-const StringNbtReader = Packages.net.minecraft.class_2522
-const ItemStack       = Packages.net.minecraft.class_1799
-const ItemStackHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper
-const Identifier      = Packages.net.minecraft.class_2960
-const ItemRegistry    = Packages.net.minecraft.class_2378.field_11142
+const StringNbtReader = Java.type('net.minecraft.class_2522')
+const ItemStack       = Java.type('net.minecraft.class_1799')
+const ItemStackHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper')
+const Identifier      = Java.type('net.minecraft.class_2960')
+const ItemRegistry    = Java.type('net.minecraft.class_2378').field_11142
 
-const InvScreen = Packages.net.minecraft.class_490
-const Inventory = Packages.xyz.wagyourtail.jsmacros.client.api.classes.Inventory
+const InvScreen = Java.type('net.minecraft.class_490')
+const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Inventory')
 
-const Pos3D = Packages.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D
-const Vec3D = Packages.xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Vec3D
+const Pos3D = Java.type('xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Pos3D')
+const Vec3D = Java.type('xyz.wagyourtail.jsmacros.client.api.sharedclasses.PositionCommon$Vec3D')
 
 /** @type {{ [data: string]: ItemStackHelper }} */
 const itemCache = {}
@@ -116,7 +116,7 @@ class Util {
         'java.lang.NullPointerException: Cannot invoke "com.oracle.truffle.js.lang.JavaScriptLanguage.getJSContext()"'
       ]
       const frameListener = Reflection.createClassProxyBuilder(
-          Packages.xyz.wagyourtail.jsmacros.client.api.classes.Draw2D)
+          Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Draw2D'))
           .addMethod('render', JavaWrapper.methodToJava(() => {
         try {
           for (let x = 0, s; x <= 10; x++) {
@@ -353,7 +353,7 @@ class Util {
    */
   throw(err) {
     try {
-      if (err instanceof java.lang.Throwable) {
+      if (err instanceof Java.type('java.lang.Throwable')) {
         const stackBuilder = Chat.createTextBuilder()
         let fullstack = ''
         let /** @type {Packages.java.lang.StackTraceElement} */ stack

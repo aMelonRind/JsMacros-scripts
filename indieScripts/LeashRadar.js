@@ -8,7 +8,7 @@ const zoom           = 5.0
 const updateInterval = 10
 
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
-const MobEntity = Packages.net.minecraft.class_1308
+const MobEntity = Java.type('net.minecraft.class_1308')
 const D2R = Math.PI / 180
 const d2d = Hud.createDraw2D()
 const orig = {w: 0, h: 0, x: 0, y: 0}

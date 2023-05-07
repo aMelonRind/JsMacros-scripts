@@ -4,10 +4,10 @@
 // is service
 
 const maxSize = 128 - 1
-const CreativeInventoryActionC2SPacket = Packages.net.minecraft.class_2873
+const CreativeInventoryActionC2SPacket = Java.type('net.minecraft.class_2873')
 const ClientPlayNetworkHandler = Client.getMinecraft().method_1562()
-const Identifier = Packages.net.minecraft.class_2960
-const BlockPosHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.BlockPosHelper
+const Identifier = Java.type('net.minecraft.class_2960')
+const BlockPosHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.BlockPosHelper')
 const SideToVec = {
   down:  [ 0, -1,  0],
   up:    [ 0,  1,  0],
@@ -319,7 +319,7 @@ function pickBlock() {
   }
   ClientPlayNetworkHandler.method_2883(new CreativeInventoryActionC2SPacket(
     inv.getMap().hotbar[inv.getSelectedHotbarSlotIndex()],
-    Packages.net.minecraft.class_2378.field_11142.method_10223(new Identifier(blockid)).method_7854()
+    Java.type('net.minecraft.class_2378').field_11142.method_10223(new Identifier(blockid)).method_7854()
   ))
 }
 

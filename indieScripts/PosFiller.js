@@ -68,13 +68,13 @@ listeners.forEach(l => {
   if ('onKeyword' in l) onKeywords.push(l.onKeyword)
 })
 
-const StringRange = com.mojang.brigadier.context.StringRange
-const mcSuggestion = com.mojang.brigadier.suggestion.Suggestion
-const InputSuggestorF  = getF(Packages.net.minecraft.class_408.class,  'field_21616')
-const suggestorWindowF = getF(Packages.net.minecraft.class_4717.class, 'field_21612')
-const SuggestionWindow = getF(Packages.net.minecraft.class_4717$class_464.class.getDeclaredConstructors()[0])
-const chatFieldF       = getF(Packages.net.minecraft.class_408.class,  'field_2382')
-const changedListenerF = getF(Packages.net.minecraft.class_342.class,  'field_2088')
+const StringRange = Java.type('com.mojang.brigadier.context.StringRange')
+const mcSuggestion = Java.type('com.mojang.brigadier.suggestion.Suggestion')
+const InputSuggestorF  = getF(Reflection.getClass('net.minecraft.class_408'),  'field_21616')
+const suggestorWindowF = getF(Reflection.getClass('net.minecraft.class_4717'), 'field_21612')
+const SuggestionWindow = getF(Reflection.getClass('net.minecraft.class_4717$class_464').getDeclaredConstructors()[0])
+const chatFieldF       = getF(Reflection.getClass('net.minecraft.class_408'),  'field_2382')
+const changedListenerF = getF(Reflection.getClass('net.minecraft.class_342'),  'field_2088')
 
 /** @type {(text: string) => number} */
 const getTextWidth = Client.getMinecraft().field_1772.method_1727
@@ -132,7 +132,7 @@ function triggerSuggest(screen, input, text) {
   if (!res.length) return
 
   /** @type {JavaList<mcSuggestion>} */
-  const list = new java.util.ArrayList()
+  const list = new (Java.type('java.util.ArrayList'))()
   const start = res.reduce((p, v) => p < v.start ? p : v.start, Infinity)
   let maxWidth = 0
   res.forEach(s => {

@@ -99,9 +99,9 @@ function updateItem(index, item) {
   renderUpdate(index, text, item)
 }
 
-const StringNbtReader = Packages.net.minecraft.class_2522
-const ItemStack = Packages.net.minecraft.class_1799
-const ItemStackHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper
+const StringNbtReader = Java.type('net.minecraft.class_2522')
+const ItemStack = Java.type('net.minecraft.class_1799')
+const ItemStackHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper')
 
 function getBundle(count) {
   return new ItemStackHelper(ItemStack.method_7915(StringNbtReader.method_10718(`{
@@ -155,8 +155,8 @@ function _update() {
   flags = 0
 }
 
-const InvScreen = Packages.net.minecraft.class_490
-const Inventory = Packages.xyz.wagyourtail.jsmacros.client.api.classes.Inventory
+const InvScreen = Java.type('net.minecraft.class_490')
+const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Inventory')
 
 /**
  * Opens Survival Inventory regardless if there's any screen open

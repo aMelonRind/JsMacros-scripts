@@ -9,11 +9,11 @@ const { newLine } = require('./lib/TraceLine')
 // field_17829	PARTICLE_SHEET_TRANSLUCENT
 // field_17828	PARTICLE_SHEET_OPAQUE
 // field_17827	TERRAIN_SHEET
-const pSheet = Packages.net.minecraft.class_3999.field_17828
-const Particle = Packages.net.minecraft.class_703
-const DamageParticle = Packages.net.minecraft.class_657
+const pSheet = Java.type('net.minecraft.class_3999').field_17828
+const Particle = Java.type('net.minecraft.class_703')
+const DamageParticle = Java.type('net.minecraft.class_657')
 const ParticleManager = Client.getMinecraft().field_1713
-const particlesF = Packages.net.minecraft.class_702.class.getDeclaredField('field_3830')
+const particlesF = Java.type('net.minecraft.class_702').class.getDeclaredField('field_3830')
 particlesF.setAccessible(true)
 
 const ageF = Particle.class.getDeclaredField('field_3866')

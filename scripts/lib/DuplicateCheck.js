@@ -65,7 +65,7 @@ function quit() {
       'java.lang.NullPointerException: Cannot invoke "com.oracle.truffle.js.lang.JavaScriptLanguage.getJSContext()"'
     ]
     const frameListener = Reflection.createClassProxyBuilder(
-        Packages.xyz.wagyourtail.jsmacros.client.api.classes.Draw2D)
+        Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Draw2D'))
         .addMethod('render', JavaWrapper.methodToJava(() => {
       try {
         for (let x = 0, s; x <= 10; x++) {

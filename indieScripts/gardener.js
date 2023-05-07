@@ -94,7 +94,7 @@ function render() {
   for (const g of grass) d3d.addBox(...g, ...g.map(v => v + 1), 65535, 0, false)
 }
 
-const Vec3d = Packages.net.minecraft.class_243
+const Vec3d = Java.type('net.minecraft.class_243')
 function isReachable(x, y, z) {
   const p = Player.getPlayer()
   return p.getRaw().method_5707(new Vec3d(x + 0.5, y + 0.5 - p.getEyeHeight(), z + 0.5)) < 27 // .squaredDistanceTo(Vec)
