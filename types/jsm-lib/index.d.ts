@@ -6,4 +6,4 @@
 /// <reference path = "./JsMacros-1.8.3.d.ts"/>
 /// <reference path = "./JsmExtra.d.ts"/>
 /// <reference path = "./Minecraft.d.ts"/>
-// <reference path = "./MeloTypes.d.ts"/>
+/// <reference path = "../MeloTypes.d.ts"/>

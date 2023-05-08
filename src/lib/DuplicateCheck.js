@@ -88,4 +88,4 @@ function quit() {
   while (true) Client.waitTick()
 }
 
-export {}
+module.exports = {}
