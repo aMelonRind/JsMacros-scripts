@@ -93,3 +93,5 @@ if (result.coll) {
   JsMacros.waitForEvent('Key', JavaWrapper.methodToJava(e => e.key === 'key.mouse.left'))
   d3d.unregister()
 }
+
+module.exports = {}

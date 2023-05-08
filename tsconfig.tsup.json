@@ -1,0 +1,4 @@
+{
+    "compilerOptions": {},
+    "include": ["tsup.config.ts"]
+}

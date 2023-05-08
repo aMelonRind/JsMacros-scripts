@@ -219,3 +219,5 @@ JsMacros.on('OpenScreen', JavaWrapper.methodToJava(e => {
 event.stopListener = JavaWrapper.methodToJava(() => {
   d2d.unregister()
 })
+
+module.exports = {}

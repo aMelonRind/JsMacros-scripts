@@ -206,3 +206,5 @@ function getF(f, name) {
  * @typedef {Packages.com.mojang.brigadier.suggestion.Suggestion} mcSuggestion
  * @typedef {Packages.java.lang.reflect.Field} Field
  */
+
+module.exports = {}
