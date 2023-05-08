@@ -2,7 +2,7 @@
 // can draw lines from crosshair to mob
 // is service
 
-const { newLine, traceEntityBuilder } = require('./lib/TraceLine')
+const { newLine, traceEntityBuilder } = require('lib/TraceLine')
 
 if (World.isWorldLoaded()) Java.from(World.getEntities()).forEach(check)
 

@@ -1,6 +1,6 @@
 
 /**
- * just put require('./lib/DuplicateCheck') at the very beginning to prevent duplicates
+ * just put require('lib/DuplicateCheck') at the very beginning to prevent duplicates
  */
 
 const scriptPath = context.getCtx().getFile().getPath()
@@ -87,3 +87,5 @@ function quit() {
   )
   while (true) Client.waitTick()
 }
+
+export {}

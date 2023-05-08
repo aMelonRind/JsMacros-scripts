@@ -100,3 +100,5 @@ JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
 event.stopListener = JavaWrapper.methodToJava(() => {
   if (horseid) d2d.unregister()
 })
+
+module.exports = {}

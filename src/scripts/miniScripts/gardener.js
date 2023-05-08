@@ -122,3 +122,5 @@ function pick(slot, items) {
   Chat.actionbar(`Can't find ${items.join(' or ').replace(/_/g, ' ')} in your inventory.`, false)
   return false
 }
+
+module.exports = {}

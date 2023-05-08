@@ -2,7 +2,7 @@
 // can draw lines from crosshair to particles (damage particle in this script)
 // is service
 
-const { newLine } = require('./lib/TraceLine')
+const { newLine } = require('lib/TraceLine')
 // field_17832	NO_RENDER
 // field_17831	CUSTOM
 // field_17830	PARTICLE_SHEET_LIT

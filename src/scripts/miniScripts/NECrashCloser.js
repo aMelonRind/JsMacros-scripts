@@ -8,3 +8,5 @@ JsMacros.on('OpenScreen', JavaWrapper.methodToJava(e => {
     Chat.log('Not Enough Crashes Screen Closed')
   }
 }))
+
+module.exports = {}

@@ -185,3 +185,5 @@ function toSnbt(nbt) {
   nbt = nbt.match(/^[^\{]*(\{.*\})$/)?.[1] ?? ''
   return nbt.startsWith('{{') ? nbt.slice(1, -1) : nbt
 }
+
+module.exports = {}
