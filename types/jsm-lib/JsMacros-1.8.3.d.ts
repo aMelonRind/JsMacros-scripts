@@ -8387,7 +8387,7 @@ declare namespace Packages {
                * @since 1.1.3
                * @return the inventory mappings different depending on the type of open container/inventory.
                */
-              getMap(): JavaMap<InvMapId, number[]>;
+              getMap(): JavaMap<InvMapId, JavaArray<number>>;
 
               /**
                * @since 1.1.3
