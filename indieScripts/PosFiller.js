@@ -70,11 +70,11 @@ listeners.forEach(l => {
 
 const StringRange = Java.type('com.mojang.brigadier.context.StringRange')
 const mcSuggestion = Java.type('com.mojang.brigadier.suggestion.Suggestion')
-const InputSuggestorF  = getF(Reflection.getClass('net.minecraft.class_408'),  'field_21616')
-const suggestorWindowF = getF(Reflection.getClass('net.minecraft.class_4717'), 'field_21612')
-const SuggestionWindow = getF(Reflection.getClass('net.minecraft.class_4717$class_464').getDeclaredConstructors()[0])
-const chatFieldF       = getF(Reflection.getClass('net.minecraft.class_408'),  'field_2382')
-const changedListenerF = getF(Reflection.getClass('net.minecraft.class_342'),  'field_2088')
+const InputSuggestorF  = getF(Java.type('net.minecraft.class_408'),  'field_21616')
+const suggestorWindowF = getF(Java.type('net.minecraft.class_4717'), 'field_21612')
+const SuggestionWindow = getF(Java.type('net.minecraft.class_4717$class_464').class.getDeclaredConstructors()[0])
+const chatFieldF       = getF(Java.type('net.minecraft.class_408'),  'field_2382')
+const changedListenerF = getF(Java.type('net.minecraft.class_342'),  'field_2088')
 
 /** @type {(text: string) => number} */
 const getTextWidth = Client.getMinecraft().field_1772.method_1727
@@ -176,10 +176,10 @@ function Suggestion(start, end, text) {
 }
 
 /**
- * @template {JavaClass | { setAccessible(arg: boolean): void }} T
+ * @template {JavaClassArg | { setAccessible(arg: boolean): void }} T
  * @param {T} f 
- * @param {T extends JavaClass ? string : undefined} name 
- * @returns {T extends JavaClass ? Field : T}
+ * @param {T extends JavaClassArg ? string : undefined} name 
+ * @returns {T extends JavaClassArg ? Field : T}
  */
 function getF(f, name) {
   if (name) f = f.getDeclaredField(name)
