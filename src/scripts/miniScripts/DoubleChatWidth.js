@@ -8,3 +8,5 @@ JsMacros.once('ChunkLoad', JavaWrapper.methodToJava(() => {
   const Double = Java.type('java.lang.Double')
   optionValue.set(widthOption, new Double(2.0))
 }))
+
+module.exports = {}

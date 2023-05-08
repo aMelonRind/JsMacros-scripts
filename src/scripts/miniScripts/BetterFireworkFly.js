@@ -30,3 +30,5 @@ JsMacros.on('Key', JavaWrapper.methodToJava(e => {
   if (!mainHand && p.getOffHand().getItemId() !== 'minecraft:firework_rocket') return
   interactItem(p.getRaw(), mainHand ? MAIN_HAND : OFF_HAND)
 }))
+
+module.exports = {}

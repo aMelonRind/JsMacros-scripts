@@ -11,3 +11,5 @@ JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
   if (!trace || !mobTypes.includes(trace.getType())) return
   Player.getPlayer().attack(trace)
 }))
+
+module.exports = {}

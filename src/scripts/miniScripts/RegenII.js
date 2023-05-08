@@ -11,3 +11,5 @@ const to = Time.time() + 5000 // Timeout
 while (!Hud.isContainer() && Time.time() < to) Client.waitTick()
 if (Hud.isContainer())
 Player.openInventory().selectSecondEffect('minecraft:regeneration')
+
+module.exports = {}

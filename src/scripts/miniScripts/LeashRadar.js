@@ -90,3 +90,5 @@ class LeashedMob {
     return true
   }
 }
+
+module.exports = {}

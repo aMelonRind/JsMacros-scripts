@@ -87,3 +87,5 @@ function quit() {
   )
   while (true) Client.waitTick()
 }
+
+export {}

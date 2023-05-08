@@ -400,3 +400,4 @@ function RayTrace(pos = P2A(Player.getPlayer().getPos().add(0, Player.getPlayer(
 }
 */
 
+module.exports = {}
