@@ -29,6 +29,9 @@ type BlockUpdateType = 'STATE' | 'ENTITY'
 type BossBarUpdateType = 'ADD' | 'REMOVE' | 'UPDATE_PERCENT'
 | 'UPDATE_NAME' | 'UPDATE_STYLE' | 'UPDATE_PROPERTIES'
 
+type StringFilterMethod = 'EQUALS' | 'CONTAINS' | 'STARTS_WITH' | 'ENDS_WITH' | 'MATCHES'
+type NumberFilterOperation = '>' | '>=' | '<' | '<=' | '==' | '!='
+
 type HandledScreenName =
 | '1 Row Chest'
 | '2 Row Chest'
