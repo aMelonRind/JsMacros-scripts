@@ -15,7 +15,7 @@ const prev = GlobalVars.getObject(`MelonRind:DuplicateChecker:script<${scriptPat
 if (!prev) shouldStart = true
 else try {
   if (!prev[Enum.status]) shouldStart = true
-}catch (e) {
+} catch (e) {
   shouldStart = true
 }
 
@@ -25,14 +25,14 @@ if (!shouldStart) { // previous one is running
       if (prev[Enum.count] >= 8) {
         prev[Enum.status].context.getCtx().closeContext()
         Chat.log(`[Duplicate] killed previous context. (${scriptPath.match(/[^\\]+$/)[0]})`)
-      }else {
+      } else {
         const times = 8 - prev[Enum.count]
         Chat.log(
           `§c[Duplicate] previous context is still running! (${scriptPath.match(/[^\\]+$/)[0]})\n` +
           `  press ${times} more time${times === 1 ? '' : 's'} to kill it.`
         )
       }
-  }catch (e) {
+  } catch (e) {
     throw e
   }
   quit()
@@ -76,7 +76,7 @@ function quit() {
             frameListener.unregister()
           }
         }
-      }catch (e) {}
+      } catch (e) {}
     })).buildInstance([])
     frameListener.register()
     event.getObject('ctx').closeContext()

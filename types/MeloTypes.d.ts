@@ -4,6 +4,9 @@ type _ = { [n: symbol]: never }
 type Dict<K extends keyof any = string, V = number> = { [P in K]?: V }
 
 type EventCallback<E extends keyof Events, R = void> = (event: Events[E], context: Context) => R
+type Callback<R = any> = (...args: any[]) => R
+type Filter<T> = (v: any) => v is T
+type Condition<A extends [...any] = []> = (...args: A) => any
 
 type Context = EventContainer
 type ClientPlayer = ClientPlayerEntityHelper
@@ -13,9 +16,15 @@ type Vec2D = PositionCommon$Vec2D
 type Vec3D = PositionCommon$Vec3D
 type BlockPos = BlockPosHelper
 
+type Pos3DTuple = [number, number, number]
+
 type Vec3DLike = Vec3D | number[] | number[][]
-type Pos3DLike = Pos3D | number[] | Record<'x' | 'y' | 'z', number> |
-  Record<'getX' | 'getY' | 'getZ', () => number>
+type Pos3DLike =
+| Pos3D
+| number[]
+| Pos3DTuple
+| Record<'x' | 'y' | 'z', number>
+| Record<'getX' | 'getY' | 'getZ', () => number>
 
 /** you can also treat {@link AsyncInventory} and {@link Inventory} as InfoInventory */
 type InfoInventory = Omit<Inventory, keyof PromisfiedInvMethods |
@@ -38,6 +47,10 @@ interface PromisfiedInvMethods {
   dragClick  (slots: number[], mousebutton:  Bit): Promise<AsyncInventory>
   /** @alias util.container.waitInterval */
   waitInterval<R>(cb?: () => R): Promise<R | undefined>
+}
+
+interface UtilWfePromise<E extends keyof Events> extends Promise<FJsMacros$EventAndContext<E>?> {
+  cancel(): void
 }
 
 declare namespace Crafting {

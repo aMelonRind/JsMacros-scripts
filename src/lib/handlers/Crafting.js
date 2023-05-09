@@ -19,24 +19,36 @@ const /** @enum {Crafting.RecipeType} */ RecipeType = {
 
 class CraftingHandler {
 
+  //@ts-ignore
   Recipe = BaseRecipe
-  /** @type {RecipesHandler} */ _handler
-  /** @type {Dict<number>} */ _result
+  /** @type {RecipesHandler} *///@ts-ignore
+  _handler
+  /** @type {Dict<number>} *///@ts-ignore
+  _result
 
   /**
    * @type {{
    *  performTimes: Dict<number>,
    *  results: Dict<ItemId>
-   * }=}
-   */
+   * }}
+   */// @ts-ignore
   res
 
+  /**
+   * @param {Crafting.json.Recipe[]} recipes 
+   * @param {ItemId[]} outputs 
+   * @returns 
+   */
   loadRecipes(recipes, outputs) {
     this._handler = new RecipesHandler(recipes, outputs)
     util.debug.log?.(`[crafting] loaded Recipes: ${JSON.stringify(this._handler.recipes)}`)
     return this
   }
 
+  /**
+   * @param {Dict<ItemId, number>} items 
+   * @returns 
+   */
   calculate(items) {
     if (!this._handler) util.throw('no recipes')
     return this.res = this._handler.calculate(items)
@@ -44,48 +56,51 @@ class CraftingHandler {
 
   /**
    * execute crafting process
-   * @param {{
+   * @typedef {{
    *  group: string,
    *  getTotal?: () => Dict<ItemId>,
-   *  operate?: (items: Dict<ItemId>) => Promise }} input 
-   * @param {{ [id: string]: {
-   *  group: string,
-   *  getTotal?: () => Dict<ItemId>,
-   *  operate?: (items: Dict<ItemId>) => Promise } }} output 
-   * @param {Pos3DLike[]} craftingTables
+   *  operate?: (items: Dict<ItemId>, clear?: boolean) => Promise<*> }} ContainerAccesser
+   * @param {string | ContainerAccesser} input 
+   * @param {{ [id: string]: string | ContainerAccesser }} output 
+   * @param {Pos3DLike[]} craftingTables 
    * @param {Pos3DLike} dump NOT TRASH CHEST!
    */
   async exec(input, output, craftingTables, dump) {
-    craftingTables = craftingTables.map(util.toPos)
-    if (typeof input === 'string') input = { group: input }
-    for (const k in output) if (typeof output[k] === 'string') output[k] = { group: output[k] }
+    const craftingTables2 = craftingTables.map(util.toPos)
+    const input2 = typeof input === 'string' ? { group: input } : input
+    /** @type {{ [id: string]: ContainerAccesser }} */
+    const output2 = {}
+    for (const k in output) {
+      const o = output[k]
+      output2[k] = typeof o === 'string' ? { group: o } : o
+    }
 
-    if (!(input.getTotal && input.operate) && !(input.group in util.storage.storages))
-      util.throw(`storage group ${input.group} not exist`)
+    if (!(input2.getTotal && input2.operate) && !(input2.group in util.storage.storages))
+      util.throw(`storage group ${input2.group} not exist`)
 
-    for (const item in output) if (!this._handler.outputs.includes(item)) delete output[item]
-    for (const item of this._handler.outputs) if (!(item in output))
+    for (const item in output2) if (!this._handler.outputs.includes(item)) delete output2[item]
+    for (const item of this._handler.outputs) if (!(item in output2))
       util.throw(`did't provide output for ${item}`)
-    for (const outputGroup of Object.values(output)
+    for (const outputGroup of Object.values(output2)
       .filter(v => !(v.getTotal && v.operate)).map(v => v.group))
     if (!(outputGroup in util.storage.storages)) util.throw(`storage group ${outputGroup} not exist`)
 
-    input.getTotal ??= () => util.storage.totalItems(input.group)
-    this.calculate(input.getTotal())
+    input2.getTotal ??= () => util.storage.totalItems(input2.group)
+    this.calculate(input2.getTotal())
     if (util.dict.isEmpty(this.res.performTimes)) {
       util.debug.log?.('[crafting] nothing to craft')
       return
     }
 
-    input.operate ??= async (items, clear) => await util.storage.operate(input.group, items, clear)
-    for (const k in output) {
-      output[k].operate ??= async items => await util.storage.operate(output[k].group, items)
-      output[k].getTotal ??= () => util.storage.totalItems(output[k].group)
+    input2.operate ??= async (items, clear) => await util.storage.operate(input2.group, items, clear)
+    for (const k in output2) {
+      output2[k].operate ??= async items => await util.storage.operate(output2[k].group, items)
+      output2[k].getTotal ??= () => util.storage.totalItems(output2[k].group)
     }
 
-    /** @type {{ [chestSlot: number]: number }} */
+    /** @type {{ [chestSlot: number]: number, total: number }} */
     const dumpInv = {}
-    /** @type {{ [chestSlot: number]: number }} */
+    /** @type {{ [chestSlot: number]: HotbarSlot | OffhandSlot }} */
     const dumpHotbar = {}
     if (Hud.isContainer()) Player.openInventory().close()
     const inv = Player.openInventory()
@@ -94,25 +109,25 @@ class CraftingHandler {
       const inv = await util.container.waitGUI(dump = util.toPos(dump))
       if (!inv || !inv.getMap().container) util.throw("can't open dump chest")
       dumpInv.total = inv.getTotalSlots()
-      const invSlots   = Java.from(inv.getMap().main).concat(inv.getMap().hotbar)
+      const invSlots   = inv.getMap().main.concat(inv.getMap().hotbar)
       const chestSlots = Java.from(inv.getMap().container)
       const invItems   = invSlots  .map(s => !inv.getSlot(s).isEmpty())
       const chestAirs  = chestSlots.map(s =>  inv.getSlot(s).isEmpty())
       if (chestAirs.filter(v => v).length < invItems.filter(v => v).length)
         util.throw('not enough dump chest space')
       // if space is enough, dump prettier
-      const itemRows  = new Array(Math.ceil (invItems.length / 9)).fill()
+      const itemRows  = new Array(Math.ceil (invItems.length / 9)).fill(0)
         .map((_, i) => invItems.slice(i * 9, i * 9 + 9).some(v => v))
-      const chestRows = new Array(Math.floor(chestAirs.length / 9)).fill()
+      const chestRows = new Array(Math.floor(chestAirs.length / 9)).fill(0)
         .map((_, i) => invItems.slice(i * 9, i * 9 + 9).every(v => !v))
       for (const [row, hasItem] of Object.entries(itemRows).reverse()) {
         if (!hasItem) continue
         if (chestRows.every(r => !r)) break
         const toRow = chestRows.lastIndexOf(true) * 9
-        invItems.slice(row * 9, row * 9 + 9).forEach((s, i) => {
+        invItems.slice(+row * 9, +row * 9 + 9).forEach((s, i) => {
           if (!s) return
-          dumpInv[chestSlots[toRow + i]] = invSlots[row * 9 + i]
-          invItems[row * 9 + i] = false
+          dumpInv[chestSlots[toRow + i]] = invSlots[+row * 9 + i]
+          invItems[+row * 9 + i] = false
           chestAirs[toRow  + i] = false
         })
         chestRows[toRow / 9] = false
@@ -120,16 +135,16 @@ class CraftingHandler {
       if (itemRows.some(v => v)) {
         // not all dumped, ugly dumping
         const chestAirLeft = chestAirs.map(((v, i) => v ? chestSlots[i] : null))
-          .filter(v => v != null).reverse()
+          .filter(/** @type {Filter<number>} */ (v => v != null)).reverse()
         invItems.forEach((v, i) => {
           if (v) dumpInv[chestAirLeft.pop()] = invSlots[i]
         })
       }
       const hotbar = Java.from(inv.getMap().hotbar)
       Object.keys(dumpInv).forEach(k => {
-        if (hotbar.includes(dumpInv[k])) {
-          dumpHotbar[k] = hotbar.indexOf(dumpInv[k])
-          delete dumpInv[k]
+        if (hotbar.includes(dumpInv[+k])) {
+          dumpHotbar[+k] = hotbar.indexOf(dumpInv[+k])
+          delete dumpInv[+k]
         }
       })
       // dump, hotbar first
@@ -146,13 +161,15 @@ class CraftingHandler {
     while (true) {
       util.debug.log?.('[crafting] looping')
       // find recipe that's able to craft
-      const currentItems = util.dict.add(util.dict.fromInv(), input.getTotal())
+      /** @type {Dict<ItemId>} */
+      const currentItems = util.dict.add(util.dict.fromInv(), input2.getTotal())
       this.calculate(util.dict.clone(currentItems))
       if (util.dict.isEmpty(this.res.performTimes)) break
       const recipei = Object.keys(this.res.performTimes)
-        .sort(ari => this._handler.recipes[ari].more ? 1 : -1)
-        .find(ri => util.dict.isLessOrEqualThan(this._handler.recipes[ri].info.input, currentItems))
-      if (recipei == null) util.throw(`error finding recipe to craft (${
+        .map(v => +v)
+        .sort(ari => this._handler.recipes[+ari].more ? 1 : -1)
+        .find(ri => util.dict.isLessOrEqualThan(this._handler.recipes[+ri].info.input, currentItems))
+      if (recipei === undefined) util.throw(`error finding recipe to craft (${
         JSON.stringify(this._handler.recipes.map(r => r.info.input))}) (${JSON.stringify(currentItems)})`)
       /** @type {Recipe} */
       const recipe = this._handler.recipes[recipei]
@@ -162,20 +179,20 @@ class CraftingHandler {
       this.res.performTimes[recipei] -= times
       if (this.res.performTimes[recipei] === 0) delete this.res.performTimes[recipei]
       // call input.operate
-      if (!(await input.operate(util.dict.mul(util.dict.clone(recipe.info.input), times), true))) {
+      if (!(await input2.operate(util.dict.mul(util.dict.clone(recipe.info.input), times), true))) {
         util.debug.log?.("[crafting] can't operate items, continue loop")
         continue
       }
       // find crafting table and call this.recipeBookCraft or this.macroCraft
       const inv = Hud.getOpenScreenName() === 'Crafting Table' ?
         util.container.openInventory() :
-        await util.container.waitGUI(util.math.nearest(craftingTables))
+        await util.container.waitGUI(util.math.nearest(craftingTables2))
       if (!inv) util.throw("can't open crafting table")
       await recipe.craft(inv)
       // if contains output call output.operate to store
       const items = util.dict.fromInv()
-      for (const id in output) {
-        if (id in items) if (!(await output[id].operate({ [id]: 0 }))) {
+      for (const id in output2) {
+        if (id in items) if (!(await output2[id]?.operate?.({ [id]: 0 }))) {
           util.debug.log?.(`output error or full (${id})`)
         }
       }
@@ -207,7 +224,6 @@ class RecipesHandler {
   /** @type {Recipe[]} */ recipes
 
   /**
-   * 
    * @param {Crafting.json.Recipe[]} recipes 
    * @param {ItemId[]} outputs 
    */
@@ -218,7 +234,7 @@ class RecipesHandler {
 
   /**
    * get recipe perform times from items using divider
-   * @param {Dict<ItemId>} items 
+   * @param {Dict<ItemId, number>} items 
    * @returns {{ performTimes: { [index: number]: number }, results: Dict<ItemId> }}
    */
   calculate(items) {
@@ -325,6 +341,7 @@ class BaseRecipe {
 
 }
 
+//@ts-ignore
 /** @typedef {BookRecipe | MacroRecipe} Recipe */
 
 class BookRecipe extends BaseRecipe {
@@ -407,7 +424,7 @@ class MacroRecipe extends BaseRecipe {
    * @returns {MacroRecipe}
    */
   static parse(json) {
-    util.throw('not fully implemented')
+    // util.throw('not fully implemented')
     util.completeIdKey(json.info.input)
     json.info.output = util.completeId(json.info.output)
     util.completeIdKey(json.pattern)

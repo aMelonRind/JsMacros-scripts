@@ -78,7 +78,6 @@ module.exports = util => {
     }
 
     /**
-     * 
      * @param {string} item 
      * @param {{ [output: string]: number[] }} dict 
      * @param {any[]} recipes 
@@ -350,7 +349,6 @@ module.exports = util => {
     },
 
     /**
-     * 
      * @param {Inventory} inv 
      * @param {string} id 
      * @param {dict} inputInfo 

@@ -1,4 +1,4 @@
-
+//@ts-nocheck
 // util.actionbar
 
 const util = require('./util')

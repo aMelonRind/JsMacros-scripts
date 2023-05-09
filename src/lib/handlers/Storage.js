@@ -7,6 +7,7 @@ util.container
 
 let skipTop = true
 let possibleContainer = [/(?<!minecraft:ender_)chest$/, /shulker_box$/, 'minecraft:barrel']
+/** @type {Record<string, Pos3D>} */
 const chestDirection = {
   northright: util.Pos(-1, 0,  0),
   northleft:  util.Pos( 1, 0,  0),
@@ -24,12 +25,11 @@ const storages = {}
 class ContainerChunk {
 
   /**
-   * 
    * @param {Vec3DLike} box 
    */
   constructor(box) {
     this.box = util.math.toPositiveVec(box)
-    this.anchor = {x: box.x1 >> 4, z: box.z1 >> 4}
+    this.anchor = {x: this.box.x1 >> 4, z: this.box.z1 >> 4}
     /**
      * @type {{ [pos: string]: {
      *  pos: Pos3D,
@@ -53,15 +53,16 @@ class ContainerChunk {
       /**
        * @type {{
        *  pos: Pos3D
-       *  facing: 'north' | 'south' | 'west' | 'east'
-       *  type: 'single' | 'left' | 'right'
+       *  facing: 'north' | 'south' | 'west' | 'east' | string & {}
+       *  type: 'single' | 'left' | 'right' | string & {}
        * }[]}
        */
       chest: [],
       /** @type {Pos3D[]} */ other: []
     }
-    this.waitForChunk = new Array((box.x2 >> 4) - this.anchor.x + 1).fill().map(() =>
-      new Array((box.z2 >> 4) - this.anchor.z + 1).fill(true)
+    /** @type {((number | boolean)[]?)[]} */ 
+    this.waitForChunk = new Array((this.box.x2 >> 4) - this.anchor.x + 1).fill(0).map(() =>
+      new Array((this.box.z2 >> 4) - this.anchor.z + 1).fill(true)
     )
     util.debug.log?.(`[storage] container chunk created (${toStrPos(this.box.getStart())})`)
   }
@@ -160,7 +161,7 @@ class ContainerChunk {
       //   chests.map(pos => `${pos.x},${pos.y},${pos.z}`)
       //     .concat(others.map(pos => `${pos.x},${pos.y},${pos.z}`))
       zarr[z] = false
-      if (zarr.every(v => !v)) this.waitForChunk[x] = false
+      if (zarr.every(v => !v)) this.waitForChunk[x] = null
     }))
   }
 
@@ -195,10 +196,12 @@ class ContainerChunk {
       )
       Object.values(storages).forEach(g => g.forEach(s => s.scanChunks()))
     }
+    // @ts-ignore
     delete this.waitForChunk
     util.debug.log?.(`[storage] block scan done (${toStrPos(this.box.getStart())})`)
     // all the container should be in the scanResult now
     // time to map them here
+    /** @type {Record<string, string>} */
     const offsetTable = {}
     const center = util.movement.area ? util.Pos(
       (util.movement.area.x1 + util.movement.area.x2) / 2,
@@ -207,6 +210,7 @@ class ContainerChunk {
     ) : Player.getPlayer().getPos()
     while (this.scanResult.chest[0]) {
       const chest = this.scanResult.chest.pop()
+      if (!chest) break
       if (chest.type === 'single') {
         this.containers[toStrPos(chest.pos)] = {
           pos: chest.pos,
@@ -254,10 +258,10 @@ class ContainerChunk {
     })
     // tidy up onTops
     Object.values(this.containers).forEach(c => {
-      if (c.onTop1 in offsetTable) c.onTop1 = offsetTable[c.onTop1]
-      if (c.onTop2 in offsetTable) c.onTop2 = offsetTable[c.onTop2]
-      if (!(c.onTop1 in this.containers) || !c.onTop1) delete c.onTop1
-      if (!(c.onTop2 in this.containers) || !c.onTop2) delete c.onTop2
+      if (c.onTop1 && c.onTop1 in offsetTable) c.onTop1 = offsetTable[c.onTop1]
+      if (c.onTop2 && c.onTop2 in offsetTable) c.onTop2 = offsetTable[c.onTop2]
+      if (!(c.onTop1 && c.onTop1 in this.containers) || !c.onTop1) delete c.onTop1
+      if (!(c.onTop2 && c.onTop2 in this.containers) || !c.onTop2) delete c.onTop2
       if (!c.onTop1 && c.onTop2) {
         c.onTop1 = c.onTop2
         delete c.onTop2
@@ -275,6 +279,7 @@ class ContainerChunk {
       (a, b) => a.z - b.z || a.x - b.x || a.y - b.y :
       (a, b) => a.x - b.x || a.z - b.z || a.y - b.y
     ).map(pos => toStrPos(pos))
+    /** @type {string[]} */
     const empty = []
     for (const key of list) {
       const data = this.containers[key]
@@ -303,15 +308,15 @@ class ContainerChunk {
   }
 
   /**
-   * 
    * @param {string | Pos3DLike} pos 
    * @param {InfoInventory} inv 
    */
   async update(pos, inv) {
     pos = toStrPos(pos)
     if (!(pos in this.containers)) return false
-    const last = Java.from(inv.getMap().container).at(-1)
+    const last = Java.from(inv.getMap().container).at(-1) ?? 0
     for (let i = 0; i < 3 && inv.getSlot(last).isEmpty(); i++) await util.waitTick()
+    /** @type {Record<string, number>} */
     const current = {}
     let hasEmpty = false
     Java.from(inv.getMap().container).map(s => inv.getSlot(s)).forEach(i => {
@@ -389,6 +394,7 @@ class ContainerChunk {
         this.update(pos, inv)
       } else {
         const item = Object.keys(need).find(k => need[k] > 0)
+        if (!item) return true
         const pos = this.find(item)
         if (!pos) return false
         const inv = await util.container.waitGUI(pos)
@@ -420,7 +426,7 @@ class StorageHandler {
   /**
    * @param {boolean} bool
    */
-  set skipTop(bool = true) {
+  set skipTop(bool) {
     skipTop = !!bool
   }
 
@@ -511,7 +517,6 @@ class StorageHandler {
   // },
 
   /**
-   * 
    * @param {string} group 
    * @returns {Dict} total items in this group
    */
@@ -568,8 +573,8 @@ function toStrPos(pos, yoffset = 0) {
   if (typeof pos === 'string')
   if (yoffset === 0) return pos
   else pos = toPos3D(pos)
-  pos = util.toPos(pos)
-  return `${pos.x},${pos.y + yoffset},${pos.z}`
+  const pos3 = util.toPos(pos)
+  return `${pos3.x},${pos3.y + yoffset},${pos3.z}`
 }
 
 /**
@@ -578,11 +583,11 @@ function toStrPos(pos, yoffset = 0) {
  * @returns {Pos3D}
  */
 function toPos3D(str) {
+  // @ts-ignore
   return util.Pos(...str.split(',').map(v => +v))
 }
 
 /**
- * 
  * @param {Vec3D} vec1 
  * @param {Vec3D} vec2 
  */

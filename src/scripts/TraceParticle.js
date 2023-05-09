@@ -27,13 +27,14 @@ yF.setAccessible(true)
 zF.setAccessible(true)
 
 JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
+  /** @type {JavaArray<*>} */
   const pArr = particlesF.get(ParticleManager)?.get(pSheet)?.toArray()
-  if (!pArr) return
-  Java.from(pArr).forEach((p, i) => {
+  pArr?.forEach((p, i) => {
     if (i > 4096) p.method_3085() // .markDead()
     if (ageF.get(p) > 1) return // sometimes is 0, sometimes is 1
     if (!(p instanceof DamageParticle)) return
     newLine(0xFFEE00, l => {
+      // @ts-ignore
       if (!p.method_3086()) return l.remove = true // .isAlive()
       l.x = xF.get(p)
       l.y = yF.get(p)
@@ -41,3 +42,5 @@ JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
     })
   })
 }))
+
+module.exports = {}

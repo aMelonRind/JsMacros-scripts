@@ -63,9 +63,9 @@ const onChanges = []
 /** @type {KeywordListener[]} */
 const onKeywords = []
 listeners.forEach(l => {
-  if ('onOpenChatScreen' in l) onOpenChatScreens.push(l.onOpenChatScreen)
-  if ('onChange' in l) onChanges.push(l.onChange)
-  if ('onKeyword' in l) onKeywords.push(l.onKeyword)
+  if (l.onOpenChatScreen) onOpenChatScreens.push(l.onOpenChatScreen)
+  if (l.onChange) onChanges.push(l.onChange)
+  if (l.onKeyword) onKeywords.push(l.onKeyword)
 })
 
 const StringRange = Java.type('com.mojang.brigadier.context.StringRange')
@@ -104,7 +104,6 @@ JsMacros.on('OpenScreen', JavaWrapper.methodToJava(e => {
 }))
 
 /**
- * 
  * @param {IScreen} screen 
  * @param {?} input 
  * @param {string} text 
@@ -116,14 +115,14 @@ function triggerSuggest(screen, input, text) {
 
   /** @type {Suggestion[]} */
   const res = onChanges.flatMap(cb => cb(text, cursor))
-    .filter(s => s instanceof Suggestion)
+    .filter(/** @type {Filter<Suggestion>} */ (s => s instanceof Suggestion))
     .filter(s => !s.discard)
   if (keywordMatch) {
     const [, keyword, sym] = keywordMatch
     const kres = onKeywords.flatMap(cb => cb(keyword, sym))
-      .filter(v => typeof v === 'string')
+      .filter(/** @type {Filter<string>} */ (v => typeof v === 'string'))
     if (kres.length) {
-      const start = keywordMatch.index
+      const start = keywordMatch.index ?? 0
       const end = start + keywordMatch[0].length
       res.push(...kres.map(s => new Suggestion(start, end, s)).filter(s => !s.discard))
     }
@@ -132,7 +131,9 @@ function triggerSuggest(screen, input, text) {
   if (!res.length) return
 
   /** @type {JavaList<mcSuggestion>} */
+  // @ts-ignore
   const list = new (Java.type('java.util.ArrayList'))()
+  /** @type {number} */// @ts-ignore
   const start = res.reduce((p, v) => p < v.start ? p : v.start, Infinity)
   let maxWidth = 0
   res.forEach(s => {
@@ -161,7 +162,8 @@ function triggerSuggest(screen, input, text) {
  * @param {string} text
  */
 function Suggestion(start, end, text) {
-  const discard = (msg) => {
+  this.discard = false
+  const discard = (/** @type {string} */ msg) => {
     if (msg != null) Chat.log(`[PosFiller] ${msg}`)
     this.discard = true
   }
@@ -170,20 +172,23 @@ function Suggestion(start, end, text) {
   if (typeof text  !== 'string') return discard(`wrong type on text (${text})`)
   if (start < 0 || start >= currentText.length) return discard(`invalid range of start (${start})`)
   if (end < 0 || end > currentText.length) return discard(`invalid range of end (${end})`)
-  this.start = start
-  this.end = end
-  this.text = text
+  /** @type {number} */ this.start = start
+  /** @type {number} */ this.end = end
+  /** @type {string} */ this.text = text
 }
 
 /**
- * @template {JavaClassArg | { setAccessible(arg: boolean): void }} T
+ * @template {JavaClassArg | AccessibleObject} T
  * @param {T} f 
- * @param {T extends JavaClassArg ? string : undefined} name 
+ * @param {T extends JavaClassArg ? string : undefined} [name] 
  * @returns {T extends JavaClassArg ? Field : T}
  */
 function getF(f, name) {
+  // @ts-ignore
   if (name) f = f.getDeclaredField(name)
+  // @ts-ignore
   f.setAccessible(true)
+  // @ts-ignore
   return f
 }
 
@@ -205,6 +210,7 @@ function getF(f, name) {
  * @typedef {Packages.xyz.wagyourtail.jsmacros.client.api.sharedinterfaces.IScreen} IScreen
  * @typedef {Packages.com.mojang.brigadier.suggestion.Suggestion} mcSuggestion
  * @typedef {Packages.java.lang.reflect.Field} Field
+ * @typedef {Packages.java.lang.reflect.AccessibleObject} AccessibleObject
  */
 
 module.exports = {}

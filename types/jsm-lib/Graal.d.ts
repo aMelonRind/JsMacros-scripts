@@ -1,6 +1,8 @@
 
 /// <reference lib = "ES2022"/>
 
+declare const __dirname: string;
+declare const __filename: string;
 declare function require(path: string): any;
 declare function load(source: string | Packages.java.io.File | Packages.java.net.URL): any;
 declare function loadWithNewGlobal(source: string | Packages.java.io.File | Packages.java.net.URL, ...arguments: any[]): any;

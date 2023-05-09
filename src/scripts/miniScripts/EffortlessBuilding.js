@@ -1,4 +1,4 @@
-
+// @ts-nocheck
 // support ended, can find some useful methods here
 // config at Line 89
 // is service
@@ -196,7 +196,7 @@ function fillTick() {
   let filled = false
   outer:
   for (const i in fillQueue) if (fillQueue[i]) 
-  for (const b in fillQueue[i].boxes) if (fillQueue[i].boxes[b]){
+  for (const b in fillQueue[i].boxes) if (fillQueue[i].boxes[b]) {
     if (!World.getBlock(...fillQueue[i].boxes[b][0])) continue
     //if (World.findBlocksMatching(
     //  Math.floor(fillQueue[i].boxes[b][0][0] >> 4),

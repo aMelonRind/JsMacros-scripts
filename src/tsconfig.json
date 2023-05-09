@@ -50,7 +50,18 @@
 
     /* JavaScript Support */
     "allowJs": true,                                     /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */
-    "checkJs": true,                                     /* Enable error reporting in type-checked JavaScript files. */
+    /**
+     * i'll enable this when typescript is smart enough to know
+     *  * in `for (const k in object) object[k]` or `if (k in object) object[k]` k: keyof object
+     *  * the difference between "k key doesn't exist in object" and "object[k]: undefined"
+     *  * <tuple>.map() returns tuple
+     *  * callback in promise will run immediately (Container.js/waitGUI/wfe)
+     *  * (id.includes(':') ? id : 'minecraft:' + id) extends `${string}:${string}`
+     *  * when `object[k] ??= <default value>`, object[k] is not nullish
+     *  * when `Array.isArray(object[k])`, object[k] is Array
+     *  * object can have Symbol.iterator to act like tuple (spreading fixed amount of elements)
+     */
+    "checkJs": false,                                    /* Enable error reporting in type-checked JavaScript files. */
     // "maxNodeModuleJsDepth": 1,                        /* Specify the maximum folder depth used for checking JavaScript files from 'node_modules'. Only applicable with 'allowJs'. */
 
     /* Emit */

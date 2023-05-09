@@ -6411,18 +6411,19 @@ declare namespace Packages {
             }
             interface NBTElementHelper<T = /* minecraft class */ any> extends BaseHelper<T> {
 
+              get(key: any): NBTElementHelper;
               /** @since 1.5.1 */
               getType(): number;
               /** @since 1.5.1 */
               isNull(): boolean;
               /** @since 1.5.1 */
-              isNumber(): boolean;
+              isNumber(): this is NBTElementHelper$NBTNumberHelper;
               /** @since 1.5.1 */
               isString(): boolean;
               /** @since 1.5.1 */
-              isList(): boolean;
+              isList(): this is NBTElementHelper$NBTListHelper;
               /** @since 1.5.1 */
-              isCompound(): boolean;
+              isCompound(): this is NBTElementHelper$NBTCompoundHelper;
 
               /**
                * if element is a string, returns value.  
@@ -6859,7 +6860,7 @@ declare namespace Packages {
               /** @since 1.5.1 */
               asDouble(): number;
               /** @since 1.5.1 */
-              asNumber(): java.lang.Number;
+              asNumber(): number;
 
             }
 
@@ -10498,7 +10499,7 @@ declare namespace Packages {
         trimmed(textRenderer: /* minecraft class */ any, str: /* minecraft class */ any, width: number): /* minecraft class */ any;
 
       }
-      interface BaseScreen extends /* supressed minecraft class */ JavaObject, IOverlayParent {
+      interface BaseScreen extends /* supressed minecraft class */ JavaObject, IScreen, IOverlayParent {
 
         setParent(parent: /* minecraft class */ any): void;
         reload(): void;
@@ -14694,6 +14695,7 @@ declare namespace Packages {
         }
         interface Function<T, R> extends JavaObject {
 
+          (arg0?: T): R;
           apply(arg0: T): R;
           compose<V>(arg0: Function<any, any>): Function<V, R>;
           andThen<V>(arg0: Function<any, any>): Function<T, V>;

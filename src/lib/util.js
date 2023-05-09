@@ -4,9 +4,6 @@
  * @exports util
  */
 
-if (context.getCtx().getFile().getPath() === __filename)
-  throw 'util is a module!\nuse `const util = require(/* path to util.js */)` to load it.'
-
 const StringNbtReader = Java.type('net.minecraft.class_2522')
 const ItemStack       = Java.type('net.minecraft.class_1799')
 const ItemStackHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper')
@@ -25,6 +22,7 @@ const itemCache = {}
 const D2R = Math.PI / 180
 
 let tickClock = 1
+/** @type {Record<string, Callback | Callback[]>} */
 const tickQueue = {}
 /** @type {Promise<never>} */
 const never = new Promise(() => null)
@@ -48,8 +46,8 @@ class Util {
    * @returns {Pos3D}
    */
   toPos(pos) {
+    // @ts-ignore
     if (pos instanceof Pos3D) return pos
-    // if (!pos) return util.Pos(0, 0, 0)
     if (Array.isArray(pos))
       return this.Pos(pos[0], pos[1], pos[2])
     if ('x' in pos && 'y' in pos && 'z' in pos)
@@ -65,11 +63,13 @@ class Util {
    * @returns {Vec3D}
    */
   toVec(vec) {
+    // @ts-ignore
     if (vec instanceof Vec3D) return vec
-    // if (!vec) return util.Vec(0, 0, 0, 0, 0, 0)
     if (Array.isArray(vec))
+      // @ts-ignore
       return this.Vec(...vec.flat())
     util.throw(`can't identify vec (${vec})`)
+    return util.Vec(0, 0, 0, 0, 0, 0)
   }
 
   /**
@@ -85,6 +85,7 @@ class Util {
   /**
    * call all callback in {@link util.stopListeners} then try to close script
    * @param {string} [reason]
+   * @returns {never}
    */
   stopAll(reason) {
     this.stopListeners.splice(0).forEach(cb => cb())
@@ -127,7 +128,7 @@ class Util {
               frameListener.unregister()
             }
           }
-        }catch (e) {}
+        } catch (e) {}
       })).buildInstance([])
       frameListener.register()
       event.getObject('ctx').closeContext()
@@ -202,20 +203,12 @@ class Util {
   }
 
   /**
-   * @async
-   * @param {number} ticks
-   * @returns {Promise<void>=}
-   */
-  waitTick(ticks = 1) {}
-
-  /**
-   * @async
    * @template R
    * @param {number} ticks
-   * @param {() => R} [callback]
-   * @returns {Promise<void> | R}
+   * @param {Callback<R>} [callback]
+   * @returns {Promise<void | R>}
    */
-  waitTick(ticks = 1, callback) {
+  async waitTick(ticks = 1, callback) {
     if (typeof ticks !== 'number') this.throw('ticks must be a number')
     if (ticks <= 0) return callback?.()
     if (ticks === Infinity) return never
@@ -239,23 +232,28 @@ class Util {
   on(event, callback) {
     if (typeof callback === 'function')
       callback = JavaWrapper.methodToJava(callback)
-    event = JsMacros.on(event, callback)
-    listeners.push(event)
-    return event
+    const listener = JsMacros.on(event, callback)
+    listeners.push(listener)
+    return listener
   }
 
   /**
-   * 
-   * @async
    * @template {keyof Events} E
    * @param {E} event 
    * @param {EventCallback<E, boolean>} [condition] 
    * @param {EventCallback<E>} [callback] 
    * @param {number} timeout 
-   * @returns {Promise<?{event: Events[E], context: Context}> & { cancel(): void }}
+   * @returns {UtilWfePromise<E>}
    */
   waitForEvent(event, condition, callback, timeout = 600) {
-    const cb = { condition, callback }
+    const cb = {
+      condition,
+      callback,
+      /** @type {Callback} */// @ts-ignore
+      res: undefined,
+      cancel: false
+    }
+    /** @type {UtilWfePromise<E>} */// @ts-ignore
     const res = new Promise(res => cb.res = res)
     res.cancel = () => {
       cb.res(null)
@@ -299,16 +297,16 @@ class Util {
   }
 
   /**
-   * 
    * @param {*} msg 
    * @param {number | string | number[]} [color] 
    */
   log(msg, color) {
     msg = this.getPrefix().append(`${msg}`)
     if (color != null) {
-      if (typeof color === 'string' && /^#?[\da-f]{6}$/i.test(color)) // '#FFFFFF'
-        color = parseInt(color.slice(-6), 16)
-      if (color === color & 0xF) msg.withColor(color) // 0xF
+      if (typeof color === 'string') // '#FFFFFF'
+        if (/^#?[\da-f]{6}$/i.test(color)) color = parseInt(color.slice(-6), 16)
+        else color = 0xFFFFFF
+      if (typeof color === 'number' && color === (color & 0xF)) msg.withColor(color) // 0xF
       else if (typeof color === 'number') // 0xFFFFFF
         msg.withColor((color >>> 16) & 0xFF, (color >>> 8) & 0xFF, color & 0xFF)
       else if (Array.isArray(color)) msg.withColor(...color) // [255, 255, 255]
@@ -349,11 +347,14 @@ class Util {
   /**
    * since throw in async function is problematic  
    * will call {@link util.stopAll}
+   * @param {*} err
    * @returns {never}
    */
   throw(err) {
     try {
-      if (err instanceof Java.type('java.lang.Throwable')) {
+      /** @type {(err: any) => err is Packages.java.lang.Throwable} */
+      const isJavaErr = err => err instanceof Java.type('java.lang.Throwable')
+      if (isJavaErr(err)) {
         const stackBuilder = Chat.createTextBuilder()
         let fullstack = ''
         let /** @type {Packages.java.lang.StackTraceElement} */ stack
@@ -385,6 +386,7 @@ class Util {
         const builder = this.getPrefix()
         const noOverloadRegex = /^TypeError: invokeMember \((\w+)\) on ([^@\s]+@[0-9a-f]+) failed due to: no applicable overload found \(overloads: \[/
         const errPathRegex = /(?<=^\s+at\s.*)(\(?[^\(\s]+:\d+:\d+\)?)$/gm
+        /** @type {string} */
         let stack = err.stack
         const match = noOverloadRegex.exec(stack)
         if (match) { // messy parser
@@ -411,7 +413,7 @@ class Util {
             .append(' (').withColor(0xFF, 0x3F, 0x00)
             .append(match[1]).withColor(0xd)
             .append(') on ').withColor(0xFF, 0x3F, 0x00)
-            .append(match[2].match(/([^\.]+)@[0-9a-f]+/)[1]).withColor(0xd)
+            .append(match[2].match(/([^\.]+)@[0-9a-f]+/)?.[1]).withColor(0xd)
             .withShowTextHover(Chat.createTextHelperFromString(match[2]))
             .append(' failed due to:\n  no applicable overload found. overloads:')
             .withColor(0xFF, 0x3F, 0x00)
@@ -419,20 +421,33 @@ class Util {
           const methods = []
           while (stack[0] === 'M') { // overloads
             const methodMatch = stack.match(/^Method\[(?:public )?([^\]]+)\](?:, )?/)
-            const typeMatch   = methodMatch[1].match(/^\S*?([^. ]+)(?= )/)
-            const nameMatch   = methodMatch[1].match(/(?<=^\S+ ).*?([^\(\.]+)(?=\()/)
-            const method = {prefix: undefined, params: [], rawParams: []}
-            method.prefix = [typeMatch[1], typeMatch[0], nameMatch[1], nameMatch[0]]
+            if (!methodMatch) throw "can't match method"
+            const typeMatch = methodMatch[1].match(/^\S*?([^. ]+)(?= )/)
+            if (!typeMatch) throw "can't match type"
+            const nameMatch = methodMatch[1].match(/(?<=^\S+ ).*?([^\(\.]+)(?=\()/)
+            if (!nameMatch) throw "can't match name"
+            const method = {
+              prefix: [typeMatch[1], typeMatch[0], nameMatch[1], nameMatch[0]],
+              /** @type {string[]} */
+              params: [],
+              /** @type {string[]} */
+              rawParams: []
+            }
             const params = methodMatch[0].slice(methodMatch[0].indexOf('(') + 1, methodMatch[0].lastIndexOf(')')).split(',')
             params.forEach((p, i) => {
-              method.params.push(p.match(/[^\.]+$/)[0])
+              method.params.push(p.match(/[^\.]+$/)?.[0] ?? '')
               method.rawParams.push(p)
             })
             stack = stack.slice(methodMatch[0].length)
             methods.push(method)
           }
           stack = ', ' + stack.slice('], arguments: ['.length)
-          const args = {name: [], raw: []}
+          const args = {
+            /** @type {string[]} */
+            name: [],
+            /** @type {string[]} */
+            raw: []
+          }
           let max = 100
           while (stack.startsWith(', ') && max-- > 0) { // arguments
             stack = stack.slice(2)
@@ -440,6 +455,7 @@ class Util {
               stack.match(/^JavaObject\[.*?([^\.\(]+)\)\] \(HostObject\)(?=, |\]\))/) ||
               stack.match(/^com\.oracle\.truffle\.js\.runtime\.objects\.(.*?)\$DefaultLayout@[0-9a-z]{1,9} \(DefaultLayout\)(?=, |\]\))/) ||
               stack.match(/^.*?[\w\$]+ \((\w+)\)(?=, |\]\))/)
+            if (!argMatch) throw "can't match args"
             args.name.push(argMatch[1] === 'TruffleString' ? 'String' : argMatch[1])
             args.raw .push(argMatch[0])
             stack = stack.slice(argMatch[0].length)
@@ -461,10 +477,12 @@ class Util {
                 color = canAccept[p].includes(args.name[i]) ? paramColors.match : paramColors.wrong
               else if (m.rawParams[i].includes('.')) {
                 if (args.raw[i].startsWith('JavaObject[')) try {
+                  /** @type {JavaClass} */// @ts-ignore
                   const paramClass = Reflection.getClass(m.rawParams[i])
+                  /** @type {JavaClass} */// @ts-ignore
                   const argClass = Reflection.getClass(args.raw[i].match(/\(([^\(]+)\)\] \(HostObject\)$/)[1])
                   color = paramClass.isAssignableFrom(argClass) ? paramColors.match : paramColors.wrong
-                }catch (e) { // might not be a java class, who knows?
+                } catch (e) { // might not be a java class, who knows?
                   color = paramColors.wrong
                 } else color = paramColors.wrong
               }
@@ -481,13 +499,14 @@ class Util {
           })
           builder.append('\n  arguments:').withColor(0xFF, 0x3F, 0x00).append(' [')
           args.name.forEach((n, i) => {
-            let name  = n
+            let name = n
+            /** @type {string?} */
             let hover = args.raw[i]
             if (canAccept.double.includes(name)) {
-              name = `${name} (${hover.match(/^\S+/)[0]})`
+              name = `${name} (${hover?.match(/^\S+/)?.[0]})`
               hover = null
             } else if (name === 'Nullish') {
-              name = hover.match(/^JS(\S+)/)[1]
+              name = `${hover?.match(/^JS(\S+)/)?.[1]}`
               hover = null
             }
             builder.append(name).withColor(0xFF, 0x7F, 0x00)
@@ -510,7 +529,7 @@ class Util {
         }
         Chat.log(builder.build())
       }
-    } catch (e) {
+    } catch (/** @type {*} */ e) {
       Chat.log(this.getPrefix().append(
         'An error accurred while parsing error!\n' +
         `The Error: ${err.stack ?? err}\n` +
@@ -528,7 +547,7 @@ class Util {
   async run(cb, stopWhenDone = true) {
     try {
       await cb()
-    }catch (e) {
+    } catch (e) {
       this.throw(e)
     }
     if (stopWhenDone) this.stopAll()
@@ -537,56 +556,40 @@ class Util {
   /**
    * able to look smoothly
    * @param {Pos3DLike} pos 
-   * @param {() => boolean} [condition] will stop if match
+   * @param {Condition} [condition] will stop if match
+   * @returns {Promise<void>}
    */
-  async lookAt(pos, condition) {}
-
-  /**
-   * able to look smoothly
-   * @param {number} yaw 
-   * @param {number} pitch 
-   * @param {() => boolean} [condition] will stop if match
-   */
-  async lookAt(yaw, pitch, condition) {}
+  async lookAtPos(pos, condition) {
+    const pos3 = this.toPos(pos)
+    return await this.lookAt(pos3.x, pos3.y, pos3.z, condition)
+  }
 
   /**
    * able to look smoothly
    * @param {number} x 
    * @param {number} y 
    * @param {number} z 
-   * @param {() => boolean} [condition] will stop if match
+   * @param {Condition} [condition] will stop if match
+   * @returns {Promise<void>}
    */
   async lookAt(x, y, z, condition) {
-    if (typeof x === 'object') {
-      condition = y
-      ;({ x, y, z } = this.toPos(x))
-    } else 
-
-    if (typeof z === 'function') {
-      condition = z
-      z = undefined
-    }
-
-    if ((typeof x !== 'number') ||
-        (typeof y !== 'number') ||
-        (typeof z !== 'number') && z != null)
-    this.throw(new TypeError(
-      `expected (number, number, ?number), received (${typeof x}, ${typeof y}, ${typeof z})`
-    ))
-
     const p = Player.getPlayer()
-    if (!this.enableSmoothLook)
-      return typeof z === 'number' ? p.lookAt(x, y, z) : p.lookAt(x, y)
+    if (!this.enableSmoothLook) return void p.lookAt(x, y, z)
 
-    let yaw, pitch
-    if (typeof z === 'number') {
-      const vec = p.getPos().add(0, p.getEyeHeight(), 0).toReverseVector(x, y, z)
-      yaw = vec.getYaw()
-      pitch = vec.getPitch()
-    } else {
-      yaw = this.wrapYaw(x)
-      pitch = Math.min(Math.max(-90, y), 90)
-    }
+    const vec = p.getPos().add(0, p.getEyeHeight(), 0).toReverseVector(x, y, z)
+    return await this.lookAtAngle(vec.getYaw(), vec.getPitch(), condition)
+  }
+
+  /**
+   * able to look smoothly
+   * @param {number} yaw 
+   * @param {number} pitch 
+   * @param {Condition} [condition] will stop if match
+   * @returns {Promise<void>}
+   */
+  async lookAtAngle(yaw, pitch, condition) {
+    const p = Player.getPlayer()
+    if (!this.enableSmoothLook) return void p.lookAt(yaw, pitch)
     // x2: yaw, z2: pitch
     const delta = this.Vec(0, 0, 0,
       this.wrapYaw(yaw - p.getYaw()), 0,
@@ -608,6 +611,10 @@ class Util {
     if (!condition?.()) p.lookAt(yaw, pitch)
   }
 
+  /**
+   * @param {number} yaw 
+   * @returns {number}
+   */
   wrapYaw(yaw) {
     return ((yaw + 180) % 360 - 360) % 360 + 180
   }
@@ -627,19 +634,24 @@ class Util {
 
   /**
    * @template {string} T
-   * @param {T} id
+   * @param {string | T} id
    * @returns {T extends `${string}:${string}` ? T : `minecraft:${T}`}
    */
   completeId(id = 'air') {
     return id.includes(':') ? id : 'minecraft:' + id
   }
 
+  /**
+   * @template T
+   * @param {Record<string, T>} obj 
+   */
   completeIdKey(obj) {
     for (const k in obj) {
       if (k.includes(':')) continue
       obj['minecraft:' + k] = obj[k]
       delete obj[k]
     }
+    return obj
   }
 
   /**
@@ -677,6 +689,7 @@ class Util {
   option = {
 
     /**
+     * @type {Record<string, any>}
      * @readonly
      */
     original: {},
@@ -716,22 +729,23 @@ class Util {
   dict = {
 
     /**
-     * @template T
+     * @template {object} T
      * @param {T} obj 
      * @returns {T}
      */
     clone(obj) {
+      /** @type {T} *///@ts-ignore
       const nobj = {}
       for (const k in obj) nobj[k] = obj[k]
       return nobj
     },
 
     /**
-     * 
-     * @param {object} obj 
+     * @template {object} T
+     * @param {T} obj 
      * @param {string[]} expected 
-     * @param {object} bin 
-     */
+     * @param {T} bin 
+     *///@ts-ignore
     cutExtra(obj, expected, bin = {}) {
       if (Object.keys(obj).every(k => expected.includes(k))) return null
       for (const k in obj) {
@@ -742,6 +756,12 @@ class Util {
       return obj
     },
 
+    /**
+     * @template {Record<string, number>} T
+     * @param {T} obj 
+     * @param {T} byobj 
+     * @returns 
+     */
     add(obj, byobj) {
       for (const k in byobj) {
         obj[k] ??= 0
@@ -751,6 +771,12 @@ class Util {
       return obj
     },
 
+    /**
+     * @template {Record<string, number>} T
+     * @param {T} obj 
+     * @param {T} byobj 
+     * @returns 
+     */
     sub(obj, byobj) {
       for (const k in byobj) {
         obj[k] ??= 0
@@ -760,11 +786,23 @@ class Util {
       return obj
     },
 
+    /**
+     * @template {Record<string, number>} T
+     * @param {T} obj 
+     * @param {number} multiplier 
+     * @returns 
+     */
     mul(obj, multiplier = 1) {
       for (const k in obj) obj[k] *= multiplier
       return obj
     },
 
+    /**
+     * @template {Record<string, number>} T
+     * @param {T} obj 
+     * @param {T} byobj 
+     * @returns 
+     */
     div(obj, byobj) {
       let res = Infinity
       for (const k in byobj)
@@ -772,6 +810,12 @@ class Util {
       return res
     },
 
+    /**
+     * @template {Record<string, number>} T
+     * @param {T} obj 
+     * @param {T} byobj 
+     * @returns 
+     */
     mod(obj, byobj) {
       const times = Math.floor(this.div(obj, byobj))
       if (times > 0) for (const k in byobj) {
@@ -781,12 +825,16 @@ class Util {
       return times
     },
 
+    /**
+     * @param {object} obj 
+     * @param {string[]} list 
+     * @returns 
+     */
     contains(obj, list = []) {
       return list.some(k => k in obj)
     },
 
     /**
-     * 
      * @param {object} obj 
      * @param {boolean} removeEmpty 
      * @returns 
@@ -798,6 +846,12 @@ class Util {
       return true
     },
 
+    /**
+     * @template {object} T
+     * @param {T} obj1 
+     * @param {T} obj2 
+     * @returns 
+     */
     isEqual(obj1, obj2) {
       const keys1 = Object.keys(obj1)
       const keys2 = Object.keys(obj2)
@@ -808,12 +862,22 @@ class Util {
       return true
     },
 
+    /**
+     * @template {object} T
+     * @param {T} obj 
+     * @param {T} than 
+     * @returns 
+     */
     isLessOrEqualThan(obj, than) {
       return Object.keys(obj).every(k => obj[k] <= (than[k] ?? 0))
     },
 
+    /**
+     * @returns {Dict<ItemId>}
+     */
     fromInv() {
       const inv = util.openSurvivalInv()
+      /** @type {Dict<ItemId>} *///@ts-ignore
       const res = {}
       Java.from(inv.getMap().main).concat(inv.getMap().hotbar).forEach(s => {
         const item = inv.getSlot(s)
@@ -832,30 +896,29 @@ class Util {
   math = {
 
     /**
-     * 
      * @param {number} a 
      * @param {number} b 
      * @returns lowest common multiple
      */
     lcm(a = 0, b = 0) {
-      a = this.primes(a)
-      b = this.primes(b)
-      for (const p in a) b[p] = Math.max(b[p] ?? 0, a[p])
+      const ap = this.primes(a)
+      const bp = this.primes(b)
+      for (const p in ap) bp[p] = Math.max(bp[p] ?? 0, ap[p])
       a = 1
-      for (const p in b) a *= p ** b[p]
+      for (const p in bp) a *= (+p) ** bp[p]
       return a
     },
 
     /**
-     * 
      * @param {number} n 
-     * @returns {{ [prime: number]: number }} primes
+     * @returns {Record<number, number>} primes
      */
     primes(n) {
       n = Math.floor(Math.abs(n))
       if (n === 1) return {}
       if (n === 2 || n === 3) return {[n]: 1}
       if (!(n > 0)) throw new Error(`can't find primes of ${n}`)
+      /** @type {Record<number, number>} */
       const pri = {}
       if (!(n % 2)) {
         pri[2] = 0
@@ -880,24 +943,31 @@ class Util {
       return pri
     },
 
+    /**
+     * @param {number} x 
+     * @param {number} min 
+     * @param {number} max 
+     * @returns 
+     */
     clamp(x, min = 0, max = 1) {
       x = Math.min(Math.max(min, x), max)
-      return isNaN(x) ? null : x
+      return x
     },
 
     /**
-     * 
      * @param {Pos3D[]} list 
-     * @param {Pos3D | number[]} [pos] 
+     * @param {Pos3DLike} [pos] 
      * @returns {?Pos3D}
      */
     nearest(list, pos) {
-      if (!pos) pos = Player.getPlayer().getPos()
-      else pos = util.toPos(pos)
+      /** @type {Pos3D} */
+      let pos3
+      if (!pos) pos3 = Player.getPlayer().getPos()
+      else pos3 = util.toPos(pos)
       let dist = Infinity
       let res  = null
       list.forEach(p => {
-        const distance = pos.toVector(p).getMagnitudeSq()
+        const distance = pos3.toVector(p).getMagnitudeSq()
         if (distance < dist) {
           dist = distance
           res = p
@@ -908,7 +978,7 @@ class Util {
 
     /**
      * convert the vec to positive, will call {@link util.toVec}
-     * @param {Vec3D} vec 
+     * @param {Vec3DLike} vec 
      * @returns {Vec3D}
      */
     toPositiveVec(vec) {
@@ -941,7 +1011,7 @@ class Util {
     posEquals(pos1, pos2) {
       if ('x' in pos1) {
         if (pos1.x !== pos2.x || pos1.y !== pos2.y) return false
-        if ('z' in pos1 && pos1.z !== pos2.z) return false
+        if ('z' in pos1 && 'z' in pos2 && pos1.z !== pos2.z) return false
       } else util.throw(`not pos (${pos1})`)
       return true
     }
@@ -966,17 +1036,24 @@ const util = new Util
 const listeners = []
 
 /**
+ * @template {keyof Events} E
+ * @typedef {object} WfeListener
+ * @property {IEventListener} listener
+ * @property {WfeCallback<E>[]} cbs
+ */
+/**
+ * @template {keyof Events} E
+ * @typedef {object} WfeCallback
+ * @property {() => void} res
+ * @property {boolean} [cancel]
+ * @property {EventCallback<E, boolean>} [condition]
+ * @property {EventCallback<E>} [callback]
+ */
+/**
  * waitForEventListeners
  * @template {keyof Events} E
- * @type {{ [event: E]: {
- *  listener: IEventListener,
- *  cbs: {
- *    res(): void,
- *    cancel?: boolean,
- *    condition?: EventCallback<E, boolean>,
- *    callback?:  EventCallback<E>
- *  }[]
- * } }}
+ * @typedef {Partial<Record<E, WfeListener<E>>>} WfeListeners
+ * @type {WfeListeners<keyof Events>}
  */
 const wfeListeners = {}
 

@@ -8,6 +8,10 @@ const util = require('../util')
  * @readonly bec i prefer readonly color
  */
 let p
+/**
+ * waitTick Promise
+ * @type {Promise<*>=}
+ */
 let wt
 
 class MovementHandler {
@@ -29,6 +33,7 @@ class MovementHandler {
    * @type {number}
    */
   cantMoveTimeout = 60
+  /** @type {*[]} */
   _queue = []
 
   /**
@@ -43,11 +48,11 @@ class MovementHandler {
    * Try to stand on the coordinate, strightly, no pathfinding  
    * sometimes break while in freecam mode
    * @param {Pos3DLike} pos 
-   * @param {(p: ClientPlayer) => boolean} [orCondition] 
+   * @param {Condition<[p: ClientPlayer]>} [orCondition] 
    * @returns success
    */
   async walkTo(pos, orCondition) {
-    pos = util.toPos(pos)
+    const pos3 = util.toPos(pos)
     if (this._queue[0]) await new Promise(res => this._queue.push(res))
     this._queue[0] = true
     if (Hud.isContainer()) Player.openInventory().close()
@@ -55,10 +60,10 @@ class MovementHandler {
     let lastPos = p.getPos()
     let timeout = 0
     let y, pit
-    let distSq = p.getPos().toVector(pos).getMagnitudeSq()
+    let distSq = p.getPos().toVector(pos3).getMagnitudeSq()
     util.option.setAutoJump(true)
     while (distSq > 0.5 && !orCondition?.(p)) {
-      await util.lookAt(y = util.getYawFromXZ(pos.x, pos.z), pit = p.getPitch())
+      await util.lookAtAngle(y = util.getYawFromXZ(pos3.x, pos3.z), pit = p.getPitch())
       await wt
       if (lastPos.toVector(p.getPos()).getMagnitudeSq() > 0.3) {
         lastPos = p.getPos()
@@ -72,7 +77,7 @@ class MovementHandler {
         this._queue[0]?.()
         return false
       }
-      distSq = p.getPos().toVector(pos).getMagnitudeSq()
+      distSq = p.getPos().toVector(pos3).getMagnitudeSq()
       Player.clearInputs()
       Player.addInput(Player.createPlayerInput(1, 0, y, pit, false, false, distSq > 4))
       wt = util.waitTick()
@@ -94,30 +99,29 @@ class MovementHandler {
    * @returns success
    */
   async walkReach(pos, orCondition) {
-    pos = util.toPos(pos)
+    let pos3 = util.toPos(pos)
     p = Player.getPlayer()
-    pos = pos.add(0.5, -p.getEyeHeight() + 0.5, 0.5)
-    if (p.getPos().toVector(pos).getMagnitudeSq() < this.reachSq) return true
-    const nearest = this.getNearestCoords(pos)
-    if (pos.toVector(nearest).getMagnitudeSq() > this.reachSq + 16)
+    pos3 = pos3.add(0.5, -p.getEyeHeight() + 0.5, 0.5)
+    if (p.getPos().toVector(pos3).getMagnitudeSq() < this.reachSq) return true
+    const nearest = this.getNearestCoords(pos3)
+    if (pos3.toVector(nearest).getMagnitudeSq() > this.reachSq + 16)
       util.throw("can't reach out of area")
     await this.walkTo(nearest, () =>
-      p.getPos().toVector(pos).getMagnitudeSq() < this.reachSq || orCondition?.(p)
+      p.getPos().toVector(pos3).getMagnitudeSq() < this.reachSq || orCondition?.(p)
     )
-    return p.getPos().toVector(pos).getMagnitudeSq() < this.reachSq + 2
+    return p.getPos().toVector(pos3).getMagnitudeSq() < this.reachSq + 2
   }
 
   /**
-   * 
    * @param {Pos3DLike} pos 
    * @returns {Pos3D} nearest coords in area
    */
   getNearestCoords(pos) {
-    pos = util.toPos(pos)
-    return !this.area ? pos : util.Pos(
-      util.math.clamp(Math.floor(pos.x), this.area.x1, this.area.x2) + 0.5,
-      util.math.clamp(Math.floor(pos.y), this.area.y1, this.area.y2) + 0.5,
-      util.math.clamp(Math.floor(pos.z), this.area.z1, this.area.z2) + 0.5
+    const pos3 = util.toPos(pos)
+    return !this.area ? pos3 : util.Pos(
+      util.math.clamp(Math.floor(pos3.x), this.area.x1, this.area.x2) + 0.5,
+      util.math.clamp(Math.floor(pos3.y), this.area.y1, this.area.y2) + 0.5,
+      util.math.clamp(Math.floor(pos3.z), this.area.z1, this.area.z2) + 0.5
     )
   }
 

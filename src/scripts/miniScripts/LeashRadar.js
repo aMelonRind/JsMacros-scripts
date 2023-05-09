@@ -72,6 +72,7 @@ class LeashedMob {
       rendering = true
     }
     this.dot = d2d.addRect(0, 0, 2, 2, 0xFFFFFF)
+    this.color = 0xFF7F00
   }
 
   check () {

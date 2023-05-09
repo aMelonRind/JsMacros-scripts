@@ -26,8 +26,10 @@ const Click = {
 const util = require('../util')
 util.movement
 
+/** @type {Promise<*>} */
 let safetyDelay
 let lastIntervalTime = 0, interval = 2, hasInterval = true
+/** @type {Record<string, number[]>} */
 let invMapCache = {}
 
 class ContainerHandler {
@@ -61,13 +63,13 @@ class ContainerHandler {
   /**
    * open container and operate items  
    * try to match inventory item counts to {@link items}
-   * @param {Pos3DLike | Inventory} chest 
+   * @param {Pos3DLike | AsyncInventory} chest 
    * @param {Dict} items 
    * @returns success
    */
   async operate(chest, items) {
     if (Object.keys(items).length === 0) return true
-    /** @type {Inventory} */
+    /** @type {AsyncInventory?} */
     const inv = this.isInventory(chest) ? chest : await this.waitGUI(util.toPos(chest))
     if (!this.isInventory(inv)) return false
     const CSlots = this.getContainerSlots(inv)
@@ -171,11 +173,13 @@ class ContainerHandler {
           await this.waitInterval()
           await inv.quick(path.endsWith('@b') ? slot : temp)
           await util.waitTick()
-          return    path.endsWith('@a') ? slot : temp
+          return path.endsWith('@a') ? slot : temp
         default:
           util.throw(`unknown path char ${action}`)
       }
     }
+    util.throw('not expected end of clicking')
+    return 0
   }
 
   /**
@@ -208,7 +212,6 @@ class ContainerHandler {
   }
 
   /**
-   * 
    * @param {InfoInventory} inv 
    * @param {string} id 
    * @returns {number}
@@ -220,7 +223,6 @@ class ContainerHandler {
   }
 
   /**
-   * 
    * @param {InfoInventory} inv 
    * @returns {number[]}
    */
@@ -229,7 +231,6 @@ class ContainerHandler {
   }
 
   /**
-   * 
    * @param {InfoInventory} inv 
    * @returns {number[]}
    */
@@ -238,7 +239,6 @@ class ContainerHandler {
   }
 
   /**
-   * 
    * @param {InfoInventory} inv 
    */
   getEmptySlotInInventory(inv) {
@@ -256,7 +256,6 @@ class ContainerHandler {
   }
 
   /**
-   * 
    * @param {InfoInventory} inv 
    * @param {number} slot 
    * @param {((item: ItemStackHelper) => boolean) | ItemId} asserter 
@@ -277,7 +276,7 @@ class ContainerHandler {
   /**
    * i thought shift double click with holding item is handled by another action  
    * realized i'm wrong, and understood why it's safe to chain without wait
-   * @param {() => void} [cb] 
+   * @param {(...args: any[]) => void} [cb] 
    */
   async waitQuickInterval(cb) {
     return this.quickInterval ? await this.waitInterval(cb) : cb?.(null)
@@ -286,7 +285,7 @@ class ContainerHandler {
   /**
    * await this before inventory operations
    * @template R
-   * @param {() => R} [cb] 
+   * @param {(...args: any[]) => R} [cb] 
    */
   async waitInterval(cb) {
     if (!hasInterval) return cb?.(null)
@@ -297,39 +296,45 @@ class ContainerHandler {
 
   /**
    * wait for a container gui
-   * @param {Pos3DLike | string} [pos] Pos3D for container, string for command gui, null/undefined is other
+   * @param {Pos3DLike | string?} [pos] Pos3D for container, string for command gui, null/undefined is other
    * @param {number} timeout 
    * @param {boolean} safety for command gui, if your script need high freq command gui opening,
    * set this to false
    * @returns {Promise<?AsyncInventory>}
    */
   async waitGUI(pos, timeout = 300, safety = true) {
+    /** @type {Pos3D} */
+    let pos3
     if (pos) if (typeof pos === 'string') {
       if (Hud.isContainer()) Player.openInventory().close()
       if (safety) await safetyDelay
       safetyDelay = util.waitTick(12)
       Chat.say(pos)
     } else {
-      pos = util.toPos(pos)
+      pos3 = util.toPos(pos)
       if (Hud.isContainer()) Player.openInventory().close()
-      if (!(await util.movement.walkReach(pos))) return null
-      if (this.humanLike) await util.lookAt(...pos.add(0.5, 0.5, 0.5))
-      Player.getPlayer().interactBlock(pos.x, pos.y, pos.z, 0, false)
+      if (!(await util.movement.walkReach(pos3))) return null
+      if (this.humanLike) await util.lookAtPos(pos3.add(0.5, 0.5, 0.5))
+      Player.getPlayer().interactBlock(pos3.x, pos3.y, pos3.z, 0, false)
     }
-    let wfe, wfe2
+    /** @type {UtilWfePromise<'BlockUpdate'>?} */
+    let wfe = null
+    /** @type {UtilWfePromise<'OpenScreen'>?} */
+    let wfe2 = null
     const start = util.ticks
     await new Promise(res => {
-      wfe = util.waitForEvent(
+      if (pos3) wfe = util.waitForEvent(
         'BlockUpdate', // for short circuit, since some chest is stuck or locked
-        e => e.block.getX() === pos.x &&
-              e.block.getY() === pos.y &&
-              e.block.getZ() === pos.z,
+        e => e.block.getX() === pos3.x &&
+             e.block.getY() === pos3.y &&
+             e.block.getZ() === pos3.z,
         () => util.waitTick((util.ticks - start) * 5 + 4, res),
         timeout
       )
       util.waitTick(timeout, res)
       wfe2 = util.waitForEvent('OpenScreen', () => Hud.isContainer(), res, timeout)
     })
+    // why tf is this typed as null
     wfe?.cancel()
     wfe2?.cancel()
     if (Hud.isContainer()) {
@@ -337,6 +342,7 @@ class ContainerHandler {
       await this.waitInterval()
       if (!('container' in inv.getMap())) return inv
       const last = Java.from(inv.getMap().container).at(-1)
+      if (last === undefined) return inv
       if (!inv.getSlot(last).isEmpty()) return inv
       await util.waitTick()
       if (!inv.getSlot(last).isEmpty()) return inv

@@ -4199,7 +4199,7 @@ type VillagerProfession =
 
 type InvMapId = InvMapType.All;
 declare namespace InvMapType {
-    type _inv = 'hotber' | 'main';
+    type _inv = 'hotbar' | 'main';
     type _invio = _inv | 'input' | 'output';
 
     type Inventory = _inv | 'offhand' | 'boots' | 'leggings' | 'chestplate' | 'helmet'

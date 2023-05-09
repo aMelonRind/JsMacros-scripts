@@ -1,7 +1,8 @@
-
+// @ts-nocheck
 // show armor, hand and inventory space info
 // is service
 
+/** @type {(width: int, height: int) => {x: int, y: int}} */
 const POSITION = (width, height) => ({
   x: Math.floor(width / 2) - 179,
   y: height - 72
@@ -19,8 +20,8 @@ enabled.forEach(() => Elements.push(d2d.addText('----', 0, 0, 0xFFFFFF, true)))
 d2d.setOnInit(JavaWrapper.methodToJava(() => {
   if (orig.d2dsize.w !== d2d.getWidth() || orig.d2dsize.h !== d2d.getHeight()) {
     orig.d2dsize.w = d2d.getWidth()
-    orig.d2dsize.h = d2d.getHeight();
-    ({x: orig.x, y: orig.y} = POSITION(orig.d2dsize.w, orig.d2dsize.h))
+    orig.d2dsize.h = d2d.getHeight()
+    ;({x: orig.x, y: orig.y} = POSITION(orig.d2dsize.w, orig.d2dsize.h))
     Elements[0].x  = Elements[1].x  =  Elements[2].x  =  Elements[3].x  = orig.x
     Elements[7].x  = Elements[8].x  =  Elements[9].x  =  Elements[10].x = orig.x + 18
     Elements[4].x  = Elements[5].x  =  Elements[6].x  =  orig.x + 44
@@ -58,8 +59,7 @@ function renderUpdate(index, text = null, item = null, color = 0xf) {
   enabled[index] = true
 }
 
-/**
-   * 
+  /**
    * @param {Number} index 
    * @param {ItemStackHelper} item 
    * @returns 

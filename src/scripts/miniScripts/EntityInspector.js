@@ -30,8 +30,7 @@ let sc
 let lastNbtPath = ''
 
 /**
- * 
- * @param {LivingEntityHelper} entity 
+ * @param {EntityHelper} entity 
  * @returns 
  */
 function openEntityInspectScreen(entity) {
@@ -60,7 +59,7 @@ function openEntityInspectScreen(entity) {
       0xAFAFAF,
       true
     )
-    if (entity instanceof LivingEntityHelper) {
+    if (isLiving(entity)) {
       // add armoritems
       addItem(cx - 35, cy - 28, entity.getHeadArmor(),  'No Helmet!')
       addItem(cx - 17, cy - 28, entity.getChestArmor(), 'No Chestplate!')
@@ -83,40 +82,45 @@ function openEntityInspectScreen(entity) {
         const path = txt.split(/[\.\[\]\s]/).filter(v => v)
         try {
           while (nbt && (path[1] || /^\d+$/.test(path[0]))) {
+            // @ts-ignore
             if (/^\d+$/.test(path[0])) nbt = nbt.get(parseInt(path.shift()))
+            // @ts-ignore
             else nbt = nbt.get(path.shift())
           }
-        }catch(e) {
+        } catch (/** @type {*} */ e) {
           return nbtOutput.setText("can't parse output: " + e.message)
         }
-        if (nbt?.isCompound() && path[0]) {
-          const keys = nbt.getKeys()
-          if (keys.contains(path[0])) nbt = nbt.get(path[0])
+        /** @type {NBTElementHelper | string} */
+        let snbt = nbt
+        if (snbt?.isCompound() && path[0]) {
+          const keys = snbt.getKeys()
+          if (keys.contains(path[0])) snbt = snbt.get(path[0])
           else {
             const filtered = keys.toArray().filter(k => k.toLowerCase().startsWith(path[0].toLowerCase()))
             if (filtered.length === 1) {
-              nbt = nbt.get(filtered[0])
+              snbt = snbt.get(filtered[0])
               if (lastNbtPath.endsWith(' ')) // press space to autocomplete
               nbtInput.setText(lastNbtPath.trimEnd() + filtered[0].slice(path[0].length) + '.')
             }
-            else nbt = filtered.join(', ')
+            else snbt = filtered.join(', ')
           }
         }
-        if (typeof nbt === 'string');
-        else if (!nbt)                 nbt = 'null'
-        else if (nbt.isCompound())     nbt = nbt.toString()
-        // else if (nbt.isPossiblyUUID()) nbt = nbt.asUUID().toString()
-        else if (nbt.isList())         nbt = nbt.toString()
-        else if (nbt.isNull())         nbt = 'null'
-        else if (nbt.isNumber())       nbt = nbt.asNumber()
-        else if (nbt.isString())       nbt = nbt.asString()
-        else nbt = nbt.toString()
-        if (nbt?.startsWith?.('NBT')) nbt = toSnbt(nbt)
-        nbtOutput.setText(`${nbt}`)
+        if (typeof snbt === 'string') {}
+        else if (!snbt)                 snbt = 'null'
+        else if (snbt.isCompound())     snbt = snbt.toString()
+        // else if (snbt.isPossiblyUUID()) snbt = snbt.asUUID().toString()
+        else if (snbt.isList())         snbt = snbt.toString()
+        else if (snbt.isNull())         snbt = 'null'
+        else if (snbt.isNumber())       snbt = snbt.asNumber().toString()
+        else if (snbt.isString())       snbt = snbt.asString()
+        else snbt = snbt.toString()
+        if (snbt?.startsWith?.('NBT')) snbt = toSnbt(snbt)
+        nbtOutput.setText(`${snbt}`)
       })
     ).setText(lastNbtPath)
     // extra: item frame
     if (entity.getType().endsWith('item_frame'))
+      // @ts-ignore
       addItem(cx - 7, cy - 28, entity.getNBT().get('Item'), 'No Framed Item!')
   }))
   Hud.openScreen(sc)
@@ -155,7 +159,6 @@ function addItem(x, y, item, textIfEmpty = 'No Item!') {
 }
 
 /**
- * 
  * @param {ItemStackHelper} item 
  */
 function getItem(item) {
@@ -176,8 +179,15 @@ function getItem(item) {
 }
 
 /**
- * 
- * @param {NBTElementHelper} nbt 
+ * @param {EntityHelper} entity 
+ * @returns {entity is LivingEntityHelper}
+ */
+function isLiving(entity) {
+  return entity instanceof LivingEntityHelper
+}
+
+/**
+ * @param {NBTElementHelper | string} nbt 
  */
 function toSnbt(nbt) {
   if (nbt instanceof NBTElementHelper) nbt = nbt.toString()

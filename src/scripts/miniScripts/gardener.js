@@ -7,7 +7,9 @@ GlobalVars.getBoolean("GardenerToggle"))
 
 const d3d = Hud.createDraw3D()
 const worldHeight = World.getDimension() === 'minecraft:overworld' ? [-64, 319] : [0, 255]
+/** @type {Pos3DTuple[]} */
 const weeds = []
+/** @type {Pos3DTuple[]} */
 const grass = []
 let lastPpos = Player.getPlayer().getBlockPos()
 let done = false
@@ -71,6 +73,7 @@ function scanWeeds() {
   weeds.splice(0, weeds.length)
   const ppos = Player.getPlayer().getBlockPos()
   for (let y = 5; y > -6; y--) for (let z = -5; z < 6; z++) for (let x = -5; x < 6; x++) {
+    /** @type {Pos3DTuple} */
     const b = [ppos.x + x, ppos.y + y, ppos.z + z]
     if (b[1] < worldHeight[0] || b[1] > worldHeight[1]) continue
     if (isReachable(...b) && ['grass', 'tall_grass', 'fern', 'large_fern'].includes(World.getBlock(...b)?.getId().slice(10))) weeds.push(b)
@@ -81,6 +84,7 @@ function scanGrass() {
   grass.splice(0, grass.length)
   const ppos = Player.getPlayer().getBlockPos()
   for (let y = -2; y < 3; y++) for (let z = -2; z < 3; z++) for (let x = -2; x < 3; x++) {
+    /** @type {Pos3DTuple} */
     const b = [ppos.x + x, ppos.y + y, ppos.z + z]
     if (b[1] < worldHeight[0] || b[1] > worldHeight[1]) continue
     if (World.getBlock(...b).getId().slice(10) === 'grass_block' &&
@@ -91,15 +95,27 @@ function scanGrass() {
 
 function render() {
   for (const b of d3d.getBoxes()) d3d.removeBox(b)
+  // @ts-ignore
   for (const g of grass) d3d.addBox(...g, ...g.map(v => v + 1), 65535, 0, false)
 }
 
 const Vec3d = Java.type('net.minecraft.class_243')
+/**
+ * @param {number} x 
+ * @param {number} y 
+ * @param {number} z 
+ * @returns 
+ */
 function isReachable(x, y, z) {
   const p = Player.getPlayer()
   return p.getRaw().method_5707(new Vec3d(x + 0.5, y + 0.5 - p.getEyeHeight(), z + 0.5)) < 27 // .squaredDistanceTo(Vec)
 }
 
+/**
+ * @param {HotbarSlot | OffhandSlot} slot 
+ * @param {string[]} items 
+ * @returns 
+ */
 function pick(slot, items) {
   const inv = Player.openInventory()
   if (items.includes(inv.getSlot(inv.getMap().hotbar[slot]).getItemId().slice(10))) {

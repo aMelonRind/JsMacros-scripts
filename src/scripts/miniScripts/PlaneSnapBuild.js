@@ -4,11 +4,14 @@
 // is service
 
 const BlockPosHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.BlockPosHelper')
+/** @type {(pos: Record<"getX" | "getY" | "getZ", () => number>) => Pos3DTuple} */
 const P2A = pos => [pos.getX(), pos.getY(), pos.getZ()]
 const cast = raycast()
 if (!cast) throw 'look at block'
 const p = Player.getPlayer()
+/** @type {string} */
 let pos
+/** @type {number} */
 let pitch
 let yaw = p.getYaw()
 const axis  = (Math.abs(yaw) > 45 && Math.abs(yaw) <= 135) ? 0 : 2
@@ -20,6 +23,11 @@ const ClientPlayNetworkHandler = Client.getMinecraft().method_1562()
 const Identifier = Java.type('net.minecraft.class_2960')
 
 const D2R = Math.PI / 180
+/**
+ * @param {number} pitch 
+ * @param {number} yaw 
+ * @returns {Pos3DTuple}
+ */
 function lookToVec(pitch = p.getPitch(), yaw = p.getYaw()) {
   return Math.abs(pitch) == 90 ? [0, -pitch, 0] : [-Math.sin(yaw *= D2R), -Math.tan(pitch * D2R), Math.cos(yaw)]
 }
@@ -35,19 +43,22 @@ const d3d = Reflection.createClassProxyBuilder(
   const snap = jump(axis, value, true)
   if (snap) {
     enabled = true
-    if (cursor.x1 === snap[0] && cursor.y1 === snap[1] && cursor.z1 === snap[2]) return ref.parent(args)
+    if (cursor.pos.x1 === snap[0]
+    &&  cursor.pos.y1 === snap[1]
+    &&  cursor.pos.z1 === snap[2]) return ref.parent(args)
     else updateCursor(snap)
-  }else {
+  } else {
     enabled = false
     updateCursor()
   }
   ref.parent(args) // super
 })).buildInstance([])
 let enabled = false
-let cursorpos = []
+/** @type {Pos3DTuple} */
+let cursorpos = [0, 0, 0]
 const cursor = d3d.addBox(0, 0, 0, 0, 0, 0, 0x00FFFF, 255, 0x00FFFF, 64, true)
-const xzlines = new Array(6).fill().map(() => d3d.addLine(0, 0, 0, 0, 0, 0, 0x00FF00, 64))
-const ylines  = new Array(6).fill().map(() => d3d.addLine(0, 0, 0, 0, 0, 0, 0x00FF00, 64))
+const xzlines = new Array(6).fill(0).map(() => d3d.addLine(0, 0, 0, 0, 0, 0, 0x00FF00, 64))
+const ylines  = new Array(6).fill(0).map(() => d3d.addLine(0, 0, 0, 0, 0, 0, 0x00FF00, 64))
 d3d.register()
 
 JsMacros.on('Key', JavaWrapper.methodToJava(e => {
@@ -67,9 +78,13 @@ JsMacros.on('Key', JavaWrapper.methodToJava(e => {
   }
 }))
 
+/**
+ * @param {Pos3DTuple} [pos] 
+ */
 function updateCursor(pos) {
   if (pos) {
     cursorpos = pos
+    // @ts-ignore
     cursor.setPos(...pos, ...pos.map(v => v + 1))
     xzlines.forEach((l, i) => {
       if (!axis) l.setPos(value, pos[1] - 3, pos[2] - 2 + i, value, pos[1] + 4, pos[2] - 2 + i)
@@ -80,7 +95,7 @@ function updateCursor(pos) {
       else       l.setPos(pos[0] - 3, pos[1] - 2 + i, value, pos[0] + 4, pos[1] - 2 + i, value)
     })
   }
-  const color = enabled && (World.getBlock(...pos)?.getBlockStateHelper().isAir() ?? false) ? 0x00FFFF : 0xFF0000
+  const color = enabled && (World.getBlock(...cursorpos)?.getBlockStateHelper().isAir() ?? false) ? 0x00FFFF : 0xFF0000
   cursor.setColor(color)
   cursor.setFillColor(color)
 }
@@ -95,12 +110,12 @@ function pickBlock() {
   const inv = Player.openInventory()
   const blockid = World.getBlock(...trace.result).getId()
   for (const i in inv.getMap().hotbar) if (inv.getSlot(inv.getMap().hotbar[i]).getItemId() === blockid) {
-    inv.setSelectedHotbarSlotIndex(i)
+    inv.setSelectedHotbarSlotIndex(+i)
     return
   }
   if (!inv.getSlot(inv.getMap().hotbar[inv.getSelectedHotbarSlotIndex()]).isEmpty()) 
   for (const i in inv.getMap().hotbar) if (inv.getSlot(inv.getMap().hotbar[i]).isEmpty()) {
-    inv.setSelectedHotbarSlotIndex(i)
+    inv.setSelectedHotbarSlotIndex(+i)
     break
   }
   ClientPlayNetworkHandler.method_2883(new CreativeInventoryActionC2SPacket(
@@ -109,6 +124,13 @@ function pickBlock() {
   ))
 }
 
+/**
+ * @param {number} dist 
+ * @returns {{
+ *  result: Pos3DTuple
+ *  side: string
+ * }?}
+ */
 function raycast(dist = 640) {
   let result = null
   if      (dist > 128 && (result = raycast(128))) return result
@@ -120,11 +142,21 @@ function raycast(dist = 640) {
   // .getBlockPos(), .getSide()
 }
 
+/**
+ * @param {0 | 1 | 2} axis 
+ * @param {number} to 
+ * @param {boolean} cull 
+ * @param {Pos3DTuple} vec 
+ * @param {Pos3DTuple} pos 
+ * @returns {Pos3DTuple?}
+ */
 function jump(axis, to, cull = false, vec = lookToVec(), pos = P2A(p.getPos().add(0, p.getEyeHeight(), 0))) {
   const offset = to - pos[axis]
   if (offset === 0) return pos
   if (Math.sign(offset) !== Math.sign(vec[axis])) return null
   const n = offset / vec[axis]
+  /** @type {Pos3DTuple} */
+  // @ts-ignore
   const result = pos.map((p, i) => Math.floor(p + vec[i] * n))
   if (cull) {
     const raycastr = raycast()

@@ -14,6 +14,7 @@
 
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 
+/** @type {IEventListener?} */ 
 let tickListener
 /** @type {TraceLine[]} */
 let lines = []
@@ -21,8 +22,9 @@ let lines = []
 /** @type {Draw3D} */
 const d3d = Reflection.createClassProxyBuilder(Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Draw3D'))
             .addMethod('render', JavaWrapper.methodToJava((ref, args) => {
+  // @ts-ignore
   cachePoint = undefined
-  if (!lines[0]) return ref.parent(args) // super
+  if (!lines[0]) return ref.parent(args)
   getStartingPoint()
   lines.forEach(l => {
     if (l.remove) return d3d.removeLine(l.line)
@@ -31,27 +33,29 @@ const d3d = Reflection.createClassProxyBuilder(Java.type('xyz.wagyourtail.jsmacr
     l.line.setPos(...cachePoint, l.x, l.y, l.z)
   })
   lines = lines.filter(l => !l.remove)
-  if (!lines[0]) return ref.parent(args) // super
-  ref.parent(args) // super
+  if (!lines[0]) return ref.parent(args)
+  ref.parent(args)
 })).buildInstance([])
 d3d.register()
 
 /**
- * 
  * @param {number} color 
  * @param {(line: TraceLine) => void} [onTick] will run extra once on creation, won't have line property on first call
  * @param {(line: TraceLine) => void} [onFrame] 
  * @param {number} x 
  * @param {number} y 
  * @param {number} z 
- * @returns {TraceLine}
+ * @returns {TraceLine?}
  */
 function newLine(color = 0xFFFFFF, onTick, onFrame, x = 0, y = 0, z = 0) {
+  /** @type {TraceLine} */
   const obj = {
     onTick,
     onFrame,
     x, y, z,
     remove: false,
+    // @ts-ignore
+    line: undefined
   }
   obj.onTick?.(obj)
   if (obj.remove) return null
@@ -66,22 +70,32 @@ function newLine(color = 0xFFFFFF, onTick, onFrame, x = 0, y = 0, z = 0) {
 }
 
 const D2R = Math.PI / 180
+/** @type {Pos3DTuple} */ 
 let cachePoint
-let cam, camPos, pitch, yaw, vec, dist
+let /** @type {*} */ cam
+let /** @type {Pos3DTuple} */ camPos
+let /** @type {number} */ pitch
+let /** @type {number} */ yaw
+let /** @type {Pos3DTuple} */ vec
+let /** @type {number} */ dist
+/**
+ * @returns {Pos3DTuple}
+ */
 function getStartingPoint() {
   if (cachePoint) return cachePoint
   cam = Client.getMinecraft().field_1773.method_19418() // .gameRenderer.getCamera()
+  // @ts-ignore
   with (cam.method_19326()) camPos = [field_1352, field_1351, field_1350]
   pitch = cam.method_19329()
   if (Math.abs(pitch) === 90) return cachePoint = (camPos[1] -= Math.sign(pitch) * 16, camPos)
   yaw = cam.method_19330() * D2R
   vec = [-Math.sin(yaw), -Math.tan(pitch * D2R), Math.cos(yaw)]
   dist = Math.sqrt(vec.reduce((p, v) => p + v ** 2, 0)) / 16
+  // @ts-ignore
   return cachePoint = vec.map((v, i) => v / dist + camPos[i])
 }
 
 /**
- * 
  * @param {EntityHelper} entity 
  * @param {number} offsetX 
  * @param {number} offsetY 

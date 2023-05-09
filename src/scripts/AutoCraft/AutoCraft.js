@@ -20,15 +20,18 @@ async function main() {
   util.storage.create({input:
     instance.materialFrom.map(v => v.box)
   })
-  const outputs = {}
+  /** @type {Record<string, number[][][]>} */
+  const outputBoxes = {}
   instance.productTo.forEach(v => {
     const id = util.completeId(v.for)
-    outputs[id] ??= []
-    outputs[id].push(v.box)
+    outputBoxes[id] ??= []
+    outputBoxes[id].push(v.box) // Object is possibly 'undefined'.ts(2532)
   })
-  util.storage.create(outputs)
+  util.storage.create(outputBoxes)
   await util.storage.scan('input')
-  for (const k in outputs) {
+  /** @type {Record<string, string>} */
+  const outputs = {}
+  for (const k in outputBoxes) {
     outputs[k] = k
     await util.storage.scan(k)
   }
@@ -37,7 +40,9 @@ async function main() {
     Object.keys(outputs)
   )
   await util.crafting.exec('input', outputs,
+    // @ts-ignore
     instance.craftingTables.map(v => util.Pos(...v)),
+    // @ts-ignore
     util.Pos(...instance.invDump))
   util.glfw.requestAttention()
   if (Hud.isContainer()) Player.openInventory().close()
@@ -45,15 +50,19 @@ async function main() {
 }
 
 function listeners() {
-  const stop = type => () => {
+  /** @type {(reason?: string) => (() => never)} */
+  const stop = reason => () => {
     util.glfw.requestAttention()
-    util.log(`stopped${type ? ` (${type})` : ''}`)
-    util.stopAll()
+    util.log(`stopped${reason ? ` (${reason})` : ''}`)
+    return util.stopAll()
   }
-  ;['DimensionChange', 'Death', 'Disconnect', 'JoinServer']
-    .forEach(e => util.on(e, stop(e)))
+  /** @type {(keyof Events)[]} */
+  const stoppingEvents = ['DimensionChange', 'Death', 'Disconnect', 'JoinServer']
+  stoppingEvents.forEach(e => util.on(e, stop(e)))
   util.waitForEvent('Key',
     e => e.key === 'key.keyboard.escape',
     stop('Escape')
   )
 }
+
+module.exports = {}

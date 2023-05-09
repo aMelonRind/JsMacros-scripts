@@ -4,7 +4,18 @@
 
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 const d2d = Hud.createDraw2D()
-const orig = {d2dsize: {}, bar: {sizeMultiply: 1.32}}
+const orig = {
+  x: 0,
+  y: 0,
+  d2dsize: {
+    w: 0,
+    h: 0
+  },
+  bar: {
+    orig: 0,
+    sizeMultiply: 1.32
+  }
+}
 const Elem = {
   background: d2d.addRect(0, 0, 160, 76, 0x333333),
   title:      d2d.addText('Name',  5, 5, 0xFFFFFF, false),
@@ -18,10 +29,16 @@ const Elem = {
   jumpBar:    d2d.addRect(24, 48, 156, 49, 0xFFFFFF),
   healthBar:  d2d.addRect(24, 68, 156, 69, 0xFFFFFF)
 }
+/** @type {['speed', 'jump', 'health']} */
+const sjh = ['speed', 'jump', 'health']
+/** @type {[number, number, number, number, number, number]} */// @ts-ignore
 const rankGrading = [0,        40,       70,       80,       90,       95].reverse()
+/** @type {[number, number, number, number, number, number]} */
 const rankColor   = [0x808080, 0xFFFFFF, 0x00FF00, 0xFF8000, 0xFF00FF, 0xE80000]
 //                   gray      white     green     gold      purple    red
-let horseid = null, keep = 0
+/** @type {string?} */
+let horseid = null
+let keep = 0
 
 d2d.setOnInit(JavaWrapper.methodToJava(() => {
   if (orig.d2dsize.w !== d2d.getWidth() || orig.d2dsize.h !== d2d.getHeight()) { // size is 160x76
@@ -56,9 +73,12 @@ JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
       horseid = null
       return
     }
+  /** @type {Record<string, number>} */
   const rawAttr = {}
+  /** @type {NBTElementHelper$NBTListHelper} */// @ts-ignore
   const att = horse.getNBT().get('Attributes')
-  for (let a = 0; a < att.length(); a++) 
+  for (let a = 0; a < att.length(); a++)
+    // @ts-ignore
     rawAttr[att.get(a).get('Name').asString()] = att.get(a).get('Base').asDouble()
   if (!rawAttr['minecraft:generic.movement_speed']
   ||  !rawAttr['minecraft:horse.jump_strength']
@@ -76,9 +96,13 @@ JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
     jump:   ((rawAttr['minecraft:horse.jump_strength']    - 0.4   ) / 0.6   * 100).toFixed(1),
     health: ((rawAttr['minecraft:generic.max_health']     - 15    ) / 15    * 100).toFixed(1)
   }
-  const rarity = {};
-  ['speed', 'jump', 'health'].forEach(n => { // sort rarity
-    rankGrading.some((r, i) => percentStat[n] >= r ? ((rarity[n] = 5 - i), true) : false)
+  const rarity = {
+    speed: 0,
+    jump: 0,
+    health: 0
+  }
+  sjh.forEach(n => { // sort rarity
+    rankGrading.some((r, i) => +percentStat[n] >= r ? ((rarity[n] = 5 - i), true) : false)
     if (!rarity[n]) rarity[n] = 0
   })
   Elem.background.color =
@@ -87,9 +111,9 @@ JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
   Elem.speedText .setText(`Speed: ${recognizableStat.speed} m/s (${percentStat.speed}%)`)
   Elem.jumpText  .setText(`Jump: ${recognizableStat.jump} blocks (${percentStat.jump}%)`)
   Elem.healthText.setText(`Health: ${recognizableStat.health} (${percentStat.health}%)`)
-  if (!horseid) d2d.register();
-  ['speed', 'jump', 'health'].forEach(n => {
-    Elem[`${n}Bar` ].x2 = orig.bar.orig + Math.floor(orig.bar.sizeMultiply * percentStat[n])
+  if (!horseid) d2d.register()
+  sjh.forEach(n => {
+    Elem[`${n}Bar` ].x2 = orig.bar.orig + Math.floor(orig.bar.sizeMultiply * +percentStat[n])
     Elem[`${n}Bar` ].color = rankColor[rarity[n]] | 0xFF000000
     Elem[`${n}Text`].color = rankColor[rarity[n]]
   })
