@@ -2,9 +2,9 @@
 // WIP auto crafting script
 // currently only support placed chests and recipe book
 
-require('lib/DuplicateCheck')
+require('../../lib/DuplicateCheck')
 
-const util = require('lib/util')
+const util = require('../../lib/util')
 util.scriptName = 'AutoCraft'
 util.debug.log = msg => util.log('[debug] ' + msg)
 util.run(main)
