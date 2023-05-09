@@ -289,7 +289,7 @@ class ContainerHandler {
    */
   async waitInterval(cb) {
     if (!hasInterval) return cb?.(null)
-    lastIntervalTime = Math.max(util.ticks, lastIntervalTime) + interval
+    lastIntervalTime = Math.max(util.ticks, lastIntervalTime + interval)
     await util.waitTick(Math.floor(lastIntervalTime - util.ticks))
     return cb?.(null)
   }
