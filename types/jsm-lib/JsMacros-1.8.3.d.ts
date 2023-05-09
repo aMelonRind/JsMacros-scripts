@@ -6884,6 +6884,13 @@ declare namespace Packages {
               /** @since 1.5.1 */
               asString(key: string): string;
 
+              /**
+               * if element is a string, returns value.  
+               *  otherwise returns toString representation.
+               * @since 1.5.1
+               */
+              asString(): string;
+
             }
 
             /** @since 1.5.1 */
