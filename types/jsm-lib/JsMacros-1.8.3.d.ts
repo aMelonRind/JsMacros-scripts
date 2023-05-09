@@ -11239,7 +11239,7 @@ declare namespace Packages {
         add(arg0: string, arg1: JsonElement): void;
         remove(arg0: string): JsonElement;
         addProperty(arg0: string, arg1: string): void;
-        addProperty(arg0: string, arg1: java.lang.Number): void;
+        addProperty(arg0: string, arg1: number): void;
         addProperty(arg0: string, arg1: boolean): void;
         addProperty(arg0: string, arg1: number): void;
         entrySet(): JavaSet<java.util.Map$Entry<string, JsonElement>>;
@@ -11273,7 +11273,7 @@ declare namespace Packages {
         getAsJsonPrimitive(): JsonPrimitive;
         getAsJsonNull(): JsonNull;
         getAsBoolean(): boolean;
-        getAsNumber(): java.lang.Number;
+        getAsNumber(): number;
         getAsString(): string;
         getAsDouble(): number;
         getAsFloat(): number;
@@ -11292,7 +11292,7 @@ declare namespace Packages {
       interface JsonPrimitive$$constructor extends SuppressProperties {
 
         new (arg0: boolean): JsonPrimitive;
-        new (arg0: java.lang.Number): JsonPrimitive;
+        new (arg0: number): JsonPrimitive;
         new (arg0: string): JsonPrimitive;
         new (arg0: number): JsonPrimitive;
 
@@ -11303,7 +11303,7 @@ declare namespace Packages {
         isBoolean(): boolean;
         getAsBoolean(): boolean;
         isNumber(): boolean;
-        getAsNumber(): java.lang.Number;
+        getAsNumber(): number;
         isString(): boolean;
         getAsString(): string;
         getAsDouble(): number;
@@ -11330,7 +11330,7 @@ declare namespace Packages {
         deepCopy(): JsonArray;
         add(arg0: boolean): void;
         add(arg0: number): void;
-        add(arg0: java.lang.Number): void;
+        add(arg0: number): void;
         add(arg0: string): void;
         add(arg0: JsonElement): void;
         addAll(arg0: JsonArray): void;
@@ -11342,7 +11342,7 @@ declare namespace Packages {
         isEmpty(): boolean;
         iterator(): java.util.Iterator<JsonElement>;
         get(arg0: number): JsonElement;
-        getAsNumber(): java.lang.Number;
+        getAsNumber(): number;
         getAsString(): string;
         getAsDouble(): number;
         getAsBigDecimal(): java.math.BigDecimal;
@@ -12837,6 +12837,290 @@ declare namespace Packages {
       }
       interface Void extends Object {}
 
+      const Long: JavaClassStatics<Long, Long$$constructor> & {
+          readonly MIN_VALUE: number;
+          readonly MAX_VALUE: number;
+          readonly TYPE: JavaClass<number>;
+          readonly SIZE: number;
+          readonly BYTES: number;
+
+          toString(arg0: long, arg1: int): string;
+          toUnsignedString(arg0: long, arg1: int): string;
+          toHexString(arg0: long): string;
+          toOctalString(arg0: long): string;
+          toBinaryString(arg0: long): string;
+          toString(arg0: long): string;
+          toUnsignedString(arg0: long): string;
+          parseLong(arg0: string, arg1: int): number;
+          parseLong(arg0: CharSequence, arg1: int, arg2: int, arg3: int): number;
+          parseLong(arg0: string): number;
+          parseUnsignedLong(arg0: string, arg1: int): number;
+          parseUnsignedLong(arg0: CharSequence, arg1: int, arg2: int, arg3: int): number;
+          parseUnsignedLong(arg0: string): number;
+          valueOf(arg0: string, arg1: int): number;
+          valueOf(arg0: string): number;
+          valueOf(arg0: long): number;
+          decode(arg0: string): number;
+          hashCode(arg0: long): number;
+          getLong(arg0: string): number;
+          getLong(arg0: string, arg1: long): number;
+          getLong(arg0: string, arg1: long): number;
+          compare(arg0: long, arg1: long): number;
+          compareUnsigned(arg0: long, arg1: long): number;
+          divideUnsigned(arg0: long, arg1: long): number;
+          remainderUnsigned(arg0: long, arg1: long): number;
+          highestOneBit(arg0: long): number;
+          lowestOneBit(arg0: long): number;
+          numberOfLeadingZeros(arg0: long): number;
+          numberOfTrailingZeros(arg0: long): number;
+          bitCount(arg0: long): number;
+          rotateLeft(arg0: long, arg1: int): number;
+          rotateRight(arg0: long, arg1: int): number;
+          reverse(arg0: long): number;
+          signum(arg0: long): number;
+          reverseBytes(arg0: long): number;
+          sum(arg0: long, arg1: long): number;
+          max(arg0: long, arg1: long): number;
+          min(arg0: long, arg1: long): number;
+
+      }
+      interface Long$$constructor extends SuppressProperties {
+
+          /** @deprecated */
+          new (arg0: long): number;
+          /** @deprecated */
+          new (arg0: string): number;
+
+      }
+      interface Long extends Number, Comparable<Long>, java.lang.constant.Constable, java.lang.constant.ConstantDesc {
+
+          byteValue(): number;
+          shortValue(): number;
+          intValue(): number;
+          longValue(): number;
+          floatValue(): number;
+          doubleValue(): number;
+          compareTo(arg0: long): number;
+          describeConstable(): java.util.Optional<number>;
+          resolveConstantDesc(arg0: java.lang.invoke.MethodHandles$Lookup): number;
+
+      }
+
+      const Float: JavaClassStatics<Float, Float$$constructor> & {
+          readonly POSITIVE_INFINITY: number;
+          readonly NEGATIVE_INFINITY: number;
+          readonly NaN: number;
+          readonly MAX_VALUE: number;
+          readonly MIN_NORMAL: number;
+          readonly MIN_VALUE: number;
+          readonly MAX_EXPONENT: number;
+          readonly MIN_EXPONENT: number;
+          readonly SIZE: number;
+          readonly BYTES: number;
+          readonly TYPE: JavaClass<number>;
+
+          toString(arg0: float): string;
+          toHexString(arg0: float): string;
+          valueOf(arg0: string): number;
+          valueOf(arg0: float): number;
+          parseFloat(arg0: string): number;
+          isNaN(arg0: float): boolean;
+          isInfinite(arg0: float): boolean;
+          isFinite(arg0: float): boolean;
+          hashCode(arg0: float): number;
+          floatToIntBits(arg0: float): number;
+          floatToRawIntBits(arg0: float): number;
+          intBitsToFloat(arg0: int): number;
+          compare(arg0: float, arg1: float): number;
+          sum(arg0: float, arg1: float): number;
+          max(arg0: float, arg1: float): number;
+          min(arg0: float, arg1: float): number;
+
+      }
+      interface Float$$constructor extends SuppressProperties {
+
+          /** @deprecated */
+          new (arg0: float): number;
+          /** @deprecated */
+          new (arg0: double): number;
+          /** @deprecated */
+          new (arg0: string): number;
+
+      }
+      interface Float extends Number, Comparable<Float>, java.lang.constant.Constable, java.lang.constant.ConstantDesc {
+
+          isNaN(): boolean;
+          isInfinite(): boolean;
+          byteValue(): number;
+          shortValue(): number;
+          intValue(): number;
+          longValue(): number;
+          floatValue(): number;
+          doubleValue(): number;
+          compareTo(arg0: float): number;
+          describeConstable(): java.util.Optional<number>;
+          resolveConstantDesc(arg0: java.lang.invoke.MethodHandles$Lookup): number;
+
+      }
+
+      const Double: JavaClassStatics<Double, Double$$constructor> & {
+          readonly POSITIVE_INFINITY: number;
+          readonly NEGATIVE_INFINITY: number;
+          readonly NaN: number;
+          readonly MAX_VALUE: number;
+          readonly MIN_NORMAL: number;
+          readonly MIN_VALUE: number;
+          readonly MAX_EXPONENT: number;
+          readonly MIN_EXPONENT: number;
+          readonly SIZE: number;
+          readonly BYTES: number;
+          readonly TYPE: JavaClass<number>;
+
+          toString(arg0: double): string;
+          toHexString(arg0: double): string;
+          valueOf(arg0: string): number;
+          valueOf(arg0: double): number;
+          parseDouble(arg0: string): number;
+          isNaN(arg0: double): boolean;
+          isInfinite(arg0: double): boolean;
+          isFinite(arg0: double): boolean;
+          hashCode(arg0: double): number;
+          doubleToLongBits(arg0: double): number;
+          doubleToRawLongBits(arg0: double): number;
+          longBitsToDouble(arg0: long): number;
+          compare(arg0: double, arg1: double): number;
+          sum(arg0: double, arg1: double): number;
+          max(arg0: double, arg1: double): number;
+          min(arg0: double, arg1: double): number;
+
+      }
+      interface Double$$constructor extends SuppressProperties {
+
+          /** @deprecated */
+          new (arg0: double): number;
+          /** @deprecated */
+          new (arg0: string): number;
+
+      }
+      interface Double extends Number, Comparable<Double>, java.lang.constant.Constable, java.lang.constant.ConstantDesc {
+
+          isNaN(): boolean;
+          isInfinite(): boolean;
+          byteValue(): number;
+          shortValue(): number;
+          intValue(): number;
+          longValue(): number;
+          floatValue(): number;
+          doubleValue(): number;
+          compareTo(arg0: double): number;
+          describeConstable(): java.util.Optional<number>;
+          resolveConstantDesc(arg0: java.lang.invoke.MethodHandles$Lookup): number;
+
+      }
+
+      const Integer: JavaClassStatics<Integer, Integer$$constructor> & {
+          readonly MIN_VALUE: number;
+          readonly MAX_VALUE: number;
+          readonly TYPE: JavaClass<number>;
+          readonly SIZE: number;
+          readonly BYTES: number;
+
+          toString(arg0: int, arg1: int): string;
+          toUnsignedString(arg0: int, arg1: int): string;
+          toHexString(arg0: int): string;
+          toOctalString(arg0: int): string;
+          toBinaryString(arg0: int): string;
+          toString(arg0: int): string;
+          toUnsignedString(arg0: int): string;
+          parseInt(arg0: string, arg1: int): number;
+          parseInt(arg0: CharSequence, arg1: int, arg2: int, arg3: int): number;
+          parseInt(arg0: string): number;
+          parseUnsignedInt(arg0: string, arg1: int): number;
+          parseUnsignedInt(arg0: CharSequence, arg1: int, arg2: int, arg3: int): number;
+          parseUnsignedInt(arg0: string): number;
+          valueOf(arg0: string, arg1: int): number;
+          valueOf(arg0: string): number;
+          valueOf(arg0: int): number;
+          hashCode(arg0: int): number;
+          getInteger(arg0: string): number;
+          getInteger(arg0: string, arg1: int): number;
+          getInteger(arg0: string, arg1: int): number;
+          decode(arg0: string): number;
+          compare(arg0: int, arg1: int): number;
+          compareUnsigned(arg0: int, arg1: int): number;
+          toUnsignedLong(arg0: int): number;
+          divideUnsigned(arg0: int, arg1: int): number;
+          remainderUnsigned(arg0: int, arg1: int): number;
+          highestOneBit(arg0: int): number;
+          lowestOneBit(arg0: int): number;
+          numberOfLeadingZeros(arg0: int): number;
+          numberOfTrailingZeros(arg0: int): number;
+          bitCount(arg0: int): number;
+          rotateLeft(arg0: int, arg1: int): number;
+          rotateRight(arg0: int, arg1: int): number;
+          reverse(arg0: int): number;
+          signum(arg0: int): number;
+          reverseBytes(arg0: int): number;
+          sum(arg0: int, arg1: int): number;
+          max(arg0: int, arg1: int): number;
+          min(arg0: int, arg1: int): number;
+
+      }
+      interface Integer$$constructor extends SuppressProperties {
+
+          /** @deprecated */
+          new (arg0: int): number;
+          /** @deprecated */
+          new (arg0: string): number;
+
+      }
+      interface Integer extends Number, Comparable<Integer>, java.lang.constant.Constable, java.lang.constant.ConstantDesc {
+
+          byteValue(): number;
+          shortValue(): number;
+          intValue(): number;
+          longValue(): number;
+          floatValue(): number;
+          doubleValue(): number;
+          compareTo(arg0: int): number;
+          describeConstable(): java.util.Optional<number>;
+          resolveConstantDesc(arg0: java.lang.invoke.MethodHandles$Lookup): number;
+
+      }
+
+      const Boolean: JavaClassStatics<Boolean, Boolean$$constructor> & {
+          readonly TRUE: boolean;
+          readonly FALSE: boolean;
+          readonly TYPE: JavaClass<boolean>;
+
+          parseBoolean(arg0: string): boolean;
+          valueOf(arg0: boolean): boolean;
+          valueOf(arg0: string): boolean;
+          toString(arg0: boolean): string;
+          hashCode(arg0: boolean): number;
+          getBoolean(arg0: string): boolean;
+          compare(arg0: boolean, arg1: boolean): number;
+          logicalAnd(arg0: boolean, arg1: boolean): boolean;
+          logicalOr(arg0: boolean, arg1: boolean): boolean;
+          logicalXor(arg0: boolean, arg1: boolean): boolean;
+
+      }
+      interface Boolean$$constructor extends SuppressProperties {
+
+          /** @deprecated */
+          new (arg0: boolean): boolean;
+          /** @deprecated */
+          new (arg0: string): boolean;
+
+      }
+      interface Boolean extends Object, java.io.Serializable, Comparable<Boolean>, java.lang.constant.Constable {
+
+          booleanValue(): boolean;
+          compareTo(arg0: boolean): number;
+          describeConstable(): java.util.Optional<java.lang.constant.DynamicConstantDesc<boolean>>;
+
+      }
+
       export {
         AutoCloseable,
         Exception,
@@ -12863,7 +13147,12 @@ declare namespace Packages {
         ThreadGroup,
         Thread$UncaughtExceptionHandler,
         Number,
-        Void
+        Void,
+        Long,
+        Float,
+        Double,
+        Integer,
+        Boolean
       }
 
     }
