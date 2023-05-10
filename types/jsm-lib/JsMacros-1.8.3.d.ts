@@ -1011,7 +1011,7 @@ declare namespace Client {
    *  Warning: this does not wait on joined threads, so your script may stop at an undefined point.
    * @since 1.6.0
    */
-  function shutdown(): void;
+  function shutdown(): never;
 
   /**
    * @since 1.2.4

@@ -1,8 +1,5 @@
 
-/**
- * useful multi-purpose module
- * @exports util
- */
+// useful multi-purpose module
 
 const StringNbtReader = Java.type('net.minecraft.class_2522')
 const ItemStack       = Java.type('net.minecraft.class_1799')
@@ -154,44 +151,37 @@ class Util {
 
   /** @readonly */
   get glfw() {
-    const value = require('./GLFW')
-    Object.defineProperty(this, 'glfw', { value })
-    return value
+    return setSubModule('glfw', require('./GLFW'))
   }
 
   /** @readonly */
   get movement() {
-    const value = require('./handlers/Movement')
-    Object.defineProperty(this, 'movement', { value })
-    return value
+    return setSubModule('movement', require('./handlers/Movement'))
   }
 
   /** @readonly */
   get actionbar() {
-    const value = require('./AdvancedActionbar')
-    Object.defineProperty(this, 'actionbar', { value })
-    return value
+    return setSubModule('actionbar', require('./AdvancedActionbar'))
   }
 
   /** @readonly */
   get crafting() {
-    const value = require('./handlers/Crafting')
-    Object.defineProperty(this, 'crafting', { value })
-    return value
+    return setSubModule('crafting', require('./handlers/Crafting'))
   }
 
   /** @readonly */
   get container() {
-    const value = require('./handlers/Container')
-    Object.defineProperty(this, 'container', { value })
-    return value
+    return setSubModule('container', require('./handlers/Container'))
   }
 
   /** @readonly */
   get storage() {
-    const value = require('./handlers/Storage')
-    Object.defineProperty(this, 'storage', { value })
-    return value
+    return setSubModule('storage', require('./handlers/Storage'))
+  }
+
+  /** @readonly */
+  get world() {
+    return setSubModule('world', require('./handlers/World'))
   }
 
   /**
@@ -683,6 +673,25 @@ class Util {
   }
 
   /**
+   * Get a declared field and set it accessible
+   * @param {JavaClassArg} clazz 
+   * @param {string} field 
+   */
+  getField(clazz, field) {
+    return this.setAccessible(Reflection.getDeclaredField(clazz, field))
+  }
+
+  /**
+   * Set {@link object}'s accessible to true
+   * @template {Packages.java.lang.reflect.AccessibleObject} T
+   * @param {T} object 
+   */
+  setAccessible(object) {
+    object.setAccessible(true)
+    return object
+  }
+
+  /**
    * will recover on stop
    * @readonly
    */
@@ -1024,10 +1033,22 @@ class Util {
   getTextWidth = Client.getMinecraft().field_1772.method_1727 // .textRenderer.getWidth
 
   /**
-   * @type {(packet: object) => void}
+   * @param {object} packet
    */
-  sendPacket = Client.getMinecraft().method_1562().method_2883
+  sendPacket(packet) {
+    return Client.getMinecraft().method_1562().method_2883(packet)
+  }
 
+}
+
+/**
+ * @template T
+ * @param {string} field 
+ * @param {T} module 
+ */
+function setSubModule(field, module) {
+  Object.defineProperty(util, field, { value: module })
+  return module
 }
 
 const util = new Util

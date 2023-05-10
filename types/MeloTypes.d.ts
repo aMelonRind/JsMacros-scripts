@@ -8,6 +8,7 @@ type Callback<R = any> = (...args: any[]) => R
 type Filter<T> = (v: any) => v is T
 type Condition<A extends [...any] = []> = (...args: A) => any
 
+type Field = Packages.java.lang.reflect.Field
 type Context = EventContainer
 type ClientPlayer = ClientPlayerEntityHelper
 type Pos2D = PositionCommon$Pos2D
