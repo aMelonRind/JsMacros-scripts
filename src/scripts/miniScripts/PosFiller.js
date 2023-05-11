@@ -9,6 +9,8 @@
  * is service script
  */
 
+if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
+
 let block
 /** @type {SuggestingListener[]} */
 const listeners = [
@@ -184,11 +186,8 @@ function Suggestion(start, end, text) {
  * @returns {T extends JavaClassArg ? Field : T}
  */
 function getF(f, name) {
-  // @ts-ignore
-  if (name) f = f.getDeclaredField(name)
-  // @ts-ignore
+  if (name) f = Reflection.getDeclaredField(f, name)
   f.setAccessible(true)
-  // @ts-ignore
   return f
 }
 
