@@ -22,11 +22,10 @@ class MovementHandler {
    */
   area = null
 
-  /**
-   * squared reach distance  
-   * for reach check
-   */
-  reachSq = 25
+  /** @deprecated util.reachSq */
+  get reachSq() { return util.reachSq }
+  /** @deprecated util.reachSq */
+  set reachSq(r) { util.reachSq = r }
 
   /**
    * timeout in ticks
@@ -102,14 +101,14 @@ class MovementHandler {
     let pos3 = util.toPos(pos)
     p = Player.getPlayer()
     pos3 = pos3.add(0.5, -p.getEyeHeight() + 0.5, 0.5)
-    if (p.getPos().toVector(pos3).getMagnitudeSq() < this.reachSq) return true
+    if (p.getPos().toVector(pos3).getMagnitudeSq() < util.reachSq) return true
     const nearest = this.getNearestCoords(pos3)
-    if (pos3.toVector(nearest).getMagnitudeSq() > this.reachSq + 16)
+    if (pos3.toVector(nearest).getMagnitudeSq() > util.reachSq + 16)
       util.throw("can't reach out of area")
     await this.walkTo(nearest, () =>
-      p.getPos().toVector(pos3).getMagnitudeSq() < this.reachSq || orCondition?.(p)
+      p.getPos().toVector(pos3).getMagnitudeSq() < util.reachSq || orCondition?.(p)
     )
-    return p.getPos().toVector(pos3).getMagnitudeSq() < this.reachSq + 2
+    return p.getPos().toVector(pos3).getMagnitudeSq() < util.reachSq + 2
   }
 
   /**

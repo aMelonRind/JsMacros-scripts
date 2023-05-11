@@ -28,6 +28,12 @@ class Util {
 
   scriptName = 'UnnamedScript'
 
+  /**
+   * squared reach distance  
+   * for reach check
+   */
+  reachSq = 4.5 ** 2
+
   /** @alias {@link JavaWrapper.methodToJava} */
   toJava = JavaWrapper.methodToJava
 
@@ -670,6 +676,33 @@ class Util {
   getMaxCount(id) {
     return ItemRegistry.method_10223(new Identifier(id)).method_7882()
     // ItemRegistry.get(id).getMaxCount()
+  }
+
+  /**
+   * @param {Pos3D} pos 
+   * @param {EntityHelper} entity 
+   * @param {number} distSq 
+   */
+  canReachPos(pos, entity = Player.getPlayer(), distSq = this.reachSq) {
+    if (!entity || !World.isWorldLoaded()) return false
+    return entity.getPos().add(0, entity.getEyeHeight(), 0)
+      .toVector(pos).getMagnitudeSq() < distSq
+  }
+
+  /**
+   * check if any edge of the block grid at pos is reachable
+   * @param {Pos3D} pos 
+   * @param {EntityHelper} entity 
+   * @param {number} distSq 
+   */
+  canReachBlock(pos, entity = Player.getPlayer(), distSq = this.reachSq) {
+    if (!entity || !World.isWorldLoaded()) return false
+    const eyepos = entity.getPos().add(0, entity.getEyeHeight(), 0)
+    return eyepos.toVector(
+      this.math.clamp(eyepos.x, pos.x, pos.x + 1),
+      this.math.clamp(eyepos.y, pos.y, pos.y + 1),
+      this.math.clamp(eyepos.z, pos.z, pos.z + 1)
+    ).getMagnitudeSq() < distSq
   }
 
   /**
