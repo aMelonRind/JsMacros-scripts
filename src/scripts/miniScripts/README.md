@@ -1,0 +1,1 @@
+The scripts in this folder are meant to be run alone and don't have any dependencies.
