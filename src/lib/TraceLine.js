@@ -1,27 +1,27 @@
 
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 
-/** @type {IEventListener?} */ 
+/** @type {IEventListener=} */ 
 let tickListener
-/** @type {TraceLine[]} */
-let lines = []
+/** @type {Set<TraceLine>} */
+const lines = new Set
 
 /** @type {Draw3D} */
 const d3d = Reflection.createClassProxyBuilder(Hud.createDraw3D().getClass())
     .addMethod('render', JavaWrapper.methodToJava((ref, args) => {
-  // @ts-ignore
-  cachePoint = undefined
-  if (!lines[0]) return ref.parent(args)
+  newFrame = true
+  if (lines.size === 0) return ref.parent(args)
   getStartingPoint()
   lines.forEach(l => {
-    if (l.remove) return d3d.removeLine(l.line)
-    l.onFrame?.(l)
-    if (l.remove) return d3d.removeLine(l.line)
+    if (!l.remove) l.onFrame?.(l)
+    if (l.remove) {
+      d3d.removeLine(l.line)
+      lines.delete(l)
+      return
+    }
     l.line.setPos(...cachePoint, l.x, l.y, l.z)
   })
-  lines = lines.filter(l => !l.remove)
-  if (!lines[0]) return ref.parent(args)
-  ref.parent(args)
+  return ref.parent(args)
 })).buildInstance([])
 d3d.register()
 
@@ -41,14 +41,13 @@ function newLine(color = 0xFFFFFF, onTick, onFrame, x = 0, y = 0, z = 0) {
     onFrame,
     x, y, z,
     remove: false,
-    // @ts-ignore
     line: undefined
   }
   obj.onTick?.(obj)
   if (obj.remove) return null
 
   obj.line = d3d.addLine(0, 0, 0, 0, 0, 0, color)
-  lines.push(obj)
+  lines.add(obj)
   if (!tickListener && onTick) tickListener =
     JsMacros.on('Tick', JavaWrapper.methodToJava(() => 
       lines.forEach(l => l.onTick?.(l))
@@ -56,30 +55,21 @@ function newLine(color = 0xFFFFFF, onTick, onFrame, x = 0, y = 0, z = 0) {
   return obj
 }
 
-const D2R = Math.PI / 180
-/** @type {Pos3DTuple} */ 
-let cachePoint
-let /** @type {*} */ cam
-let /** @type {Pos3DTuple} */ camPos
-let /** @type {number} */ pitch
-let /** @type {number} */ yaw
-let /** @type {Pos3DTuple} */ vec
-let /** @type {number} */ dist
-/**
- * @returns {Pos3DTuple}
- */
+let newFrame = true
+/** @type {Pos3DTuple} */
+const cachePoint = [0, 0, 0]
+
+let _cam, _pos
 function getStartingPoint() {
-  if (cachePoint) return cachePoint
-  cam = Client.getMinecraft().field_1773.method_19418() // .gameRenderer.getCamera()
-  // @ts-ignore
-  with (cam.method_19326()) camPos = [field_1352, field_1351, field_1350]
-  pitch = cam.method_19329()
-  if (Math.abs(pitch) === 90) return cachePoint = (camPos[1] -= Math.sign(pitch) * 16, camPos)
-  yaw = cam.method_19330() * D2R
-  vec = [-Math.sin(yaw), -Math.tan(pitch * D2R), Math.cos(yaw)]
-  dist = Math.sqrt(vec.reduce((p, v) => p + v ** 2, 0)) / 16
-  // @ts-ignore
-  return cachePoint = vec.map((v, i) => v / dist + camPos[i])
+  if (!newFrame) return cachePoint
+  _cam = Client.getMinecraft().field_1773.method_19418() // .gameRenderer.getCamera()
+  _pos = _cam.method_36425().method_36427(0, 0).method_1021(320).method_1019(_cam.method_19326())
+  // .getProjection().getPosition(factorX, factorY).multiply(value).add(vec) cam.getPos()
+  cachePoint[0] = _pos.field_1352
+  cachePoint[1] = _pos.field_1351
+  cachePoint[2] = _pos.field_1350
+  newFrame = false
+  return cachePoint
 }
 
 /**
@@ -102,17 +92,16 @@ function getLines() {
   return lines
 }
 
-event.stopListener = JavaWrapper.methodToJava(() => {
-  d3d.unregister()
-  if (tickListener) JsMacros.off('Tick', tickListener)
-})
-
 module.exports = {
   d3d,
   newLine,
   getLines,
   getStartingPoint,
-  traceEntityBuilder
+  traceEntityBuilder,
+  stopListener: event.stopListener = JavaWrapper.methodToJava(() => {
+    d3d.unregister()
+    if (tickListener) JsMacros.off('Tick', tickListener)
+  })
 }
 
 /**
@@ -124,6 +113,6 @@ module.exports = {
  *  remove: boolean
  *  onTick?: (line: TraceLine) => void
  *  onFrame?: (line: TraceLine) => void
- *  line: Draw3D$Line
+ *  line?: Draw3D$Line
  * }} TraceLine
  */
