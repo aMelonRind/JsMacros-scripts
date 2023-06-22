@@ -3,14 +3,7 @@
 // look at entity, use alt + middle mouse to trigger
 // is service
 
-JsMacros.on('Key', JavaWrapper.methodToJava(e => {
-  if (e.key !== 'key.mouse.middle'
-  ||  !e.mods.endsWith('alt')
-  ||  Hud.getOpenScreen()) return
-  const trace = Player.rayTraceEntity(64)
-  if (!trace) return
-  openEntityInspectScreen(trace)
-}))
+if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 
 const LivingEntityHelper = Reflection.getClass(
   'xyz.wagyourtail.jsmacros.client.api.helpers.LivingEntityHelper',
@@ -28,6 +21,15 @@ const getTextWidth = Client.getMinecraft().field_1772.method_1727
 /** @type {ScriptScreen} */
 let sc
 let lastNbtPath = ''
+
+JsMacros.on('Key', JavaWrapper.methodToJava(e => {
+  if (e.key !== 'key.mouse.middle'
+  ||  !e.mods.endsWith('alt')
+  ||  Hud.getOpenScreen()) return
+  const trace = Player.rayTraceEntity(64)
+  if (!trace) return
+  openEntityInspectScreen(trace)
+}))
 
 /**
  * @param {EntityHelper} entity 
@@ -163,9 +165,23 @@ function addItem(x, y, item, textIfEmpty = 'No Item!') {
  */
 function getItem(item) {
   return () => {
-    if (Player.getPlayer().getRaw().method_5687(2)) // .hasPermissionLevel
-      Chat.say(`/give @s ${item.getItemId()}${toSnbt(item.getNBT())}`)
-    else Chat.log(Chat.createTextHelperFromJSON(`{
+    if (Player.getGameMode() === 'creative') {
+      const InvScreen = Java.type('net.minecraft.class_490')
+      const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Inventory')
+      const inv = Inventory.create(new InvScreen(Player.getPlayer().getRaw()))
+      const slot = Java.from(inv.getMap().hotbar).concat(inv.getMap().main).find(slot => {
+        return inv.getSlot(slot).isEmpty()
+      })
+      if (slot !== undefined) {
+        const CreativeInventoryActionC2SPacket = Java.type("net.minecraft.class_2873")
+        const ClientPlayNetworkHandler = Client.getMinecraft().method_1562()
+        ClientPlayNetworkHandler.method_2883(new CreativeInventoryActionC2SPacket(slot, item.getRaw()))
+        return
+      }
+    } else if (Player.getPlayer().getRaw().method_5687(2)) // .hasPermissionLevel
+      return Chat.say(`/give @s ${item.getItemId()}${toSnbt(item.getNBT())}`)
+
+    Chat.log(Chat.createTextHelperFromJSON(`{
       "text": "Don't have /give permission to get ",
       "extra": [${item.getName().getJson()}, {
         "text": "\nClick here to copy tags to clipboard.",

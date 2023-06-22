@@ -14,7 +14,7 @@ if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 let block
 /** @type {SuggestingListener[]} */
 const listeners = [
-  { // bpos
+  { // bpos: block pos
     onOpenChatScreen() {
       block = Player.rayTraceBlock(8, false)
     },
@@ -25,10 +25,24 @@ const listeners = [
       if (sym === '')  return `${block.getX()} ${block.getY()} ${block.getZ()} `
     }
   },
-  { // pos
+  { // pos: player pos
     onKeyword(keyword, sym) {
       if (keyword !== 'pos') return
-      const {x, y, z} = Player.getPlayer().getBlockPos() // add .toPos3D() in 1.8.4
+      const pos = Player.getPlayer().getPos()
+      const x = Math.floor(pos.x)
+      const y = Math.floor(pos.y)
+      const z = Math.floor(pos.z)
+      if (sym === ',') return `${x}, ${y}, ${z}`
+      if (sym === '')  return `${x} ${y} ${z} `
+    }
+  },
+  { // cpos: camera pos
+    onKeyword(keyword, sym) {
+      if (keyword !== 'cpos') return
+      const cam = Client.getMinecraft().field_1773.method_19418().method_19326() // .gameRenderer.getCamera().getPos()
+      const x = Math.floor(cam.field_1352)
+      const y = Math.floor(cam.field_1351)
+      const z = Math.floor(cam.field_1350)
       if (sym === ',') return `${x}, ${y}, ${z}`
       if (sym === '')  return `${x} ${y} ${z} `
     }

@@ -11,7 +11,7 @@ const Enum = {
 }
 
 let shouldStart = false
-const prev = GlobalVars.getObject(`MelonRind:DuplicateChecker:script<${scriptPath}>`)
+const prev = GlobalVars.getObject(`MelonRind:DuplicateCheck:script<${scriptPath}>`)
 if (!prev) shouldStart = true
 else try {
   if (!prev[Enum.status]) shouldStart = true
@@ -43,7 +43,7 @@ const status = Java.to([
   0
 ])
 
-GlobalVars.putObject(`MelonRind:DuplicateChecker:script<${scriptPath}>`, status)
+GlobalVars.putObject(`MelonRind:DuplicateCheck:script<${scriptPath}>`, status)
 
 /**
  * will halt the script and quit in 3 seconds  

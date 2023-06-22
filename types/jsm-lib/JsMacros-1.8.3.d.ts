@@ -1769,7 +1769,7 @@ declare namespace World {
    * @see FWorld#playSound(String, double, double, double, double, double)
    * @param id
    */
-  function playSound(id: string): void;
+  function playSound(id: SoundId): void;
 
   /**
    * @since 1.1.7
@@ -1777,7 +1777,7 @@ declare namespace World {
    * @param id
    * @param volume
    */
-  function playSound(id: string, volume: double): void;
+  function playSound(id: SoundId, volume: double): void;
 
   /**
    * @since 1.1.7
@@ -1786,7 +1786,7 @@ declare namespace World {
    * @param volume
    * @param pitch
    */
-  function playSound(id: string, volume: double, pitch: double): void;
+  function playSound(id: SoundId, volume: double, pitch: double): void;
 
   /**
    * plays a minecraft sound using the internal system.
@@ -1798,7 +1798,7 @@ declare namespace World {
    * @param y
    * @param z
    */
-  function playSound(id: string, volume: double, pitch: double, x: double, y: double, z: double): void;
+  function playSound(id: SoundId, volume: double, pitch: double, x: double, y: double, z: double): void;
 
   /**
    * @since 1.2.1
@@ -8315,7 +8315,7 @@ declare namespace Packages {
               closeAndDrop(): Inventory<T>;
 
               /**
-               * Closes the inventory, and open gui if applicable.
+               * Closes the inventory, and close gui if applicable.
                */
               close(): void;
 

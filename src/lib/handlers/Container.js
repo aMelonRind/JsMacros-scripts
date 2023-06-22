@@ -2,6 +2,7 @@
 // util.container
 
 const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Inventory')
+const ActionTypeQuick = Java.type('net.minecraft.class_1713').field_7794
 
 const asyncMethods = new Set([
   'swap',
@@ -61,6 +62,19 @@ class ContainerHandler {
   }
 
   /**
+   * shift + right clicks a slot
+   * @param {int} slot 
+   */
+  async quickRight(slot) {
+    if (util.container.quickInterval) await util.container.waitInterval()
+    Client.getMinecraft().field_1761.method_2906(
+      Player.openInventory().getCurrentSyncId(),
+      slot, 1, ActionTypeQuick, Player.getPlayer().getRaw()
+    )
+    // Minecraft.interactionManager.clickSlot(syncId, slot, button, actionType, player)
+  }
+
+  /**
    * open container and operate items  
    * try to match inventory item counts to {@link items}
    * @param {Pos3DLike | AsyncInventory} chest 
@@ -83,7 +97,7 @@ class ContainerHandler {
   /**
    * make item count in inventory matches {@link count}
    * @param {AsyncInventory} inv 
-   * @param {string} id 
+   * @param {ItemId} id 
    * @param {number} count 
    * @param {number[]} [CSlots]
    * @param {number[]} [ISlots]
