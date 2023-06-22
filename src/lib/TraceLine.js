@@ -1,17 +1,4 @@
 
-/**
- * @typedef {{
- *  x: number
- *  y: number
- *  z: number
- *  color: number
- *  remove: boolean
- *  onTick?: (line: TraceLine) => void
- *  onFrame?: (line: TraceLine) => void
- *  line: Draw3D$Line
- * }} TraceLine
- */
-
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 
 /** @type {IEventListener?} */ 
@@ -20,8 +7,8 @@ let tickListener
 let lines = []
 
 /** @type {Draw3D} */
-const d3d = Reflection.createClassProxyBuilder(Java.type('xyz.wagyourtail.jsmacros.client.api.classes.Draw3D'))
-            .addMethod('render', JavaWrapper.methodToJava((ref, args) => {
+const d3d = Reflection.createClassProxyBuilder(Hud.createDraw3D().getClass())
+    .addMethod('render', JavaWrapper.methodToJava((ref, args) => {
   // @ts-ignore
   cachePoint = undefined
   if (!lines[0]) return ref.parent(args)
@@ -127,3 +114,16 @@ module.exports = {
   getStartingPoint,
   traceEntityBuilder
 }
+
+/**
+ * @typedef {{
+ *  x: number
+ *  y: number
+ *  z: number
+ *  color: number
+ *  remove: boolean
+ *  onTick?: (line: TraceLine) => void
+ *  onFrame?: (line: TraceLine) => void
+ *  line: Draw3D$Line
+ * }} TraceLine
+ */
