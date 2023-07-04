@@ -5,10 +5,3 @@
 </p>
 
   my scripts that use [JsMacros](https://github.com/JsMacros/JsMacros) to run
-
-## TODO
-* craft macro support
-* shulker machine support
-* shulker macro support
-* baritone support
-* instance builder script
