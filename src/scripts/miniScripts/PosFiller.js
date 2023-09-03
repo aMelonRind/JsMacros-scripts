@@ -59,7 +59,7 @@ const listeners = [
         return new Suggestion(0, cursor, text.toLowerCase())
     }
   },
-  { // can convert zhuyin(english) to chinese
+  { // can convert zhuyin(english) to chinese, powered by google input tools
     // /** @type {ChangeListener} */
     // onChange(text, cursor) {
     //   const final = []
