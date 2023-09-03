@@ -153,24 +153,24 @@ const listeners = [
     //   return { res, indexes }
     // }
   },
-  // { // test: multiple string range is supported
-  //   /** @type {ChangeListener} */
-  //   onChange(s, c) {
-  //     s = s.slice(0, c)
-  //     const res = []
-  //     let l = Math.floor(s.length / 4)
-  //     while (l > 0) {
-  //       res.push(new Suggestion(c - l * 4, c, 'Test'.repeat(l--)))
-  //     }
-  //     return res
-  //   }
-  // },
-  // { // test: will suggest after picked a suggest
-  //   /** @type {KeywordListener} */
-  //   onKeyword(k) {
-  //     if (k === 'pos') return 'bpos'
-  //   }
-  // }
+  { // test: multiple string range is supported
+    // /** @type {ChangeListener} */
+    // onChange(s, c) {
+    //   s = s.slice(0, c)
+    //   const res = []
+    //   let l = Math.floor(s.length / 4)
+    //   while (l > 0) {
+    //     res.push(new Suggestion(c - l * 4, c, 'Test'.repeat(l--)))
+    //   }
+    //   return res
+    // }
+  },
+  { // test: will suggest after picked a suggest
+    // /** @type {KeywordListener} */
+    // onKeyword(k) {
+    //   if (k === 'pos') return 'bpos'
+    // }
+  }
 ]
 
 /** @type {OpenChatScreenListener[]} */
