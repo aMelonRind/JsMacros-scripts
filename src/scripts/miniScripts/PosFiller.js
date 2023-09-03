@@ -4,6 +4,7 @@
  * keywords:
  *  pos: player block pos
  *  bpos: looking at block pos
+ *  cpos: camera pos, for freecam
  * add a comma (,) to separate with comma
  * 
  * is service script
@@ -231,8 +232,8 @@ JsMacros.on('OpenScreen', JavaWrapper.methodToJava(e => {
  */
 function triggerSuggest(screen, input, text) {
   currentText = text
+  /** @type {number} */
   const cursor = input.method_1881()
-  const keywordMatch = text.slice(0, cursor).match(/\$?\b(\w+)(\W*)$/)
 
   /** @type {Suggestion[]} */
   const res = onChanges.flatMap(cb => {
@@ -241,7 +242,11 @@ function triggerSuggest(screen, input, text) {
     } catch (e) { logerr(e) }
   }).filter(/** @type {Filter<Suggestion>} */ (s => s instanceof Suggestion))
     .filter(s => !s.discard)
-  if (keywordMatch) {
+  for (const keywordMatch of [
+    text.slice(0, cursor).match(/\$?\b(\w+)(\W*)$/),
+    (cursor < text.length ? text.match(/\$?\b(\w+)(\W*)$/) : null)
+  ]) {
+    if (!keywordMatch) continue
     const [, keyword, sym] = keywordMatch
     const kres = onKeywords.flatMap(cb => {
       try {
