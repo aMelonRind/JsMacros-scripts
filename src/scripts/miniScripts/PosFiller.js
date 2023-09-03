@@ -63,6 +63,7 @@ const listeners = [
   { // can convert zhuyin(english) to chinese, powered by google input tools
     // /** @type {ChangeListener} */
     // onChange(text, cursor) {
+    //   if (text.startsWith('/')) return
     //   const final = []
     //   if (cursor < text.length && this.regex.test(text.charAt(cursor))) {
     //     const res = this.fromZhuyin(text.slice(cursor).match(this.regex)[0])
