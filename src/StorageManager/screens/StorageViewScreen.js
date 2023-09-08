@@ -339,8 +339,8 @@ const StorageViewScreenClass = (() => {
     if (countX == 0) return 0;
     int x = startX - 1;
     int y = startY - 1;
-    if (signX == -1) x -= countX * 18;
-    if (signY == -1) y -= countY * 18;
+    if (signX == -1) x -= countX * 18 - 18;
+    if (signY == -1) y -= countY * 18 - 18;
     if (x > mouseX || mouseX >= x + countX * 18
     ||  y > mouseY || mouseY >= y + countY * 18
     ) return -1;

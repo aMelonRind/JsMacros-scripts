@@ -23,8 +23,8 @@ module.exports = {
      */
     itemsPosition(screenSize) {
       screenSize = screenSize.multiply(0.5, 0.5)
-      return screenSize.add(-90, -80).toReverseVector(screenSize.add(90, 100))
-      // return screenSize.add(-290, -80).toReverseVector(screenSize.add(290, 200))
+      return screenSize.add(-90, -80).toReverseVector(screenSize.add(90, 101))
+      // return screenSize.add(-290, -80).toReverseVector(screenSize.add(290, 201))
     },
 
     /**
