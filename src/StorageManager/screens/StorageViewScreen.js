@@ -614,9 +614,12 @@ class StorageViewScreen {
 
     screen.setItemsPositionFunction(JavaWrapper.methodToJavaAsync(size => itemsPosition(size)))
     screen.setSortComparator(JavaWrapper.methodToJava((a, b) => {
-      return Math.sign(screen.getLoaded(a) - screen.getLoaded(b))
-      || ((profile.getItem(a)?.getName()?.getStringStripFormatting() || 0) > (profile.getItem(b)?.getName()?.getStringStripFormatting() || 0) ? -1 : 1)
-      // || ((screen.getCache(a)?.getName()?.getString() || 0) < (screen.getCache(b)?.getName()?.getString() || 0) ? -1 : 1)
+      const count = Math.sign(screen.getLoaded(a) - screen.getLoaded(b))
+      if (count) return count
+      const name1 = profile.getItem(a)?.getName()?.getStringStripFormatting() || ''
+      const name2 = profile.getItem(b)?.getName()?.getStringStripFormatting() || ''
+      if (name1 !== name2) return name1 > name2 ? -1 : 1
+      return 0
     }))
     screen.setOnClickItem(JavaWrapper.methodToJava((i, btn) => {
       logger.log(`Clicked item: [${i}]: ${profile.getItem(i)?.getItemId()}, button: ${btn}`)
