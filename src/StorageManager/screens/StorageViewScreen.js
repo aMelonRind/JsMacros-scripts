@@ -20,39 +20,41 @@ const SortMethod = {
 }
 
 /** @type {JavaClass} */// @ts-ignore
-const ItemStackProxy = (() => {
-  const className = 'MelonRind$Proxy$ItemStackProxy' + `$Test${GlobalVars.getAndIncrementInt('classtesting')}`
+const DrawContextProxy = (() => {
+  const className = 'MelonRind$Proxy$DrawContextProxy' + `$Test${GlobalVars.getAndIncrementInt('classtesting')}`
   try {
     return Java.type('xyz.wagyourtail.jsmacros.core.library.impl.classes.proxypackage.' + className)
   } catch (e) {}
 
+  const MinecraftClient = 'net.minecraft.class_310'
+  const MinecraftClient_getInstance = `${MinecraftClient}.method_1551`
+  const DrawContext = 'net.minecraft.class_332'
+  const TextRenderer = 'net.minecraft.class_327'
   const ItemStack = 'net.minecraft.class_1799'
-  const PlayerEntity = 'net.minecraft.class_1657'
-  const TooltipContext = 'net.minecraft.class_1836'
 
   const List = 'java.util.List'
+  const Optional = 'java.util.Optional'
 
-  const getItem = 'method_7909'
-  const getNbt = 'method_7969'
-  const getTooltip = 'method_7950'
-  const setNbt = 'method_7980'
+  const drawItemTooltip = 'method_51446'
+  const drawTooltip = 'method_51437'
 
-  const builder = Reflection.createClassBuilder(className, Java.type(ItemStack))
-  .addField(`private final ${List} extraTooltips;`)
+  const builder = Reflection.createClassBuilder(className, Java.type(DrawContext))
+  .addField(`private ${DrawContext} parent;`)
+  .addField(`private ${List} extraTooltips;`)
 
-  .addConstructor(`public ${className}(${ItemStack} item, ${List} extraTooltips) {
-    super(item.${getItem}());
-    this.${setNbt}(item.${getNbt}());
-    this.extraTooltips = extraTooltips;
+  .addConstructor(`public ${className}() {
+    super(${MinecraftClient_getInstance}(), null);
   }`)
 
-  .addMethod(`public ${List} ${getTooltip}(${PlayerEntity} player, ${TooltipContext} context) {
-    ${List} tooltip = super.${getTooltip}(player, context);
-    if (extraTooltips != null && !extraTooltips.isEmpty()) {
-      tooltip.addAll(extraTooltips);
-      extraTooltips.clear();
-    }
-    return tooltip;
+  .addMethod(`public void drawItemTooltipWithExtra(${TextRenderer} textRenderer, ${ItemStack} stack, int x, int y, ${DrawContext} parent, ${List} extra) {
+    this.parent = parent;
+    this.extraTooltips = extra;
+    this.${drawItemTooltip}(textRenderer, stack, x, y);
+  }`)
+
+  .addMethod(`public void ${drawTooltip}(${TextRenderer} textRenderer, ${List} text, ${Optional} data, int x, int y) {
+    text.addAll(extraTooltips);
+    parent.${drawTooltip}(textRenderer, text, data, x, y);
   }`)
 
   return builder.finishBuildAndFreeze()
@@ -113,6 +115,7 @@ const StorageViewScreenClass = (() => {
   .addField(`private static final ${Text} NO_ITEM_TEXT = ${Text_literal}("No item");`)
   .addField(`private static final ${Text} NOT_ENOUGH_SPACE_TEXT = ${Text_literal}("No Space. Check positionSettings.js");`)
   
+  .addField(`private final ${DrawContextProxy.getTypeName()} contextProxy = new ${DrawContextProxy.getTypeName()}();`)
   .addField(`private final ${Rect} scrollBar = new ${Rect}(0, 0, 0, 0, 0xAAAAAA, 0.0f, 0);`)
   .addField(`private final ${Item} itemRender = new ${Item}(0, 0, 0, "minecraft:air", true, 1.0, 0.0f).setOverlayText("");`)
   .addField(`private final ${ClickableWidgetHelper} tooltipConverter = new ${ClickableWidgetHelper}(null);`)
@@ -559,7 +562,11 @@ const StorageViewScreenClass = (() => {
               extraTooltipFunction = null;
             }
           }
-          context.${drawItemTooltip}(mc.${textRenderer}, tooltipConverter.tooltips.isEmpty() ? ((${ItemStack}) item.getRaw()) : new ${ItemStackProxy.getTypeName()}((${ItemStack}) item.getRaw(), tooltipConverter.tooltips), mouseX + 4, mouseY + 4);
+          if (tooltipConverter.tooltips.isEmpty()) {
+            context.${drawItemTooltip}(mc.${textRenderer}, (${ItemStack}) item.getRaw(), mouseX + 4, mouseY + 4);
+          } else {
+            contextProxy.drawItemTooltipWithExtra(mc.${textRenderer}, (${ItemStack}) item.getRaw(), mouseX + 4, mouseY + 4, context, tooltipConverter.tooltips);
+          }
         }
       }
     }
