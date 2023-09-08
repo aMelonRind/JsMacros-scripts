@@ -19,7 +19,8 @@ function check(e) {
     if (e.getMainHand().getItemId() === 'minecraft:trident'
     ||  e.getOffHand().getItemId() === 'minecraft:trident'
     ) {
-      if (notify) {
+      // this 56 is for wacky spawn distance on the server i'm playing on.
+      if (notify && Player.getPlayer().getPos().toVector(e.getPos()).getMagnitude() < 56) {
         World.playSound('minecraft:item.trident.return', 2)
         requestAttention()
       }
@@ -29,7 +30,7 @@ function check(e) {
   && e.asItem().getContainedItemStack().getItemId() === 'minecraft:trident'
   // && e.getRaw().method_18798().field_1351 === 0.2 // .getVelocity().y
   ) {
-    // Chat.log(`VelocityY: ${e.getRaw().method_18798().field_1351}`)
+    // Chat.log(`[Debug] VelocityY: ${e.getRaw().method_18798().field_1351}`)
     e.setGlowing(true).setGlowingColor(0xFFFF00)
     if (notify) World.playSound('minecraft:item.trident.thunder', 1, 1, e.getX(), e.getY(), e.getZ())
   }
