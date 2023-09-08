@@ -372,7 +372,7 @@ declare namespace Packages {
             interface Iterable<T> extends Object, globalThis.Iterable<T> {
 
                 iterator(): java.util.Iterator<T>;
-                forEach(arg0: java.util.function.Consumer<any>): void;
+                forEach(arg0: MethodWrapper<T>): void;
                 spliterator(): java.util.Spliterator<T>;
 
             }

@@ -8,6 +8,9 @@ type Callback<R = any> = (...args: any[]) => R
 type Filter<T> = (v: any) => v is T
 type Condition<A extends [...any] = []> = (...args: A) => any
 
+type DummyType<C extends string> = JavaObject & Record<` $ts_className_${C}`, C> & { [key: string]: any }
+
+type ArrayList<T = any> = Packages.java.util.ArrayList<T>
 type Field = Packages.java.lang.reflect.Field
 type Context = EventContainer
 type ClientPlayer = ClientPlayerEntityHelper
@@ -15,7 +18,10 @@ type Pos2D = PositionCommon$Pos2D
 type Pos3D = PositionCommon$Pos3D
 type Vec2D = PositionCommon$Vec2D
 type Vec3D = PositionCommon$Vec3D
-type BlockPos = BlockPosHelper
+type BlockPos = BlockPosHelper // minecraft types isn't installed anyways
+type NbtElement = DummyType<'NbtElement'>
+type NbtCompound = NbtElement & DummyType<'NbtCompound'>
+type NbtList = NbtElement & DummyType<'NbtList'>
 
 type Pos3DTuple = [number, number, number]
 
