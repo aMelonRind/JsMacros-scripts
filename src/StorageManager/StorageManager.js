@@ -44,17 +44,17 @@ const Situations = {
     setStatus()
   })],
   /** @readonly @type {Situation} */
-  UNKNOWN: [Symbols.INVALID, ['§7Unknown Pos', 'Either the script failed to find pos for this container', 'or this container type is not supported'], EMPTY_CALLBACK],
+  UNKNOWN: [Symbols.INVALID, ['§7Unknown Pos', 'Either the service failed to find pos for this container', 'or this container type is not supported'], EMPTY_CALLBACK],
   /** @readonly @type {Situation} */
-  IGNORED: [Symbols.IGNORED, ['§cIgnored', 'This container is ignored', 'Click to add this container'], JavaWrapper.methodToJava(() => {situation = Situations.ADDED; setStatus()})],
+  IGNORED: [Symbols.IGNORED, ['§cIgnored', 'This container is ignored', 'Click to add this container'], JavaWrapper.methodToJava(() => setStatus(Situations.ADDED))],
   /** @readonly @type {Situation} */
-  PARTIAL_IGNORE: [Symbols.PARTIAL, ['§cPartial Ignored', 'This container is partially ignored', 'Click to ignore the whole container'], JavaWrapper.methodToJava(() => {situation = Situations.IGNORED; setStatus()})],
+  PARTIAL_IGNORE: [Symbols.PARTIAL, ['§cPartial Ignored', 'This container is partially ignored', 'Click to ignore the whole container'], JavaWrapper.methodToJava(() => setStatus(Situations.IGNORED))],
   /** @readonly @type {Situation} */
-  PARTIAL_ADDED: [Symbols.PARTIAL, ['§aPartial Added', 'This container is partially added', 'Click to add the whole container'], JavaWrapper.methodToJava(() => {situation = Situations.ADDED; setStatus()})],
+  PARTIAL_ADDED: [Symbols.PARTIAL, ['§aPartial Added', 'This container is partially added', 'Click to add the whole container'], JavaWrapper.methodToJava(() => setStatus(Situations.ADDED))],
   /** @readonly @type {Situation} */
-  CAN_ADD: [Symbols.CAN_ADD, ['§aCan Add', 'This container can be added to the storage manager', 'Click to add this container'], JavaWrapper.methodToJava(() => {situation = Situations.ADDED; setStatus()})],
+  CAN_ADD: [Symbols.CAN_ADD, ['§aCan Add', 'This container can be added to the storage manager', 'Click to add this container'], JavaWrapper.methodToJava(() => setStatus(Situations.ADDED))],
   /** @readonly @type {Situation} */
-  ADDED: [Symbols.ADDED, ['§aAdded', 'This container is added to the storage manager', 'Click to ignore this container'], JavaWrapper.methodToJava(() => {situation = Situations.IGNORED; setStatus()})],
+  ADDED: [Symbols.ADDED, ['§aAdded', 'This container is added to the storage manager', 'Click to ignore this container'], JavaWrapper.methodToJava(() => setStatus(Situations.IGNORED))],
   /** @readonly @type {Situation} */
   OPEN_VIEWER: [Chat.createTextBuilder().append('S').withColor(0x6).build(), ['Click to view items', 'WIP. Usually error. Just reopen.'], JavaWrapper.methodToJava(() => { if (currentProfile) StorageViewScreen.open(null, currentProfile) })],
 }
@@ -148,12 +148,19 @@ InvPosPair.on((inv, pos01, pos02) => {
         }
       }))
     }
-    if (currentProfile && DataManager.Settings.getBoolean('autoAddContainer', false)) situation = Situations.ADDED
+    if (currentProfile && DataManager.Settings.getBoolean('autoAddContainer', false)
+    && (situation === Situations.CAN_ADD || situation === Situations.PARTIAL_ADDED)
+    ) situation = Situations.ADDED
   }
   setStatus()
 })
 
-function setStatus() {
+/**
+ * @param {Situation} [situation_] 
+ * @returns 
+ */
+function setStatus(situation_) {
+  if (situation_) situation = situation_
   if (!currentScreen) return
   StatusElement.clearElements(currentScreen)
   if (inInv) {

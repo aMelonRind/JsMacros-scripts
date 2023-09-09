@@ -27,23 +27,23 @@ const DrawContextProxy = (() => {
   } catch (e) {}
 
   const MinecraftClient = 'net.minecraft.class_310'
-  const MinecraftClient_getInstance = `${MinecraftClient}.method_1551`
-  const DrawContext = 'net.minecraft.class_332'
-  const TextRenderer = 'net.minecraft.class_327'
-  const ItemStack = 'net.minecraft.class_1799'
-
-  const List = 'java.util.List'
+  const TextRenderer    = 'net.minecraft.class_327'
+  const DrawContext     = 'net.minecraft.class_332'
+  const ItemStack       = 'net.minecraft.class_1799'
+  
   const Optional = 'java.util.Optional'
-
+  const List     = 'java.util.List'
+  
+  const getInstance     = 'method_1551'
+  const drawTooltip     = 'method_51437'
   const drawItemTooltip = 'method_51446'
-  const drawTooltip = 'method_51437'
 
   const builder = Reflection.createClassBuilder(className, Java.type(DrawContext))
   .addField(`private ${DrawContext} parent;`)
   .addField(`private ${List} extraTooltips;`)
 
   .addConstructor(`public ${className}() {
-    super(${MinecraftClient_getInstance}(), null);
+    super(${MinecraftClient}.${getInstance}(), null);
   }`)
 
   .addMethod(`public void drawItemTooltipWithExtra(${TextRenderer} textRenderer, ${ItemStack} stack, int x, int y, ${DrawContext} parent, ${List} extra) {
@@ -67,53 +67,53 @@ const StorageViewScreenClass = (() => {
     return Java.type('xyz.wagyourtail.jsmacros.core.library.impl.classes.proxypackage.' + className)
   } catch (e) {}
 
-  const Core = 'xyz.wagyourtail.jsmacros.core.Core'
-  const FChat = 'xyz.wagyourtail.jsmacros.client.api.library.impl.FChat'
-  const MethodWrapper = 'xyz.wagyourtail.jsmacros.core.MethodWrapper'
-  const ScriptScreen = 'xyz.wagyourtail.jsmacros.client.api.classes.render.ScriptScreen'
-  const ItemStackHelper = 'xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper'
-  const OptionsHelper = 'xyz.wagyourtail.jsmacros.client.api.helpers.OptionsHelper'
-  const Pos2D = 'xyz.wagyourtail.jsmacros.client.api.classes.math.Pos2D'
-  const Vec2D = 'xyz.wagyourtail.jsmacros.client.api.classes.math.Vec2D'
-  const Rect = 'xyz.wagyourtail.jsmacros.client.api.classes.render.components.Rect'
-  const Item = 'xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item'
+  const FChat                 = 'xyz.wagyourtail.jsmacros.client.api.library.impl.FChat'
+  const Core                  = 'xyz.wagyourtail.jsmacros.core.Core'
+  const MethodWrapper         = 'xyz.wagyourtail.jsmacros.core.MethodWrapper'
+  const Pos2D                 = 'xyz.wagyourtail.jsmacros.client.api.classes.math.Pos2D'
+  const Vec2D                 = 'xyz.wagyourtail.jsmacros.client.api.classes.math.Vec2D'
+  const Item                  = 'xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item'
+  const Rect                  = 'xyz.wagyourtail.jsmacros.client.api.classes.render.components.Rect'
+  const ScriptScreen          = 'xyz.wagyourtail.jsmacros.client.api.classes.render.ScriptScreen'
+  const ItemStackHelper       = 'xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper'
   const ClickableWidgetHelper = 'xyz.wagyourtail.jsmacros.client.api.helpers.screen.ClickableWidgetHelper'
+  const OptionsHelper         = 'xyz.wagyourtail.jsmacros.client.api.helpers.OptionsHelper'
 
   const ItemTextOverlay = require('./elements/ItemTextOverlay').create('', 0, 0).getClass().getTypeName()
 
   const MinecraftClient = 'net.minecraft.class_310'
-  const MinecraftClient_getInstance = `${MinecraftClient}.method_1551`
-  const options = 'field_1690'
-  const textRenderer = 'field_1772'
-  const getWidth = 'method_27525' // accepts StringVisitable
-  const Screen = 'net.minecraft.class_437'
-  const DrawContext = 'net.minecraft.class_332'
-  const ItemStack = 'net.minecraft.class_1799'
-  const Text = 'net.minecraft.class_2561'
-  const Text_literal = `${Text}.method_43470`
+  const DrawContext     = 'net.minecraft.class_332'
+  const Screen          = 'net.minecraft.class_437'
+  const ItemStack       = 'net.minecraft.class_1799'
+  const Text            = 'net.minecraft.class_2561'
 
   const Collections = 'java.util.Collections'
-  const ArrayList = 'java.util.ArrayList'
-  const HashMap = 'java.util.HashMap'
-  const List = 'java.util.List'
-  const Map = 'java.util.Map'
+  const ArrayList   = 'java.util.ArrayList'
+  const HashMap     = 'java.util.HashMap'
+  const List        = 'java.util.List'
+  const Map         = 'java.util.Map'
   
-  const mouseScrolled = 'method_25401'
-  const render = 'method_25394'
-  const drawTooltip = 'method_51434'
-  const drawItemTooltip = 'method_51446'
-  const hasControlDown = `${Screen}.method_25441`
-  const hasShiftDown = `${Screen}.method_25442`
+  const options         = 'field_1690'
+  const textRenderer    = 'field_1772'
+  const width           = 'field_22789'
+  const height          = 'field_22790'
 
-  const width = 'field_22789'
-  const height = 'field_22790'
+  const getInstance     = 'method_1551'
+  const getWidth        = 'method_27525'
+  const render          = 'method_25394'
+  const mouseScrolled   = 'method_25401'
+  const hasControlDown  = 'method_25441'
+  const hasShiftDown    = 'method_25442'
+  const literal         = 'method_43470'
+  const drawTooltip     = 'method_51434'
+  const drawItemTooltip = 'method_51446'
 
   const builder = Reflection.createClassBuilder(className, Java.type(ScriptScreen))
-  .addField(`private static final ${MinecraftClient} mc = ${MinecraftClient_getInstance}();`)
+  .addField(`private static final ${MinecraftClient} mc = ${MinecraftClient}.${getInstance}();`)
   .addField(`private static final ${FChat} Chat = new ${FChat}();`)
   .addField(`private static final ${OptionsHelper} Options = new ${OptionsHelper}(mc.${options});`)
-  .addField(`private static final ${Text} NO_ITEM_TEXT = ${Text_literal}("No item");`)
-  .addField(`private static final ${Text} NOT_ENOUGH_SPACE_TEXT = ${Text_literal}("No Space. Check positionSettings.js");`)
+  .addField(`private static final ${Text} NO_ITEM_TEXT = ${Text}.${literal}("No item");`)
+  .addField(`private static final ${Text} NOT_ENOUGH_SPACE_TEXT = ${Text}.${literal}("No Space. Check positionSettings.js");`)
   
   .addField(`private final ${DrawContextProxy.getTypeName()} contextProxy = new ${DrawContextProxy.getTypeName()}();`)
   .addField(`private final ${Rect} scrollBar = new ${Rect}(0, 0, 0, 0, 0xAAAAAA, 0.0f, 0);`)
@@ -297,9 +297,10 @@ const StorageViewScreenClass = (() => {
     itemText.${render}(context, mouseX, mouseY, tickDelta);
   }`)
 
-  .addMethod(`private static ${Vec2D} defaultItemsPositionFunction(${Pos2D} size) {
-    size = size.multiply(0.5d, 0.5d);
-    return size.add(-90d, -80d).toReverseVector(size.add(90d, 70d));
+  .addMethod(`private static ${Vec2D} defaultItemsPosition(int w, int h) {
+    w /= 2;
+    h /= 2;
+    return new ${Vec2D}(w - 90d, h - 80d, w + 90d, h + 101d);
   }`)
 
   .addMethod(`private static String localeNumber(long num) {
@@ -327,7 +328,7 @@ const StorageViewScreenClass = (() => {
   .addField(`private byte signY = 1;`)
   .addField(`private int startX = 0;`)
   .addField(`private int startY = 0;`)
-  .addField(`private synchronized int countX = 0;`)
+  .addField(`private int countX = 0;`)
   .addField(`private int countY = 0;`)
   .addField(`private int cy18 = 0;`)
   .addField(`private int scrollBarX = -1;`)
@@ -350,6 +351,10 @@ const StorageViewScreenClass = (() => {
     if (signY == -1) posY = countY - 1 - posY;
     int index = (posY + flooredScrolled) * countX + posX;
     return index < displayedItems.size() ? index : -1;
+  }`)
+
+  .addMethod(`private int getHoveredIndex(double mouseX, double mouseY) {
+    return getHoveredIndex((int) Math.floor(mouseX), (int) Math.floor(mouseY));
   }`)
 
   // button 01234: left right mid prev next
@@ -392,7 +397,7 @@ const StorageViewScreenClass = (() => {
       if (isDraggingScroll) scrolled -= signY * deltaY / 18;
     }
     if (0 <= button && button < 10 && clickingItem[button] != -1
-      && getHoveredIndex((int) Math.floor(mouseX), (int) Math.floor(mouseY)) != clickingItem[button]) clickingItem[button] = -1;
+      && getHoveredIndex(mouseX, mouseY) != clickingItem[button]) clickingItem[button] = -1;
     // super.jsmacros_mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
   }`)
 
@@ -402,7 +407,7 @@ const StorageViewScreenClass = (() => {
       isDraggingScroll = false;
     }
     if (0 <= button && button < 10 && clickingItem[button] != -1) {
-      if (getHoveredIndex((int) Math.floor(mouseX), (int) Math.floor(mouseY)) == clickingItem[button]) {
+      if (getHoveredIndex(mouseX, mouseY) == clickingItem[button]) {
         if (onClickItem != null) {
           try {
             onClickItem.apply((Integer) displayedItems.get(clickingItem[button]), Integer.valueOf(button));
@@ -419,8 +424,8 @@ const StorageViewScreenClass = (() => {
   }`)
 
   .addMethod(`public boolean ${mouseScrolled}(double mouseX, double mouseY, double amount) {
-    if (${hasShiftDown}()) amount *= 4.0;
-    if (${hasControlDown}()) amount *= 2.0;
+    if (${Screen}.${hasShiftDown}()) amount *= 4.0;
+    if (${Screen}.${hasControlDown}()) amount *= 2.0;
     scrolled += -amount * signY;
     return true;
   }`)
@@ -443,7 +448,7 @@ const StorageViewScreenClass = (() => {
         itemsPositionFunction = null;
       }
     }
-    if (vec == null) vec = defaultItemsPositionFunction(new ${Pos2D}((double) ${width}, (double) ${height}));
+    if (vec == null) vec = defaultItemsPosition(${width}, ${height});
     vec.x1 = Math.floor(vec.x1);
     vec.y1 = Math.floor(vec.y1);
     vec.x2 = Math.ceil(vec.x2);
@@ -516,7 +521,7 @@ const StorageViewScreenClass = (() => {
       long itemCount = getLoaded(((Integer) items.get(i)).intValue());
       String countText = itemCount == 1L ? "" : formatNumber(itemCount);
       if (!countText.isBlank()) {
-        itemText.text = ${Text_literal}(countText);
+        itemText.text = ${Text}.${literal}(countText);
         itemText.width = mc.${textRenderer}.${getWidth}(itemText.text);
         itemText.setPos(x + 17 - (int) Math.ceil(itemText.width * textScale), y + textDY);
         itemText.${render}(context, mouseX, mouseY, tickDelta);
@@ -526,9 +531,10 @@ const StorageViewScreenClass = (() => {
     int hovered = getHoveredIndex(mouseX, mouseY);
     tooltipConverter.tooltips.clear();
     if (hovered != -1) {
+      Integer key = (Integer) items.get(hovered);
       if (tooltipFunction != null) {
         try {
-          tooltipConverter.setTooltip((Object[]) tooltipFunction.apply(Integer.valueOf(hovered)));
+          tooltipConverter.setTooltip((Object[]) tooltipFunction.apply(key));
           if (!tooltipConverter.tooltips.isEmpty()) {
             context.${drawTooltip}(mc.${textRenderer}, tooltipConverter.tooltips, mouseX + 4, mouseY + 4);
           }
@@ -540,7 +546,6 @@ const StorageViewScreenClass = (() => {
         }
       }
       if (tooltipFunction == null) {
-        Integer key = (Integer) items.get(hovered);
         ${ItemStackHelper} item = (${ItemStackHelper}) itemCache.get(key);
         if (item != null) {
           long itemCount = getLoaded(key.intValue());
@@ -549,7 +554,7 @@ const StorageViewScreenClass = (() => {
           }
           if (extraTooltipFunction != null) {
             try {
-              Object[] extras = (Object[]) extraTooltipFunction.apply(Integer.valueOf(hovered));
+              Object[] extras = (Object[]) extraTooltipFunction.apply(key);
               if (extras != null && extras.length > 0) {
                 ${List} temp = tooltipConverter.tooltips;
                 tooltipConverter.setTooltip(extras);
@@ -583,7 +588,7 @@ class StorageViewScreen {
    * @param {IScreen?} parent
    * @param {DataManager} profile 
    */
-  static open(parent, profile) {
+  static async open(parent, profile) {
     const screen = new StorageViewScreenClass(JavaWrapper.methodToJava(i => profile.getItem(i)))
     screen.setParent(parent)
     screen.drawTitle = false
@@ -732,8 +737,8 @@ class ItemsLoader {
 module.exports = StorageViewScreen
 
 /**
- * @typedef {ScriptScreen & OtherMethods} StorageViewScreenInstance
- * @typedef {object} OtherMethods
+ * @typedef {ScriptScreen & OtherProperties} StorageViewScreenInstance
+ * @typedef {object} OtherProperties
  * @prop {(items: JavaMap<int, long>) => void} addItems
  * @prop {(item: int, itemStack: ItemStackHelper?, count: long) => void} addItem
  * @prop {() => void} clearItems
