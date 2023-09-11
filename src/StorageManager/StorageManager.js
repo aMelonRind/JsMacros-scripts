@@ -56,7 +56,7 @@ const Situations = {
   /** @readonly @type {Situation} */
   ADDED: [Symbols.ADDED, ['§aAdded', 'This container is added to the storage manager', 'Click to ignore this container'], JavaWrapper.methodToJavaAsync(() => setStatus(Situations.IGNORED))],
   /** @readonly @type {Situation} */
-  OPEN_VIEWER: [Chat.createTextBuilder().append('S').withColor(0x6).build(), ['Click to view items', 'WIP. Usually error. Just reopen.'], JavaWrapper.methodToJavaAsync(() => { if (currentProfile) StorageViewScreen.open(null, currentProfile) })],
+  OPEN_VIEWER: [Chat.createTextBuilder().append('S').withColor(0x6).build(), ['§6Click to view items', 'WIP'], JavaWrapper.methodToJavaAsync(() => { if (currentProfile) StorageViewScreen.open(null, currentProfile) })],
 }
 
 logger.debug?.('start')
