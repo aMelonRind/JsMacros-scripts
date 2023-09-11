@@ -5,6 +5,7 @@ if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 const logger = require('./modules/StorageManagerLogger')
 // logger.setDebug(true)
 
+const Threads = require('./lib/Threads')
 const DataManager = require('./modules/DataManager')
 const StorageViewScreen = require('./screens/StorageViewScreen')
 const StatusElement = require('./screens/elements/StatusElement')
@@ -88,7 +89,8 @@ InvPosPair.on((inv, pos01, pos02) => {
       else if (currentProfile.getChestData(pos01)) situation = Situations.ADDED
       else if (currentProfile.isIgnored(pos01)) situation = Situations.IGNORED
       else situation = Situations.CAN_ADD
-      if (currentProfile) currentScreen.setOnClose(JavaWrapper.methodToJava(() => {
+      if (currentProfile) currentScreen.setOnClose(JavaWrapper.methodToJava(async () => {
+        await Threads.escapeThread()
         if (!currentProfile || !pos01) return
         if (situation === Situations.IGNORED) currentProfile.setIgnored(pos01, true)
         if (situation !== Situations.ADDED || World.getBlock(pos01).getId() !== id) return
@@ -121,7 +123,8 @@ InvPosPair.on((inv, pos01, pos02) => {
           } else situation = Situations.CAN_ADD
         }
       }
-      if (currentProfile) currentScreen.setOnClose(JavaWrapper.methodToJava(() => {
+      if (currentProfile) currentScreen.setOnClose(JavaWrapper.methodToJava(async () => {
+        await Threads.escapeThread()
         if (!currentProfile || !pos01 || !pos02) return
         if (situation === Situations.IGNORED) {
           currentProfile.setIgnored(pos01, true)
