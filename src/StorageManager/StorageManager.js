@@ -1,5 +1,5 @@
 // @ts-check
-globalThis.eventType?.(event, Events.Service)
+// JsMacros.assertEvent(event, 'Service')
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 
 const logger = require('./modules/StorageManagerLogger')
@@ -33,7 +33,7 @@ const Symbols = {
  */
 const Situations = {
   /** @readonly @type {Situation} */
-  NO_DATA: [Symbols.INVALID, ['§7No Storage Data', 'Click to assign a name for this world/server'], JavaWrapper.methodToJava((a, b) => {
+  NO_DATA: [Symbols.INVALID, ['§7No Storage Data', 'Click to assign a name for this world/server'], JavaWrapper.methodToJavaAsync((a, b) => {
     situation = Situations.UNKNOWN
     if (!(currentProfile = DataManager.getCurrentProfile())) {
       ;(NameAssignmentScreen ??= require('./screens/NameAssignmentScreen')).open(currentScreen, World.getWorldIdentifier(), () => {
@@ -46,17 +46,17 @@ const Situations = {
   /** @readonly @type {Situation} */
   UNKNOWN: [Symbols.INVALID, ['§7Unknown Pos', 'Either the service failed to find pos for this container', 'or this container type is not supported'], EMPTY_CALLBACK],
   /** @readonly @type {Situation} */
-  IGNORED: [Symbols.IGNORED, ['§cIgnored', 'This container is ignored', 'Click to add this container'], JavaWrapper.methodToJava(() => setStatus(Situations.ADDED))],
+  IGNORED: [Symbols.IGNORED, ['§cIgnored', 'This container is ignored', 'Click to add this container'], JavaWrapper.methodToJavaAsync(() => setStatus(Situations.ADDED))],
   /** @readonly @type {Situation} */
-  PARTIAL_IGNORE: [Symbols.PARTIAL, ['§cPartial Ignored', 'This container is partially ignored', 'Click to ignore the whole container'], JavaWrapper.methodToJava(() => setStatus(Situations.IGNORED))],
+  PARTIAL_IGNORE: [Symbols.PARTIAL, ['§cPartial Ignored', 'This container is partially ignored', 'Click to ignore the whole container'], JavaWrapper.methodToJavaAsync(() => setStatus(Situations.IGNORED))],
   /** @readonly @type {Situation} */
-  PARTIAL_ADDED: [Symbols.PARTIAL, ['§aPartial Added', 'This container is partially added', 'Click to add the whole container'], JavaWrapper.methodToJava(() => setStatus(Situations.ADDED))],
+  PARTIAL_ADDED: [Symbols.PARTIAL, ['§aPartial Added', 'This container is partially added', 'Click to add the whole container'], JavaWrapper.methodToJavaAsync(() => setStatus(Situations.ADDED))],
   /** @readonly @type {Situation} */
-  CAN_ADD: [Symbols.CAN_ADD, ['§aCan Add', 'This container can be added to the storage manager', 'Click to add this container'], JavaWrapper.methodToJava(() => setStatus(Situations.ADDED))],
+  CAN_ADD: [Symbols.CAN_ADD, ['§aCan Add', 'This container can be added to the storage manager', 'Click to add this container'], JavaWrapper.methodToJavaAsync(() => setStatus(Situations.ADDED))],
   /** @readonly @type {Situation} */
-  ADDED: [Symbols.ADDED, ['§aAdded', 'This container is added to the storage manager', 'Click to ignore this container'], JavaWrapper.methodToJava(() => setStatus(Situations.IGNORED))],
+  ADDED: [Symbols.ADDED, ['§aAdded', 'This container is added to the storage manager', 'Click to ignore this container'], JavaWrapper.methodToJavaAsync(() => setStatus(Situations.IGNORED))],
   /** @readonly @type {Situation} */
-  OPEN_VIEWER: [Chat.createTextBuilder().append('S').withColor(0x6).build(), ['Click to view items', 'WIP. Usually error. Just reopen.'], JavaWrapper.methodToJava(() => { if (currentProfile) StorageViewScreen.open(null, currentProfile) })],
+  OPEN_VIEWER: [Chat.createTextBuilder().append('S').withColor(0x6).build(), ['Click to view items', 'WIP. Usually error. Just reopen.'], JavaWrapper.methodToJavaAsync(() => { if (currentProfile) StorageViewScreen.open(null, currentProfile) })],
 }
 
 logger.debug?.('start')
@@ -191,7 +191,7 @@ function setStatus(situation_) {
   }
 }
 
-JsMacros.on('OpenContainer', JavaWrapper.methodToJava(e => {
+JsMacros.on('OpenContainer', JavaWrapper.methodToJavaAsync(e => {
   if (e.inventory.getType() !== 'Survival Inventory' && e.inventory.getType() !== 'Creative Inventory') return
   Client.waitTick()
   currentProfile ??= DataManager.getCurrentProfile()
@@ -200,10 +200,12 @@ JsMacros.on('OpenContainer', JavaWrapper.methodToJava(e => {
   setStatus()
 }))
 
-JsMacros.on('DimensionChange', JavaWrapper.methodToJava(() => {
+JsMacros.on('DimensionChange', JavaWrapper.methodToJavaAsync(() => {
   currentProfile = World.isWorldLoaded() ? DataManager.getCurrentProfile() : null
   inInv = 0
   currentScreen = null
 }))
+
+logger.debug?.('Event listeners initialized')
 
 module.exports = {}

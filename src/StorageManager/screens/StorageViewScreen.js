@@ -1,5 +1,6 @@
 // @ts-check
 const Text = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.render.components.Text')
+const Threads = require('../lib/Threads')
 const DataManager = require('../modules/DataManager')
 const logger = require('../modules/StorageManagerLogger')
 
@@ -102,6 +103,7 @@ const StorageViewScreenClass = (() => {
   const getWidth        = 'method_27525'
   const render          = 'method_25394'
   const mouseScrolled   = 'method_25401'
+  const close           = 'method_25419'
   const hasControlDown  = 'method_25441'
   const hasShiftDown    = 'method_25442'
   const literal         = 'method_43470'
@@ -120,8 +122,9 @@ const StorageViewScreenClass = (() => {
   .addField(`private final ${Item} itemRender = new ${Item}(0, 0, 0, "minecraft:air", true, 1.0, 0.0f).setOverlayText("");`)
   .addField(`private final ${ClickableWidgetHelper} tooltipConverter = new ${ClickableWidgetHelper}(null);`)
   .addField(`private final ${ItemTextOverlay} itemText = new ${ItemTextOverlay}("", 0, 0, 0xFFFFFF, 0, true, 1.0, 0.0f);`)
-  .addField(`private synchronized final ${HashMap} loadedItems = new ${HashMap}();`)
-  .addField(`private synchronized final ${ArrayList} displayedItems = new ${ArrayList}();`)
+  .addField(`private ${HashMap} loadedItemsBuffer = new ${HashMap}();`)
+  .addField(`private final ${HashMap} loadedItems = new ${HashMap}();`)
+  .addField(`private final ${ArrayList} displayedItems = new ${ArrayList}();`)
   .addField(`private final ${HashMap} itemCache = new ${HashMap}();`)
   .addField(`private ${MethodWrapper} itemGetter;`)
   .addField(`private ${MethodWrapper} filterer = null;`)
@@ -135,6 +138,7 @@ const StorageViewScreenClass = (() => {
   .addField(`private boolean isDraggingScrollBar = false;`)
   .addField(`private boolean isDraggingScroll = false;`)
   .addField(`private boolean dirty = false;`)
+  .addField(`private boolean destroyed = false;`)
   .addField(`private double scrolled = 0.0;`)
   .addField(`private int[] clickingItem = new int[] {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};`) // i don't think any mouse has more than 10 keys but anyways
 
@@ -144,13 +148,20 @@ const StorageViewScreenClass = (() => {
   }`)
 
   .addMethod(`private void putLoaded(int item, long count) {
-    synchronized (loadedItems) {
-      loadedItems.put(Integer.valueOf(item), Long.valueOf(count));
+    synchronized (loadedItemsBuffer) {
+      loadedItemsBuffer.put(Integer.valueOf(item), Long.valueOf(count));
     }
     dirty = true;
   }`)
 
-  .addMethod(`public long getLoaded(int item) {
+  .addMethod(`private long getLoaded(int item) {
+    synchronized (loadedItemsBuffer) {
+      Long value = (Long) loadedItemsBuffer.get(Integer.valueOf(item));
+      return value == null ? 0L : value.longValue();
+    }
+  }`)
+
+  .addMethod(`public long getLoadedCount(int item) {
     synchronized (loadedItems) {
       Long value = (Long) loadedItems.get(Integer.valueOf(item));
       return value == null ? 0L : value.longValue();
@@ -158,8 +169,8 @@ const StorageViewScreenClass = (() => {
   }`)
 
   .addMethod(`private boolean loadedContains(int item) {
-    synchronized (loadedItems) {
-      return loadedItems.containsKey(Integer.valueOf(item));
+    synchronized (loadedItemsBuffer) {
+      return loadedItemsBuffer.containsKey(Integer.valueOf(item));
     }
   }`)
 
@@ -170,11 +181,13 @@ const StorageViewScreenClass = (() => {
   }`)
 
   .addMethod(`public void addItem(int item, ${ItemStackHelper} itemStack, long count) {
-    if (!loadedContains(item)) {
-      putLoaded(item, count);
-    } else putLoaded(item, getLoaded(item) + count);
-    itemCache.put(Integer.valueOf(item), itemStack);
-    dirty = true;
+    synchronized (loadedItemsBuffer) {
+      if (!loadedContains(item)) {
+        putLoaded(item, count);
+      } else putLoaded(item, getLoaded(item) + count);
+      itemCache.put(Integer.valueOf(item), itemStack);
+      dirty = true;
+    }
   }`)
 
   .addMethod(`public ${ItemStackHelper} getCache(int item) {
@@ -189,7 +202,18 @@ const StorageViewScreenClass = (() => {
   //   }
   // }`)
 
+  .addMethod(`public void destroy() {
+    destroyed = true;
+  }`)
+
+  .addMethod(`public boolean isDestroyed() {
+    return destroyed;
+  }`)
+
   .addMethod(`public void clearItems() {
+    synchronized (loadedItemsBuffer) {
+      loadedItemsBuffer.clear();
+    }
     synchronized (loadedItems) {
       loadedItems.clear();
     }
@@ -227,6 +251,20 @@ const StorageViewScreenClass = (() => {
 
   .addMethod(`public void filterAndSort() {
     if (!dirty) return;
+    if (!loadedItemsBuffer.isEmpty()) {
+      synchronized (loadedItemsBuffer) {
+        ${HashMap} buf = loadedItemsBuffer;
+        loadedItemsBuffer = new ${HashMap}();
+        ${List} keyList = new ${ArrayList}(buf.keySet());
+        int size = keyList.size();
+        for (int i = 0; i < size; i++) {
+          Integer item = (Integer) keyList.get(i);
+          if (!loadedItems.containsKey(item)) {
+            loadedItems.put(item, buf.get(item));
+          } else loadedItems.put(item, Long.valueOf(((Long) loadedItems.get(item)).longValue() + ((Long) buf.get(item)).longValue()));
+        }
+      }
+    }
     if (filterer != null) {
       displayedItems.clear();
       ${List} keyList = new ${ArrayList}(loadedItems.keySet());
@@ -431,6 +469,10 @@ const StorageViewScreenClass = (() => {
   }`)
 
   .addMethod(`public void ${render}(${DrawContext} context, int mouseX, int mouseY, float tickDelta) {
+    if (destroyed) {
+      ${close}();
+      return;
+    }
     super.${render}(context, mouseX, mouseY, tickDelta);
     countX = 0;
     if (itemGetter == null) return;
@@ -518,7 +560,7 @@ const StorageViewScreenClass = (() => {
       int x = startX + deltaX * (i % countX);
       int y = startY + deltaY * (i / countX - flooredScrolled);
       itemRender.setItem(item).setPos(x, y).${render}(context, mouseX, mouseY, tickDelta);
-      long itemCount = getLoaded(((Integer) items.get(i)).intValue());
+      long itemCount = ((Long) loadedItems.get((Integer) items.get(i))).longValue();
       String countText = itemCount == 1L ? "" : formatNumber(itemCount);
       if (!countText.isBlank()) {
         itemText.text = ${Text}.${literal}(countText);
@@ -548,7 +590,7 @@ const StorageViewScreenClass = (() => {
       if (tooltipFunction == null) {
         ${ItemStackHelper} item = (${ItemStackHelper}) itemCache.get(key);
         if (item != null) {
-          long itemCount = getLoaded(key.intValue());
+          long itemCount = ((Long) loadedItems.get(key)).longValue();
           if (itemCount >= 10000L) {
             tooltipConverter.addTooltip("§7Count: " + localeNumber(itemCount));
           }
@@ -582,13 +624,14 @@ const StorageViewScreenClass = (() => {
 
 class StorageViewScreen {
 
-  static searchText = ''
+  static searchText = 'currently is an useless searchbar'
 
   /**
    * @param {IScreen?} parent
    * @param {DataManager} profile 
    */
   static async open(parent, profile) {
+    logger.debug?.('StorageViewScreen.open()')
     const screen = new StorageViewScreenClass(JavaWrapper.methodToJava(i => profile.getItem(i)))
     screen.setParent(parent)
     screen.drawTitle = false
@@ -599,10 +642,11 @@ class StorageViewScreen {
     let loader
 
     let firstInit = true
-    screen.setOnInit(JavaWrapper.methodToJava(s => {
+
+    screen.setOnInit(await Threads.wrapCallback(s => {
       const screenSize = PositionCommon.createPos(s.getWidth(), s.getHeight())
-      // loadingLabel.setPos(8, screenSize.y - 16)
-      const inputPos = searchBarPosition(screenSize)
+      loadingLabel.setPos(8, screenSize.y - 16)
+      const inputPos = searchBarPosition.apply(screenSize)
       s.reAddElement(loadingLabel)
       s.addTextInput(
         Math.floor(inputPos.x1),
@@ -614,28 +658,28 @@ class StorageViewScreen {
           //
         })
       )
-      if (firstInit) {
-        // loader?.stop()
-        // loader = new ItemsLoader(screen, profile, null, loadingLabel, LoadMethod.RENDER_DISTANCE, null)
-        // screen.addItem(18, profile.getItem(18), 128)
-        // screen.addItem(19, profile.getItem(19), 128)
-        // loader.load()
-      }
-      firstInit = false
-    }))
+      // if (firstInit) {
+      //   // loader?.stop()
+      //   // loader = new ItemsLoader(screen, profile, null, loadingLabel, LoadMethod.RENDER_DISTANCE, null)
+      //   // screen.addItem(18, profile.getItem(18), 128)
+      //   // screen.addItem(19, profile.getItem(19), 128)
+      //   // loader.load()
+      // }
+      // firstInit = false
+    }, { loadingLabel, searchBarPosition: await Threads.wrapCallback(searchBarPosition) }))
 
-    screen.setItemsPositionFunction(JavaWrapper.methodToJavaAsync(size => itemsPosition(size)))
-    screen.setSortComparator(JavaWrapper.methodToJava((a, b) => {
-      const count = Math.sign(screen.getLoaded(a) - screen.getLoaded(b))
+    screen.setItemsPositionFunction(await Threads.wrapCallback(itemsPosition))
+    screen.setSortComparator(await Threads.wrapCallback((a, b) => {
+      const count = Math.sign(screen.getLoadedCount(a) - screen.getLoadedCount(b))
       if (count) return count
-      const name1 = profile.getItem(a)?.getName()?.getStringStripFormatting() || ''
-      const name2 = profile.getItem(b)?.getName()?.getStringStripFormatting() || ''
+      const name1 = screen.getCache(a)?.getName()?.getStringStripFormatting() || ''
+      const name2 = screen.getCache(b)?.getName()?.getStringStripFormatting() || ''
       if (name1 !== name2) return name1 > name2 ? -1 : 1
       return 0
-    }))
-    screen.setOnClickItem(JavaWrapper.methodToJava((i, btn) => {
+    }, { screen }))
+    screen.setOnClickItem(await Threads.wrapCallback((i, btn) => { // currently bugged because of guest object variables
       logger.log(`Clicked item: [${i}]: ${profile.getItem(i)?.getItemId()}, button: ${btn}`)
-    }))
+    }, { logger, profile }))
     // screen.setTooltipFunction(JavaWrapper.methodToJava(i => {
     //   return Java.to(['aaaaaaaa'])
     // }))
@@ -651,13 +695,14 @@ class StorageViewScreen {
       s.removeElement(loadingLabel)
       firstInit = true
       // loader.stop()
+      Threads.cleanWrapper()
     }))
 
     new ItemsLoader(screen, profile, loadingLabel, LoadMethod.RENDER_DISTANCE, null).load(JavaWrapper.methodToJava(() => {
-      screen.filterAndSort()
-      Hud.openScreen(screen)
+      // Threads.run(() => Hud.openScreen(screen), {screen})
     }))
-
+    
+    Hud.openScreen(screen)
   }
 
 }
@@ -691,35 +736,34 @@ class ItemsLoader {
   /**
    * @param {MethodWrapper?} callback 
    */
-  load(callback = null) {
+  async load(callback = null) {
     this.loading = true
-    logger.log?.('Loading items...')
+    logger.debug?.('Loading items...')
     this.stopped = false
     this.clean()
-    JsMacros.once('Tick', JavaWrapper.methodToJavaAsync(() => { // escape main thread
-      const chunks = this.profile.getChunksInRenderDistance() // TODO: more load methods
-      for (const index in chunks) {
-        this.loadingLabel.setText(`Loading Chunk ${chunks[index]} (${index}/${chunks.length})...`)
+    // await Threads.escapeThread()
+    const chunks = this.profile.getChunksInRenderDistance() // TODO: more load methods
+    for (const index in chunks) {
+      await Threads.escapeThread()
+      this.loadingLabel.setText(`Loading Chunk ${chunks[index]} (${index}/${chunks.length})...`)
+      if (this.#checkStop()) break
+      const items = this.profile.getItemsInChunk(chunks[index], this.unpackShulker)
+      if (!items) continue
+      if (this.#checkStop()) break
+      for (const item of items.keySet()) {
         if (this.#checkStop()) break
-        const items = this.profile.getItemsInChunk(chunks[index], this.unpackShulker)
-        if (!items) continue
-        if (this.#checkStop()) break
-        for (const item of items.keySet()) {
-          this.screen.addItem(item, this.profile.getItem(item), items.get(item) ?? 0)
-        }
+        this.screen.addItem(item, this.profile.getItem(item), items.get(item) ?? 0)
       }
-      this.loadingLabel.setText('')
-      logger.log?.('Loaded items')
-      this.loading = false
-      callback?.run()
-    }))
+    }
+    this.loadingLabel.setText('')
+    logger.debug?.('Loaded items')
+    this.loading = false
+    callback?.run()
   }
 
   #checkStop() {
-    return false
-    if (!Hud.getOpenScreen()) return true
     JavaWrapper.deferCurrentTask()
-    if (this.stopped) return true
+    if (this.stopped || this.screen.isDestroyed()) return true
     return false
   }
 
@@ -749,7 +793,9 @@ module.exports = StorageViewScreen
  * @prop {(extraTooltipFunction: MethodWrapper<int, any, JavaArray<string | TextHelper | TextBuilder>?>?) => void} setExtraTooltipFunction
  * @prop {(itemsPositionFunction: MethodWrapper<Pos2D, any, Vec2D>?) => void} setItemsPositionFunction
  * @prop {(method: MethodWrapper<int, int, int>) => void} setSortComparator
- * @prop {(item: int) => number} getLoaded
+ * @prop {(item: int) => number} getLoadedCount
  * @prop {() => void} filterAndSort
+ * @prop {() => void} destroy
+ * @prop {() => boolean} isDestroyed
  * @prop {boolean} sortReversed
  */

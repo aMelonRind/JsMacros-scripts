@@ -8,8 +8,8 @@ const filenameRegex = /^[^\\\/:*?"<>|\r\n]+$(?<!\.$)/
 const dataroot = FS.toRawPath(__dirname).getParent() + '/data/'
 
 const chestDataKeys = [ 'type', 'slots', 'items', 'counts' ]
-const chunkPosStringRegex = /^(-?(?:0|[1-9]\d*)),(-?(?:0|[1-9]\d*))$/
-const blockPosStringRegex = /^(-?(?:0|[1-9]\d*)),(-?(?:0|[1-9]\d*)),(-?(?:0|[1-9]\d*))$/
+const chunkPosStringRegex = /^(0|-?[1-9]\d*),(0|-?[1-9]\d*)$/
+const blockPosStringRegex = /^(0|-?[1-9]\d*),(0|-?[1-9]\d*),(0|-?[1-9]\d*)$/
 
 class DataManager {
   /**
