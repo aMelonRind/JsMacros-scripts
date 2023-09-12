@@ -17,10 +17,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import from_script DrawContextProxy;
+import from_script ItemTextOverlay;
+
 //# Imports: Fabric
-import net.minecraft.class_310 as MinecraftClient;
-import net.minecraft.class_332 as DrawContext;
-import net.minecraft.class_437 as Screen;
+import net.minecraft.class_310  as MinecraftClient;
+import net.minecraft.class_332  as DrawContext;
+import net.minecraft.class_437  as Screen;
 import net.minecraft.class_1799 as ItemStack;
 import net.minecraft.class_2561 as Text;
 
@@ -56,7 +59,6 @@ class StorageViewScreen extends ScriptScreen {
   private final ArrayList displayedItems = new ArrayList();
   private final HashMap itemCache = new HashMap();
   private HashMap loadedItemsBuffer = new HashMap();
-  private MethodWrapper itemGetter;
   private MethodWrapper filterer = null;
   private MethodWrapper sortMethod = null;
   private MethodWrapper onClickItem = null;
@@ -72,9 +74,8 @@ class StorageViewScreen extends ScriptScreen {
   private double scrolled = 0.0;
   private int[] clickingItem = new int[] {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1}; // i don't think any mouse has more than 10 keys but anyways
 
-  public StorageViewScreen(MethodWrapper itemGetter) {
+  public StorageViewScreen() {
     super("Storage Viewer", false);
-    this.itemGetter = itemGetter;
   }
 
   private void putLoaded(int item, long count) {
@@ -180,7 +181,7 @@ class StorageViewScreen extends ScriptScreen {
   }
 
   public void filterAndSort() {
-    if (!dirty) return;
+    if (!dirty && loadedItemsBuffer.isEmpty()) return;
     if (!loadedItemsBuffer.isEmpty()) {
       synchronized (loadedItemsBuffer) {
         HashMap buf = loadedItemsBuffer;
@@ -405,7 +406,6 @@ class StorageViewScreen extends ScriptScreen {
     }
     super.$render(context, mouseX, mouseY, tickDelta);
     countX = 0;
-    if (itemGetter == null) return;
 
     filterAndSort();
     List items = List.copyOf(displayedItems);
@@ -474,18 +474,7 @@ class StorageViewScreen extends ScriptScreen {
     int textDY = 8 + (int) Math.floor((1 - textScale) * 8);
 
     for (int i = flooredScrolled * countX; i < end; ++i) {
-      ItemStackHelper item;
-      if (itemCache.containsKey(items.get(i))) item = (ItemStackHelper) itemCache.get(items.get(i));
-      else try {
-        item = (ItemStackHelper) itemGetter.apply(items.get(i));
-      } catch (Throwable e) {
-        if (!errorLogged) {
-          Chat.log("[StorageViewScreen] Error in itemGetter: " + e.getLocalizedMessage());
-          // Core.getInstance().profile.logError(e);
-          errorLogged = true;
-        }
-        continue;
-      }
+      ItemStackHelper item = (ItemStackHelper) itemCache.get(items.get(i));
       if (item == null) continue;
       int x = startX + deltaX * (i % countX);
       int y = startY + deltaY * (i / countX - flooredScrolled);

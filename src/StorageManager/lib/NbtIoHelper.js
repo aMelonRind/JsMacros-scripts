@@ -1,6 +1,9 @@
-
+// @ts-nocheck
 const NbtElementHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper')
 const NbtIo = Java.type('net.minecraft.class_2507')
+
+/** @type {()} */ const readCompressed  = 'method_30613'
+/** @type {()} */ const writeCompressed = 'method_30614'
 
 class NbtIoHelper {
 
@@ -19,7 +22,7 @@ class NbtIoHelper {
    * @returns {void}
    */
   static writeRawCompressed(path, nbt) {
-    return NbtIo.method_30614(nbt, FS.toRawPath(path).toAbsolutePath().toFile())
+    return NbtIo[writeCompressed](nbt, FS.toRawPath(path).toAbsolutePath().toFile())
   }
 
   /**
@@ -36,7 +39,7 @@ class NbtIoHelper {
    * @returns {NbtCompound?} 
    */
   static readRawCompressed(path) {
-    return NbtIo.method_30613(FS.toRawPath(path).toAbsolutePath().toFile())
+    return NbtIo[readCompressed](FS.toRawPath(path).toAbsolutePath().toFile())
   }
 
 }

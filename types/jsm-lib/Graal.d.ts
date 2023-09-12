@@ -6,9 +6,8 @@ declare const __filename: string;
 declare function require(path: string): any;
 declare function load(source: string | Packages.java.io.File | Packages.java.net.URL): any;
 declare function loadWithNewGlobal(source: string | Packages.java.io.File | Packages.java.net.URL, ...arguments: any[]): any;
-// These two are commented out because it's useless, doesn't even show in game log
-// declare function print(...arg: any[]): void;
-// declare function printErr(...arg: any[]): void;
+declare function print(...arg: any[]): void;
+declare function printErr(...arg: any[]): void;
 
 /**
  * Information about the graal runner.
@@ -175,13 +174,8 @@ interface NoConstructor extends SuppressProperties {
 
 interface SuppressProperties {
     /** @deprecated */ Symbol: unknown;
-    /** @deprecated */ apply: unknown;
     /** @deprecated */ arguments: unknown;
-    /** @deprecated */ bind: unknown;
-    /** @deprecated */ call: unknown;
     /** @deprecated */ caller: unknown;
-    /** @deprecated */ length: unknown;
-    /** @deprecated */ name: unknown;
     /** @deprecated */ prototype: unknown;
 }
 

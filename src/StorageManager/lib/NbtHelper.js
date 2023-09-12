@@ -1,4 +1,4 @@
-
+// @ts-nocheck
 const NbtElementHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper')
 const NbtCompound = Java.type('net.minecraft.class_2487')
 
@@ -8,6 +8,17 @@ NbtListValueF.setAccessible(true)
 
 const ItemStack = Java.type('net.minecraft.class_1799')
 const ItemStackHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper')
+
+/** @type {()} */ const fromNbt     = 'method_7915'
+/** @type {()} */ const getString   = 'method_10558'
+/** @type {()} */ const getCompound = 'method_10562'
+/** @type {()} */ const put         = 'method_10566'
+/** @type {()} */ const putByte     = 'method_10567'
+/** @type {()} */ const getByte     = 'method_10571'
+/** @type {()} */ const get         = 'method_10580'
+/** @type {()} */ const putString   = 'method_10582'
+/** @type {()} */ const copy        = 'method_10707'
+/** @type {()} */ const isEmpty     = 'method_33133'
 
 class NbtHelper {
 
@@ -24,7 +35,7 @@ class NbtHelper {
    * @param {NbtElement} value 
    */
   static putElement(nbt, key, value) {
-    return nbt.method_10566(key, value)
+    return nbt[put](key, value)
   }
 
   /**
@@ -33,7 +44,7 @@ class NbtHelper {
    * @param {string} value 
    */
   static putString(nbt, key, value) {
-    return nbt.method_10582(key, value)
+    return nbt[putString](key, value)
   }
 
   /**
@@ -42,7 +53,7 @@ class NbtHelper {
    * @param {number} value 
    */
   static putByte(nbt, key, value) {
-    return nbt.method_10567(key, value)
+    return nbt[putByte](key, value)
   }
 
   /**
@@ -51,7 +62,7 @@ class NbtHelper {
    * @returns {NbtCompound}
    */
   static getCompound(nbt, key) {
-    return nbt.method_10562(key)
+    return nbt[getCompound](key)
   }
 
   /**
@@ -60,7 +71,7 @@ class NbtHelper {
    * @returns {NbtList}
    */
   static getList(nbt, key) {
-    const list = nbt.method_10580(key)
+    const list = nbt[get](key)
     return list instanceof NbtList ? list : null
   }
 
@@ -70,7 +81,7 @@ class NbtHelper {
    * @returns {string}
    */
   static getString(nbt, key) {
-    return nbt.method_10558(key)
+    return nbt[getString](key)
   }
 
   /**
@@ -79,7 +90,7 @@ class NbtHelper {
    * @returns {number}
    */
   static getByte(nbt, key) {
-    return nbt.method_10571(key)
+    return nbt[getByte](key)
   }
 
   /**
@@ -121,7 +132,7 @@ class NbtHelper {
    * @returns {boolean}
    */
   static isEmpty(nbt) {
-    return nbt.method_33133()
+    return nbt[isEmpty]()
   }
 
   /**
@@ -130,7 +141,7 @@ class NbtHelper {
    * @returns {T}
    */
   static copy(nbt) {
-    return nbt.method_10707()
+    return nbt[copy]()
   }
 
   /**
@@ -160,7 +171,7 @@ class NbtHelper {
    * @returns {ItemStackHelper}
    */
   static getItemFromNbt(nbt) {
-    return new ItemStackHelper(ItemStack.method_7915(nbt))
+    return new ItemStackHelper(ItemStack[fromNbt](nbt))
   }
 
   /**

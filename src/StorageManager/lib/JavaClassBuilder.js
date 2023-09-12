@@ -11,18 +11,22 @@ class JavaClassBuilder {
    * @param {string} className 
    * @param {string} sourcePath absolute path please
    * @param {Record<string, string>} [extraImport] 
+   * @returns {{ readonly class: JavaClass }}
    */
   static buildClass(className, sourcePath, extraImport = {}) {
-    try {
+    try { // @ts-ignore
       return Java.type('xyz.wagyourtail.jsmacros.core.library.impl.classes.proxypackage.' + className)
     } catch (e) {}
     extraImport[FS.toRawPath(sourcePath).getFileName().toString().slice(0, -5)] = className
-    return this.build(this.applyImports(this.cleanComments(FS.open(sourcePath).read()), extraImport))
+    this.build(this.applyImports(this.cleanComments(FS.open(sourcePath).read()), extraImport))
+    // @ts-ignore
+    return Java.type('xyz.wagyourtail.jsmacros.core.library.impl.classes.proxypackage.' + className)
   }
 
   /**
    * @param {string} code 
    * @returns {string}
+   * @private
    */
   static cleanComments(code) {
     let inBlockComment = false
@@ -30,7 +34,7 @@ class JavaClassBuilder {
     let inString = false
     let res = ''
     code.split(/(?<=\n)/).forEach(line => {
-      if (!inBlockComment && line.trim().startsWith('//#')) return res += line
+      if (!inBlockComment && line.startsWith('//#')) return res += line
       outer:
       while (line) {
         if (inBlockComment) {
@@ -97,6 +101,7 @@ class JavaClassBuilder {
    * @param {string} code 
    * @param {Record<string, string>} extraImport 
    * @returns {string}
+   * @private
    */
   static applyImports(code, extraImport) {
     /** @type {Map<string, string>} */
@@ -148,6 +153,7 @@ class JavaClassBuilder {
 
   /**
    * @param {string} code 
+   * @private
    */
   static build(code) {
     const match = code.trim().match(/^class\s+(\S+)(?:\s+extends\s+(\S+))?\s*\{((?:.|\s)*)\}$/m)
@@ -206,6 +212,7 @@ class JavaClassBuilder {
    * @param {string} body
    * @param {string} stopAt 
    * @returns {number}
+   * @private
    */
   static getEnd(body, stopAt = ';') {
     let stack = ''

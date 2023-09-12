@@ -21,19 +21,18 @@ const SortMethod = {
   /** @readonly */ DISTANCE: 'distance'
 }
 
-/** @type {JavaClass} */// @ts-ignore
-const DrawContextProxy = JavaClassBuilder.buildClass(
-  'MelonRind$Proxy$DrawContextProxy' + `$Test${GlobalVars.getAndIncrementInt('classtesting')}`
-  , __dirname + '/DrawContextProxy.java'
-)
+/** [source](./DrawContextProxy.java) */
+const DrawContextProxy = JavaClassBuilder.buildClass('MelonRind$Proxy$DrawContextProxy' + `$Test${GlobalVars.getAndIncrementInt('classtesting')}`, __dirname + '/DrawContextProxy.java')
 
-/** @type {new (itemGetter: MethodWrapper<int, any, ItemStackHelper?>) => StorageViewScreenInstance} */// @ts-ignore
+/**
+ * [source](./StorageViewScreen.java)
+ * @type {{ readonly class: JavaClass<StorageViewScreenInstance> } & (new () => StorageViewScreenInstance)}
+ */// @ts-ignore
 const StorageViewScreenClass = JavaClassBuilder.buildClass(
   'MelonRind$Screen$StorageViewScreen' + `$Test${GlobalVars.getAndIncrementInt('classtesting')}`
-  , __dirname + '/StorageViewScreen.java',
-  {
+  , __dirname + '/StorageViewScreen.java', {
     ItemTextOverlay: require('./elements/ItemTextOverlay').create('', 0, 0).getClass().getTypeName(),
-    DrawContextProxy: DrawContextProxy.getTypeName()
+    DrawContextProxy: DrawContextProxy.class.getTypeName()
   }
 )
 
@@ -47,7 +46,7 @@ class StorageViewScreen {
    */
   static async open(parent, profile) {
     logger.debug?.('StorageViewScreen.open()')
-    const screen = new StorageViewScreenClass(JavaWrapper.methodToJava(i => profile.getItem(i)))
+    const screen = new StorageViewScreenClass()
     screen.setParent(parent)
     screen.drawTitle = false
 
@@ -69,9 +68,7 @@ class StorageViewScreen {
         Math.floor(inputPos.x2),
         Math.floor(inputPos.y2),
         this.searchText,
-        JavaWrapper.methodToJavaAsync(() => {
-          //
-        })
+        null
       )
       // if (firstInit) {
       //   // loader?.stop()
@@ -92,9 +89,9 @@ class StorageViewScreen {
       if (name1 !== name2) return name1 > name2 ? -1 : 1
       return 0
     }, { screen }))
-    screen.setOnClickItem(await Threads.wrapCallback((i, btn) => { // currently bugged because of guest object variables
+    screen.setOnClickItem(JavaWrapper.methodToJavaAsync((i, btn) => { // currently bugged because of guest object variables
       logger.log(`Clicked item: [${i}]: ${profile.getItem(i)?.getItemId()}, button: ${btn}`)
-    }, { logger, profile }))
+    })) // , { logger, profile }
     // screen.setTooltipFunction(JavaWrapper.methodToJava(i => {
     //   return Java.to(['aaaaaaaa'])
     // }))
@@ -108,8 +105,7 @@ class StorageViewScreen {
 
     screen.setOnClose(JavaWrapper.methodToJavaAsync(s => {
       s.removeElement(loadingLabel)
-      firstInit = true
-      // loader.stop()
+      screen.destroy()
       Threads.cleanWrapper()
     }))
 
@@ -156,10 +152,10 @@ class ItemsLoader {
     logger.debug?.('Loading items...')
     this.stopped = false
     this.clean()
-    // await Threads.escapeThread()
+    await Threads.escapeThread()
     const chunks = this.profile.getChunksInRenderDistance() // TODO: more load methods
     for (const index in chunks) {
-      await Threads.escapeThread()
+      // await Threads.escapeThread()
       this.loadingLabel.setText(`Loading Chunk ${chunks[index]} (${index}/${chunks.length})...`)
       if (this.#checkStop()) break
       const items = this.profile.getItemsInChunk(chunks[index], this.unpackShulker)
