@@ -33,7 +33,6 @@ import net.minecraft.class_1799 as ItemStack;
 import net.minecraft.class_2561 as Text;
 
 const options         = field_1690;
-const children        = field_22786;
 const width           = field_22789;
 const height          = field_22790;
 const textRenderer    = field_22793;
@@ -63,7 +62,6 @@ class StorageViewScreen extends ScriptScreen {
   private static final Text NOT_ENOUGH_SPACE_TEXT = Text.$literal("No Space. Check positionSettings.js");
 
   private final Set elements = new LinkedHashSet();
-  private final List $children = new ArrayList();
   private final DrawContextProxy contextProxy = new DrawContextProxy();
   private final Rect scrollBar = new Rect(0, 0, 0, 0, 0xAAAAAA, 0.0f, 0);
   private SearchBar searchBar;
@@ -95,6 +93,7 @@ class StorageViewScreen extends ScriptScreen {
   }
 
   protected void $init() {
+    super.$init();
     searchBar = new SearchBar($textRenderer);
   }
 

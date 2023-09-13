@@ -56,8 +56,7 @@ class StorageViewScreen {
     const loadingLabel = new Text('', 0, 0, 0xFFFFFF, 0, true, 1, 0)
 
     screen.setOnInit(await Threads.wrapCallback(s => {
-      const screenSize = PositionCommon.createPos(s.getWidth(), s.getHeight())
-      loadingLabel.setPos(8, screenSize.y - 16)
+      loadingLabel.setPos(8, s.getHeight() - 16)
       s.reAddElement(loadingLabel)
     }, { loadingLabel }))
 
