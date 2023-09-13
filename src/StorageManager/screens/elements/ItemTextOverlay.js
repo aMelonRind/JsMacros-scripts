@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {typeof Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Text} */// @ts-ignore
 const TextProxy = (() => {
-  const className = 'MelonRind$RenderElement$ItemTextOverlaya' // + `$Test${GlobalVars.getAndIncrementInt('classtesting')}`
+  const className = 'MelonRind$RenderElement$ItemTextOverlay' // + `$Test${GlobalVars.getAndIncrementInt('classtesting')}`
   try {
     return Java.type('xyz.wagyourtail.jsmacros.core.library.impl.classes.proxypackage.' + className)
   } catch (e) {}

@@ -21,18 +21,20 @@ const SortMethod = {
   /** @readonly */ DISTANCE: 'distance'
 }
 
-/** [source](./DrawContextProxy.java) */
-const DrawContextProxy = JavaClassBuilder.buildClass('MelonRind$Proxy$DrawContextProxy' + `$Test${GlobalVars.getAndIncrementInt('classtesting')}`, __dirname + '/DrawContextProxy.java')
+/** [source](./classes/DrawContextProxy.java) */
+const DrawContextProxy = JavaClassBuilder.buildClass('MelonRind$Proxy$DrawContextProxy', __dirname + '/classes/DrawContextProxy.java')
+/** [source](./classes/SearchBar.java) */
+const SearchBar = JavaClassBuilder.buildClass('MelonRind$RenderElement$SearchBar', __dirname + '/classes/SearchBar.java')
 
 /**
  * [source](./StorageViewScreen.java)
  * @type {{ readonly class: JavaClass<StorageViewScreenInstance> } & (new () => StorageViewScreenInstance)}
  */// @ts-ignore
 const StorageViewScreenClass = JavaClassBuilder.buildClass(
-  'MelonRind$Screen$StorageViewScreen' + `$Test${GlobalVars.getAndIncrementInt('classtesting')}`
-  , __dirname + '/StorageViewScreen.java', {
+  'MelonRind$Screen$StorageViewScreen', __dirname + '/StorageViewScreen.java', {
     ItemTextOverlay: require('./elements/ItemTextOverlay').create('', 0, 0).getClass().getTypeName(),
-    DrawContextProxy: DrawContextProxy.class.getTypeName()
+    DrawContextProxy: DrawContextProxy.class.getTypeName(),
+    SearchBar: SearchBar.class.getTypeName()
   }
 )
 
@@ -50,37 +52,17 @@ class StorageViewScreen {
     screen.setParent(parent)
     screen.drawTitle = false
 
-    const isCurrentWorld = World.isWorldLoaded() && profile.profileName === DataManager.getProfileIndex(World.getWorldIdentifier())
+    // const isCurrentWorld = World.isWorldLoaded() && profile.profileName === DataManager.getProfileIndex(World.getWorldIdentifier())
     const loadingLabel = new Text('', 0, 0, 0xFFFFFF, 0, true, 1, 0)
-    /** @type {ItemsLoader} */
-    let loader
-
-    let firstInit = true
 
     screen.setOnInit(await Threads.wrapCallback(s => {
       const screenSize = PositionCommon.createPos(s.getWidth(), s.getHeight())
       loadingLabel.setPos(8, screenSize.y - 16)
-      const inputPos = searchBarPosition.apply(screenSize)
       s.reAddElement(loadingLabel)
-      s.addTextInput(
-        Math.floor(inputPos.x1),
-        Math.floor(inputPos.y1),
-        Math.floor(inputPos.x2),
-        Math.floor(inputPos.y2),
-        this.searchText,
-        null
-      )
-      // if (firstInit) {
-      //   // loader?.stop()
-      //   // loader = new ItemsLoader(screen, profile, null, loadingLabel, LoadMethod.RENDER_DISTANCE, null)
-      //   // screen.addItem(18, profile.getItem(18), 128)
-      //   // screen.addItem(19, profile.getItem(19), 128)
-      //   // loader.load()
-      // }
-      // firstInit = false
-    }, { loadingLabel, searchBarPosition: await Threads.wrapCallback(searchBarPosition) }))
+    }, { loadingLabel }))
 
     screen.setItemsPositionFunction(await Threads.wrapCallback(itemsPosition))
+    screen.setSearchBarPositionFunction(await Threads.wrapCallback(searchBarPosition))
     screen.setSortComparator(await Threads.wrapCallback((a, b) => {
       const count = Math.sign(screen.getLoadedCount(a) - screen.getLoadedCount(b))
       if (count) return count
@@ -157,6 +139,7 @@ class ItemsLoader {
     for (const index in chunks) {
       // await Threads.escapeThread()
       this.loadingLabel.setText(`Loading Chunk ${chunks[index]} (${index}/${chunks.length})...`)
+      this.screen.setLoadProgress((+index + 1) / chunks.length)
       if (this.#checkStop()) break
       const items = this.profile.getItemsInChunk(chunks[index], this.unpackShulker)
       if (!items) continue
@@ -166,6 +149,7 @@ class ItemsLoader {
         this.screen.addItem(item, this.profile.getItem(item), items.get(item) ?? 0)
       }
     }
+    this.screen.setLoadProgress(1.1)
     this.loadingLabel.setText('')
     logger.debug?.('Loaded items')
     this.loading = false
@@ -203,8 +187,10 @@ module.exports = StorageViewScreen
  * @prop {(tooltipFunction: MethodWrapper<int, any, JavaArray<string | TextHelper | TextBuilder>?>?) => void} setTooltipFunction
  * @prop {(extraTooltipFunction: MethodWrapper<int, any, JavaArray<string | TextHelper | TextBuilder>?>?) => void} setExtraTooltipFunction
  * @prop {(itemsPositionFunction: MethodWrapper<Pos2D, any, Vec2D>?) => void} setItemsPositionFunction
+ * @prop {(searchBarPositionFunction: MethodWrapper<Pos2D, any, Vec2D>?) => void} setSearchBarPositionFunction
  * @prop {(method: MethodWrapper<int, int, int>) => void} setSortComparator
  * @prop {(item: int) => number} getLoadedCount
+ * @prop {(progress: double) => void} setLoadProgress
  * @prop {() => void} filterAndSort
  * @prop {() => void} destroy
  * @prop {() => boolean} isDestroyed

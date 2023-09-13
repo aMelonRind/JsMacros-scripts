@@ -210,5 +210,6 @@ JsMacros.on('DimensionChange', JavaWrapper.methodToJavaAsync(() => {
 }))
 
 logger.debug?.('Event listeners initialized')
+logger.log('Ready')
 
 module.exports = {}

@@ -46,7 +46,7 @@ class Threads {
   /**
    * runs the script on another context, then resolve the module.exports  
    * use `Threads.clearSyncObjects()` to clean the contexts created this way.
-   * @param {string} path 
+   * @param {string} path absolute path please
    * @returns {Promise<any>}
    */
   static runScript(path) {
@@ -84,11 +84,16 @@ class Threads {
   }
 
   static cleanWrapper() {
-    this.wrappers.splice(0, Infinity).forEach(w => {
-      try {
-        syncObjectF.set(w, null)
-      } catch (e) {}
-    })
+    this.wrappers.splice(0, Infinity).forEach(w => this.unsyncWrapper(w))
+  }
+
+  /**
+   * @param {MethodWrapper} wrapper 
+   */
+  static unsyncWrapper(wrapper) {
+    try {
+      syncObjectF.set(wrapper, null)
+    } catch (e) {}
   }
 
   static clearSyncObjects() {

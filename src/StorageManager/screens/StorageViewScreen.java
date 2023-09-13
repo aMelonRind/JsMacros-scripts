@@ -1,5 +1,4 @@
 
-import xyz.wagyourtail.jsmacros.client.api.library.impl.FChat;
 import xyz.wagyourtail.jsmacros.core.Core;
 import xyz.wagyourtail.jsmacros.core.MethodWrapper;
 import xyz.wagyourtail.jsmacros.client.api.classes.math.Pos2D;
@@ -10,15 +9,21 @@ import xyz.wagyourtail.jsmacros.client.api.classes.render.ScriptScreen;
 import xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
 import xyz.wagyourtail.jsmacros.client.api.helpers.screen.ClickableWidgetHelper;
 import xyz.wagyourtail.jsmacros.client.api.helpers.OptionsHelper;
+import xyz.wagyourtail.jsmacros.client.api.library.impl.FChat;
+
+import org.lwjgl.glfw.GLFW;
 
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import from_script DrawContextProxy;
 import from_script ItemTextOverlay;
+import from_script SearchBar;
 
 //# Imports: Fabric
 import net.minecraft.class_310  as MinecraftClient;
@@ -28,17 +33,24 @@ import net.minecraft.class_1799 as ItemStack;
 import net.minecraft.class_2561 as Text;
 
 const options         = field_1690;
-const textRenderer    = field_1772;
+const children        = field_22786;
 const width           = field_22789;
 const height          = field_22790;
+const textRenderer    = field_22793;
 
 const getInstance     = method_1551;
-const getWidth        = method_27525;
+const focusOn         = method_20086;
+const tick            = method_25393;
 const render          = method_25394;
+const getFocused      = method_25399;
 const mouseScrolled   = method_25401;
+const mouseClicked    = method_25402;
+const keyPressed      = method_25404;
 const close           = method_25419;
+const init            = method_25426;
 const hasControlDown  = method_25441;
 const hasShiftDown    = method_25442;
+const getWidth        = method_27525;
 const literal         = method_43470;
 const drawTooltip     = method_51434;
 const drawItemTooltip = method_51446;
@@ -50,8 +62,11 @@ class StorageViewScreen extends ScriptScreen {
   private static final Text NO_ITEM_TEXT = Text.$literal("No item");
   private static final Text NOT_ENOUGH_SPACE_TEXT = Text.$literal("No Space. Check positionSettings.js");
 
+  private final Set elements = new LinkedHashSet();
+  private final List $children = new ArrayList();
   private final DrawContextProxy contextProxy = new DrawContextProxy();
   private final Rect scrollBar = new Rect(0, 0, 0, 0, 0xAAAAAA, 0.0f, 0);
+  private SearchBar searchBar;
   private final Item itemRender = new Item(0, 0, 0, "minecraft:air", true, 1.0, 0.0f).setOverlayText("");
   private final ClickableWidgetHelper tooltipConverter = new ClickableWidgetHelper(null);
   private final ItemTextOverlay itemText = new ItemTextOverlay("", 0, 0, 0xFFFFFF, 0, true, 1.0, 0.0f);
@@ -65,6 +80,7 @@ class StorageViewScreen extends ScriptScreen {
   private MethodWrapper tooltipFunction = null;
   private MethodWrapper extraTooltipFunction = null;
   private MethodWrapper itemsPositionFunction = null;
+  private MethodWrapper searchBarPositionFunction = null;
   private boolean errorLogged = false;
   public boolean sortReversed = false;
   private boolean isDraggingScrollBar = false;
@@ -76,6 +92,31 @@ class StorageViewScreen extends ScriptScreen {
 
   public StorageViewScreen() {
     super("Storage Viewer", false);
+  }
+
+  protected void $init() {
+    searchBar = new SearchBar($textRenderer);
+  }
+
+  public void $tick() {
+    super.$tick();
+    searchBar.tick();
+  }
+
+  public boolean $keyPressed(int keyCode, int scanCode, int modifiers) {
+    if (keyCode == GLFW.GLFW_KEY_TAB) {
+      $focusOn(searchBar.isFocused() ? null : searchBar);
+      return true;
+    }
+    if (keyCode == GLFW.GLFW_KEY_E && !searchBar.isFocused()) {
+      $close();
+      return true;
+    }
+    return super.$keyPressed(keyCode, scanCode, modifiers);
+  }
+
+  public void setLoadProgress(double progress) {
+    if (searchBar != null) searchBar.loadProgress = progress;
   }
 
   private void putLoaded(int item, long count) {
@@ -125,14 +166,6 @@ class StorageViewScreen extends ScriptScreen {
     return (ItemStackHelper) itemCache.get(Integer.valueOf(item));
   }
 
-  // public void addItems(HashMap items) {
-  //   List keyList = new ArrayList(items.keySet());
-  //   int size = keyList.size();
-  //   for (int i = 0; i < size; i++) {
-  //     addItem(((Integer) keyList.get(i)).intValue(), ((Long) items.get(keyList.get(i))).longValue());
-  //   }
-  // }
-
   public void destroy() {
     destroyed = true;
   }
@@ -173,6 +206,10 @@ class StorageViewScreen extends ScriptScreen {
 
   public void setItemsPositionFunction(MethodWrapper itemsPositionFunction) {
     this.itemsPositionFunction = itemsPositionFunction;
+  }
+
+  public void setSearchBarPositionFunction(MethodWrapper searchBarPositionFunction) {
+    this.searchBarPositionFunction = searchBarPositionFunction;
   }
 
   public void setSortComparator(MethodWrapper method) {
@@ -258,7 +295,7 @@ class StorageViewScreen extends ScriptScreen {
   private void addLabel(Vec2D vec, Text text, DrawContext context, int mouseX, int mouseY, float tickDelta) {
     itemText.setScale(1.0);
     itemText.text = text;
-    itemText.width = mc.$textRenderer.$getWidth(text);
+    itemText.width = $textRenderer.$getWidth(text);
     itemText.setPos(
       (int) Math.floor((vec.x1 + vec.x2) / 2 - (double) itemText.width / 2),
       (int) Math.floor((vec.y1 + vec.y2) / 2 - 4)
@@ -269,7 +306,11 @@ class StorageViewScreen extends ScriptScreen {
   private static Vec2D defaultItemsPosition(int w, int h) {
     w /= 2;
     h /= 2;
-    return new Vec2D(w - 90d, h - 80d, w + 90d, h + 101d);
+    return new Vec2D(w - 90.0, h - 80.0, w + 90.0, h + 101.0);
+  }
+
+  private static Vec2D defaultSearchBarPosition(int w, int h) {
+    return new Vec2D(w / 2.0 - 88.0, h / 2.0 - 100.0, 176.0, 16.0);
   }
 
   private static String localeNumber(long num) {
@@ -305,8 +346,13 @@ class StorageViewScreen extends ScriptScreen {
   private int totalRows = 0;
   private int flooredScrolled = 0;
 
+  private int searchBarX = 0;
+  private int searchBarY = 0;
+  private int searchBarW = 0;
+  private int searchBarH = 0;
+
   private int getHoveredIndex(int mouseX, int mouseY) {
-    if (countX == 0) return 0;
+    if (countX == 0) return -1;
     int x = startX - 1;
     int y = startY - 1;
     if (signX == -1) x -= countX * 18 - 18;
@@ -328,30 +374,52 @@ class StorageViewScreen extends ScriptScreen {
 
   // button 01234: left right mid prev next
   public void jsmacros_mouseClicked(double mouseX, double mouseY, int button) {
-    if (countX == 0) return;
     int x = (int) Math.floor(mouseX);
     int y = (int) Math.floor(mouseY);
+    boolean searchFocused = false;
+    boolean handled = false;
     int hovered = getHoveredIndex(x, y);
     if (hovered != -1) {
       isDraggingScroll = true;
       if (0 <= button && button < 10) {
         clickingItem[button] = hovered;
       }
-    } else if (button == 0) {
-      int sx = scrollBarX;
-      if (signX == -1) sx -= 10;
-      if (sx - 1 <= x && mouseX <= sx + 10) {
-        int sy = startY - 1;
-        if (signY == -1) sy -= cy18 - 18;
-        if (sy <= y && mouseY <= sy + cy18) {
-          isDraggingScrollBar = true;
-          double value = Math.max(0.0, Math.min(1.0, (mouseY - sy - scrollBarSize / 2) / (cy18 - scrollBarSize)));
-          if (signY == -1) value = 1.0 - value;
-          scrolled = value * (totalRows - countY);
+      handled = true;
+    } else {
+      if (button == 0 && displayedItems.size() > countX * countY) {
+        int sx = scrollBarX;
+        if (signX == -1) sx -= 10;
+        if (sx - 1 <= x && mouseX <= sx + 10) {
+          int sy = startY - 1;
+          if (signY == -1) sy -= cy18 - 18;
+          if (sy <= y && mouseY <= sy + cy18) {
+            isDraggingScrollBar = true;
+            double value = Math.max(0.0, Math.min(1.0, (mouseY - sy - scrollBarSize / 2) / (cy18 - scrollBarSize)));
+            if (signY == -1) value = 1.0 - value;
+            scrolled = value * (totalRows - countY);
+            handled = true;
+          }
+        }
+      }
+      if (button == 0 || button == 1 || button == 2) {
+        if (searchBarX <= x && x < searchBarX + searchBarW && searchBarY <= y && y < searchBarY + searchBarH) {
+          searchFocused = true;
+          handled = true;
         }
       }
     }
-    // super.jsmacros_mouseClicked(mouseX, mouseY, button);
+    if (searchFocused || button == 0 || button == 1 || button == 2) {
+      searchBar.setFocused(searchFocused);
+      if (searchFocused) {
+        $focusOn(searchBar);
+        searchBar.mouseClicked(mouseX, mouseY, button);
+        handled = true;
+      } else if ($getFocused() == searchBar) {
+        $focusOn(null);
+        handled = true;
+      }
+    }
+    if (!handled) super.$mouseClicked(mouseX, mouseY, button);
   }
 
   public void jsmacros_mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
@@ -410,41 +478,59 @@ class StorageViewScreen extends ScriptScreen {
     filterAndSort();
     List items = List.copyOf(displayedItems);
 
-    Vec2D vec = null;
+    Vec2D searchVec = null;
+    if (searchBarPositionFunction != null) {
+      try {
+        searchVec = (Vec2D) searchBarPositionFunction.apply(new Pos2D((double) $width, (double) $height));
+      } catch (Throwable e) {
+        Chat.log("[StorageViewScreen] Error in searchBarPositionFunction: " + e.getLocalizedMessage());
+        // Core.getInstance().profile.logError(e);
+        searchBarPositionFunction = null;
+      }
+    }
+    if (searchVec == null) searchVec = defaultSearchBarPosition($width, $height);
+    searchVec.x1 = searchBarX = (int) Math.floor(searchVec.x1);
+    searchVec.y1 = searchBarY = (int) Math.floor(searchVec.y1);
+    searchVec.x2 = searchBarW = (int) Math.floor(searchVec.x2);
+    searchVec.y2 = searchBarH = (int) Math.floor(searchVec.y2);
+    searchBar.setPos(searchBarX, searchBarY, searchBarW, searchBarH);
+    searchBar.render(context, mouseX, mouseY, tickDelta);
+
+    Vec2D itemsVec = null;
     if (itemsPositionFunction != null) {
       try {
-        vec = (Vec2D) itemsPositionFunction.apply(new Pos2D((double) $width, (double) $height));
+        itemsVec = (Vec2D) itemsPositionFunction.apply(new Pos2D((double) $width, (double) $height));
       } catch (Throwable e) {
         Chat.log("[StorageViewScreen] Error in itemsPositionFunction: " + e.getLocalizedMessage());
         // Core.getInstance().profile.logError(e);
         itemsPositionFunction = null;
       }
     }
-    if (vec == null) vec = defaultItemsPosition($width, $height);
-    vec.x1 = Math.floor(vec.x1);
-    vec.y1 = Math.floor(vec.y1);
-    vec.x2 = Math.ceil(vec.x2);
-    vec.y2 = Math.ceil(vec.y2);
+    if (itemsVec == null) itemsVec = defaultItemsPosition($width, $height);
+    itemsVec.x1 = Math.floor(itemsVec.x1);
+    itemsVec.y1 = Math.floor(itemsVec.y1);
+    itemsVec.x2 = Math.ceil(itemsVec.x2);
+    itemsVec.y2 = Math.ceil(itemsVec.y2);
 
     if (items.isEmpty()) {
-      addLabel(vec, NO_ITEM_TEXT, context, mouseX, mouseY, tickDelta);
+      addLabel(itemsVec, NO_ITEM_TEXT, context, mouseX, mouseY, tickDelta);
       return;
     }
 
-    signY = vec.y1 > vec.y2 ? -1 : 1;
+    signY = itemsVec.y1 > itemsVec.y2 ? -1 : 1;
     if (scrolled < 0) scrolled = 0;
 
-    if (Math.abs(vec.x1 - vec.x2) < 18 || Math.abs(vec.y1 - vec.y2) < 18) {
-      addLabel(vec, NOT_ENOUGH_SPACE_TEXT, context, mouseX, mouseY, tickDelta);
+    if (Math.abs(itemsVec.x1 - itemsVec.x2) < 18 || Math.abs(itemsVec.y1 - itemsVec.y2) < 18) {
+      addLabel(itemsVec, NOT_ENOUGH_SPACE_TEXT, context, mouseX, mouseY, tickDelta);
       return;
     }
 
-    signX = vec.x1 > vec.x2 ? -1 : 1;
-    countX = (int) Math.floor(Math.abs(vec.x1 - vec.x2) / 18);
-    countY = (int) Math.floor(Math.abs(vec.y1 - vec.y2) / 18);
-    startX = (int) (Math.floor((vec.x1 + vec.x2) / 2) + ((signX * (1 - countX)) - 1) * 9 + 1);
-    // startY = (int) (Math.floor((vec.y1 + vec.y2) / 2) + ((signY * (1 - countY)) - 1) * 9 + 1);
-    startY = (int) vec.y1 + signY * 9 - 8;
+    signX = itemsVec.x1 > itemsVec.x2 ? -1 : 1;
+    countX = (int) Math.floor(Math.abs(itemsVec.x1 - itemsVec.x2) / 18);
+    countY = (int) Math.floor(Math.abs(itemsVec.y1 - itemsVec.y2) / 18);
+    startX = (int) (Math.floor((itemsVec.x1 + itemsVec.x2) / 2) + ((signX * (1 - countX)) - 1) * 9 + 1);
+    // startY = (int) (Math.floor((itemsVec.y1 + itemsVec.y2) / 2) + ((signY * (1 - countY)) - 1) * 9 + 1);
+    startY = (int) itemsVec.y1 + signY * 9 - 8;
     int deltaX = signX * 18;
     int deltaY = signY * 18;
     cy18 = countY * 18;
@@ -483,7 +569,7 @@ class StorageViewScreen extends ScriptScreen {
       String countText = itemCount == 1L ? "" : formatNumber(itemCount);
       if (!countText.isBlank()) {
         itemText.text = Text.$literal(countText);
-        itemText.width = mc.$textRenderer.$getWidth(itemText.text);
+        itemText.width = $textRenderer.$getWidth(itemText.text);
         itemText.setPos(x + 17 - (int) Math.ceil(itemText.width * textScale), y + textDY);
         itemText.$render(context, mouseX, mouseY, tickDelta);
       }
@@ -497,7 +583,7 @@ class StorageViewScreen extends ScriptScreen {
         try {
           tooltipConverter.setTooltip((Object[]) tooltipFunction.apply(key));
           if (!tooltipConverter.tooltips.isEmpty()) {
-            context.$drawTooltip(mc.$textRenderer, tooltipConverter.tooltips, mouseX + 4, mouseY + 4);
+            context.$drawTooltip($textRenderer, tooltipConverter.tooltips, mouseX + 4, mouseY + 4);
           }
           tooltipConverter.tooltips.clear();
         } catch (Throwable e) {
@@ -529,9 +615,9 @@ class StorageViewScreen extends ScriptScreen {
             }
           }
           if (tooltipConverter.tooltips.isEmpty()) {
-            context.$drawItemTooltip(mc.$textRenderer, (ItemStack) item.getRaw(), mouseX + 4, mouseY + 4);
+            context.$drawItemTooltip($textRenderer, (ItemStack) item.getRaw(), mouseX + 4, mouseY + 4);
           } else {
-            contextProxy.drawItemTooltipWithExtra(mc.$textRenderer, (ItemStack) item.getRaw(), mouseX + 4, mouseY + 4, context, tooltipConverter.tooltips);
+            contextProxy.drawItemTooltipWithExtra($textRenderer, (ItemStack) item.getRaw(), mouseX + 4, mouseY + 4, context, tooltipConverter.tooltips);
           }
         }
       }
