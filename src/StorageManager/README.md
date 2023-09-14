@@ -6,4 +6,5 @@
 
 WIP  
 currently can record opened container data and view them.  
-this service doesn't depend on any library outside of this folder.
+this service doesn't depend on any library outside of this folder.  
+this service is currently in test mode. see `./lib/JavaClassBuilder.js:L17` to disable test mode to avoid compiling java class every time service started
