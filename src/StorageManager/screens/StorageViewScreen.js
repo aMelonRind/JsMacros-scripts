@@ -2,6 +2,7 @@
 const Text = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.render.components.Text')
 const JavaClassBuilder = require('../lib/JavaClassBuilder')
 const Threads = require('../lib/Threads')
+const { ItemData } = require('./classes/ItemData')
 const DataManager = require('../modules/DataManager')
 const logger = require('../modules/StorageManagerLogger')
 
@@ -34,7 +35,8 @@ const StorageViewScreenClass = JavaClassBuilder.buildClass(
   'MelonRind$Screen$StorageViewScreen', __dirname + '/StorageViewScreen.java', {
     ItemTextOverlay: require('./elements/ItemTextOverlay').create('', 0, 0).getClass().getTypeName(),
     DrawContextProxy: DrawContextProxy.class.getTypeName(),
-    SearchBar: SearchBar.class.getTypeName()
+    SearchBar: SearchBar.class.getTypeName(),
+    ItemData: ItemData.class.getTypeName()
   }
 )
 
@@ -63,29 +65,24 @@ class StorageViewScreen {
     screen.setItemsPositionFunction(await Threads.wrapCallback(itemsPosition))
     screen.setSearchBarPositionFunction(await Threads.wrapCallback(searchBarPosition))
     screen.setSortComparator(await Threads.wrapCallback((a, b) => {
-      const count = Math.sign(screen.getLoadedCount(a) - screen.getLoadedCount(b))
-      if (count) return count
-      const name1 = screen.getCache(a)?.getName()?.getStringStripFormatting() || ''
-      const name2 = screen.getCache(b)?.getName()?.getStringStripFormatting() || ''
-      if (name1 !== name2) return name1 > name2 ? -1 : 1
-      return 0
-    }, { screen }))
-    screen.setOnClickItem(JavaWrapper.methodToJavaAsync((i, btn) => { // currently bugged because of guest object variables
-      logger.log(`Clicked item: [${i}]: ${profile.getItem(i)?.getItemId()}, button: ${btn}`)
+      return Math.floor(-a.compareCount(b) || a.compareName(b) || a.compareDistance(b))
+    }))
+    screen.setOnClickItem(JavaWrapper.methodToJavaAsync((i, btn) => {
+      // currently bugged while loading because of guest object variables
+      logger.log(`Clicked item: [${i.index}]: ${i.item.getItemId()}, button: ${btn}`)
     })) // , { logger, profile }
-    // screen.setTooltipFunction(JavaWrapper.methodToJava(i => {
+    // screen.setTooltipFunction(await Threads.wrapCallback(i => {
     //   return Java.to(['aaaaaaaa'])
     // }))
-    // screen.setExtraTooltipFunction(JavaWrapper.methodToJava(i => {
+    // screen.setExtraTooltipFunction(await Threads.wrapCallback(i => {
     //   return Java.to(['extra tooltip here', ''])
     // }))
-    // screen.setFilterer(JavaWrapper.methodToJava(i => {
-    //   return screen.getLoaded(i) > 1000
+    // screen.setFilterer(await Threads.wrapCallback(i => {
+    //   return i.count > 1000
     // }))
-    screen.sortReversed = true
+    screen.sortReversed = DataManager.Settings.getBoolean('sortReversed', false)
 
     screen.setOnClose(JavaWrapper.methodToJavaAsync(s => {
-      s.removeElement(loadingLabel)
       screen.destroy()
       Threads.cleanWrapper()
     }))
@@ -145,7 +142,7 @@ class ItemsLoader {
       if (this.#checkStop()) break
       for (const item of items.keySet()) {
         if (this.#checkStop()) break
-        this.screen.addItem(item, this.profile.getItem(item), items.get(item) ?? 0)
+        this.screen.addItem(this.profile.getItem(item), items.get(item) ?? 0, item)
       }
     }
     this.screen.setLoadProgress(1.1)
@@ -177,18 +174,15 @@ module.exports = StorageViewScreen
 /**
  * @typedef {ScriptScreen & OtherProperties} StorageViewScreenInstance
  * @typedef {object} OtherProperties
- * @prop {(items: JavaMap<int, long>) => void} addItems
- * @prop {(item: int, itemStack: ItemStackHelper?, count: long) => void} addItem
+ * @prop {(itemStack: ItemStackHelper?, count: long, index?: int) => void} addItem
  * @prop {() => void} clearItems
- * @prop {(item: int) => ItemStackHelper?} getCache
- * @prop {(filterer: MethodWrapper<int, any, boolean>?) => void} setFilterer
- * @prop {(onClickItem: MethodWrapper<int, int>?) => void} setOnClickItem
- * @prop {(tooltipFunction: MethodWrapper<int, any, JavaArray<string | TextHelper | TextBuilder>?>?) => void} setTooltipFunction
- * @prop {(extraTooltipFunction: MethodWrapper<int, any, JavaArray<string | TextHelper | TextBuilder>?>?) => void} setExtraTooltipFunction
+ * @prop {(filterer: MethodWrapper<ItemData, any, boolean>?) => void} setFilterer
+ * @prop {(onClickItem: MethodWrapper<ItemData, int>?) => void} setOnClickItem
+ * @prop {(tooltipFunction: MethodWrapper<ItemData, any, JavaArray<string | TextHelper | TextBuilder>?>?) => void} setTooltipFunction
+ * @prop {(extraTooltipFunction: MethodWrapper<ItemData, any, JavaArray<string | TextHelper | TextBuilder>?>?) => void} setExtraTooltipFunction
  * @prop {(itemsPositionFunction: MethodWrapper<Pos2D, any, Vec2D>?) => void} setItemsPositionFunction
  * @prop {(searchBarPositionFunction: MethodWrapper<Pos2D, any, Vec2D>?) => void} setSearchBarPositionFunction
- * @prop {(method: MethodWrapper<int, int, int>) => void} setSortComparator
- * @prop {(item: int) => number} getLoadedCount
+ * @prop {(method: MethodWrapper<ItemData, ItemData, int>) => void} setSortComparator
  * @prop {(progress: double) => void} setLoadProgress
  * @prop {() => void} filterAndSort
  * @prop {() => void} destroy

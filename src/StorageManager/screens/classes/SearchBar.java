@@ -98,6 +98,7 @@ class SearchBar extends TextFieldWidget {
     $setText(searchText);
     $setDrawsBackground(false);
     $setPlaceHolder(placeholder);
+    changed = true;
 
     firstCharacterIndexF.setAccessible(true);
     selectionStartF.setAccessible(true);
@@ -128,6 +129,7 @@ class SearchBar extends TextFieldWidget {
   }
 
   public void tick() {
+    searchProgress += 0.1;
     ++loadDoneTicks;
     ++searchDoneTicks;
     ++cursorTicks;
@@ -141,8 +143,11 @@ class SearchBar extends TextFieldWidget {
   }
 
   protected void onChanged() {
-    searchText = $getText();
-    changed = true;
+    if (!searchText.equals($getText())) {
+      searchText = $getText();
+      changed = true;
+      searchProgress = 0.0;
+    }
   }
 
   public void $setFocused(boolean focused) {
@@ -192,9 +197,13 @@ class SearchBar extends TextFieldWidget {
     if (dim) context.$setShaderColor(0.75f, 0.75f, 0.75f, 1.0f);
     context.$fill(x1, y, x2, y + 1, barColor);
     if (searchProgress > 0.0) {
+      if (searchText.isBlank()) {
+        searchProgress = 1.1;
+        searchDoneTicks = 999;
+      }
       if (searchProgress > 1.0) {
-        if (searchDoneTicks < 16) {
-          context.$fill(x1, y, x2, y + 1, 0xff00ff00 - searchDoneTicks * 0x10000000);
+        if (searchDoneTicks < 8) {
+          context.$fill(x1, y, x2, y + 1, 0xff00ff00 - searchDoneTicks * 0x20000000);
         }
       } else {
         int sx2 = x1 + (int) Math.floor((x2 - x1) * searchProgress);

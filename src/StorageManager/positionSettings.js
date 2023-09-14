@@ -32,10 +32,10 @@ module.exports = {
      */
     itemsPosition(screenSize) {
       screenSize = screenSize.multiply(0.5, 0.5)
-      return screenSize.add(-90, -80).toReverseVector(screenSize.add(90, 101))
       // const dynamic = Math.abs(Math.sin(Time.time() / 200)) * 200
       // return screenSize.add(-90 - dynamic, -80).toReverseVector(screenSize.add(90 + dynamic, 101))
       // return screenSize.add(-290, -80).toReverseVector(screenSize.add(290, 201))
+      return screenSize.add(-90, -80).toReverseVector(screenSize.add(90, 101))
     },
 
     /**

@@ -24,6 +24,7 @@ import java.util.Set;
 import from_script DrawContextProxy;
 import from_script ItemTextOverlay;
 import from_script SearchBar;
+import from_script ItemData;
 
 //# Imports: Fabric
 import net.minecraft.class_310  as MinecraftClient;
@@ -68,10 +69,10 @@ class StorageViewScreen extends ScriptScreen {
   private final Item itemRender = new Item(0, 0, 0, "minecraft:air", true, 1.0, 0.0f).setOverlayText("");
   private final ClickableWidgetHelper tooltipConverter = new ClickableWidgetHelper(null);
   private final ItemTextOverlay itemText = new ItemTextOverlay("", 0, 0, 0xFFFFFF, 0, true, 1.0, 0.0f);
-  private final HashMap loadedItems = new HashMap();
+  private final Object loadSync = new Object();
+  private final ArrayList loadedItems = new ArrayList();
   private final ArrayList displayedItems = new ArrayList();
-  private final HashMap itemCache = new HashMap();
-  private HashMap loadedItemsBuffer = new HashMap();
+  private final ArrayList loadedItemsBuffer = new ArrayList();
   private MethodWrapper filterer = null;
   private MethodWrapper sortMethod = null;
   private MethodWrapper onClickItem = null;
@@ -103,6 +104,11 @@ class StorageViewScreen extends ScriptScreen {
   }
 
   public boolean $keyPressed(int keyCode, int scanCode, int modifiers) {
+    if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+      setParent(null);
+      $close();
+      return true;
+    }
     if (keyCode == GLFW.GLFW_KEY_TAB) {
       $focusOn(searchBar.isFocused() ? null : searchBar);
       return true;
@@ -118,51 +124,24 @@ class StorageViewScreen extends ScriptScreen {
     if (searchBar != null) searchBar.loadProgress = progress;
   }
 
-  private void putLoaded(int item, long count) {
-    synchronized (loadedItemsBuffer) {
-      loadedItemsBuffer.put(Integer.valueOf(item), Long.valueOf(count));
-    }
-    dirty = true;
-  }
-
-  private long getLoaded(int item) {
-    synchronized (loadedItemsBuffer) {
-      Long value = (Long) loadedItemsBuffer.get(Integer.valueOf(item));
-      return value == null ? 0L : value.longValue();
-    }
-  }
-
-  public long getLoadedCount(int item) {
-    synchronized (loadedItems) {
-      Long value = (Long) loadedItems.get(Integer.valueOf(item));
-      return value == null ? 0L : value.longValue();
-    }
-  }
-
-  private boolean loadedContains(int item) {
-    synchronized (loadedItemsBuffer) {
-      return loadedItemsBuffer.containsKey(Integer.valueOf(item));
-    }
-  }
-
-  private void addDisplayed(int item) {
-    synchronized (displayedItems) {
-      displayedItems.add(Integer.valueOf(item));
-    }
-  }
-
-  public void addItem(int item, ItemStackHelper itemStack, long count) {
-    synchronized (loadedItemsBuffer) {
-      if (!loadedContains(item)) {
-        putLoaded(item, count);
-      } else putLoaded(item, getLoaded(item) + count);
-      itemCache.put(Integer.valueOf(item), itemStack);
+  public void addItem(ItemStackHelper itemStack, long count, int index) {
+    if (itemStack == null) return;
+    synchronized (loadSync) {
+      ItemData item = new ItemData(itemStack);
+      item.addCount(count);
+      item.index = index;
+      int i = loadedItemsBuffer.indexOf(itemStack);
+      if (i != -1) {
+        ((ItemData) loadedItemsBuffer.get(i)).merge(item);
+      } else {
+        loadedItemsBuffer.add(item);
+      }
       dirty = true;
     }
   }
 
-  public ItemStackHelper getCache(int item) {
-    return (ItemStackHelper) itemCache.get(Integer.valueOf(item));
+  public void addItem(ItemStackHelper itemStack, long count) {
+    addItem(itemStack, count, -1);
   }
 
   public void destroy() {
@@ -174,13 +153,9 @@ class StorageViewScreen extends ScriptScreen {
   }
 
   public void clearItems() {
-    synchronized (loadedItemsBuffer) {
+    synchronized (loadSync) {
       loadedItemsBuffer.clear();
-    }
-    synchronized (loadedItems) {
       loadedItems.clear();
-    }
-    synchronized (displayedItems) {
       displayedItems.clear();
       dirty = false;
     }
@@ -188,6 +163,11 @@ class StorageViewScreen extends ScriptScreen {
 
   public void setFilterer(MethodWrapper filterer) {
     this.filterer = filterer;
+    dirty = true;
+  }
+
+  public void setSortComparator(MethodWrapper method) {
+    sortMethod = method;
     dirty = true;
   }
 
@@ -211,34 +191,29 @@ class StorageViewScreen extends ScriptScreen {
     this.searchBarPositionFunction = searchBarPositionFunction;
   }
 
-  public void setSortComparator(MethodWrapper method) {
-    sortMethod = method;
-    dirty = true;
-  }
-
   public void filterAndSort() {
     if (!dirty && loadedItemsBuffer.isEmpty()) return;
     if (!loadedItemsBuffer.isEmpty()) {
-      synchronized (loadedItemsBuffer) {
-        HashMap buf = loadedItemsBuffer;
-        loadedItemsBuffer = new HashMap();
-        List keyList = new ArrayList(buf.keySet());
-        int size = keyList.size();
+      synchronized (loadSync) {
+        int size = loadedItemsBuffer.size();
         for (int i = 0; i < size; i++) {
-          Integer item = (Integer) keyList.get(i);
-          if (!loadedItems.containsKey(item)) {
-            loadedItems.put(item, buf.get(item));
-          } else loadedItems.put(item, Long.valueOf(((Long) loadedItems.get(item)).longValue() + ((Long) buf.get(item)).longValue()));
+          ItemData item = (ItemData) loadedItemsBuffer.get(i);
+          int index = loadedItems.indexOf(item);
+          if (index != -1) {
+            ((ItemData) loadedItems.get(index)).addCount(item.count);
+          } else {
+            loadedItems.add(item);
+          }
         }
+        loadedItemsBuffer.clear();
       }
     }
     if (filterer != null) {
       displayedItems.clear();
-      List keyList = new ArrayList(loadedItems.keySet());
-      int size = keyList.size();
+      int size = loadedItems.size();
       try {
         for (int i = 0; i < size; i++) {
-          Integer item = (Integer) keyList.get(i);
+          ItemData item = (ItemData) loadedItems.get(i);
           if (filterer.test(item)) displayedItems.add(item);
         }
       } catch (Throwable e) {
@@ -249,7 +224,7 @@ class StorageViewScreen extends ScriptScreen {
     }
     if (filterer == null) {
       displayedItems.clear();
-      displayedItems.addAll(loadedItems.keySet());
+      displayedItems.addAll(loadedItems);
     }
     if (sortMethod != null) {
       try {
@@ -266,30 +241,6 @@ class StorageViewScreen extends ScriptScreen {
     for (int i = 0; i < 10; i++) clickingItem[i] = -1;
     dirty = false;
   }
-
-  private static String formatNumber(long num) {
-    String str = Long.toString(num);
-    String res = "";
-    if (str.startsWith("-")) {
-        res = "-";
-        str = str.substring(1);
-    }
-    int len = str.length();
-    if (num >= 10000000000L) {
-        res += str.substring(0, len - 9);
-        if (num < 1000000000000L) res += "." + str.charAt(len - 9);
-        res += 'B';
-    } else if (num >= 10000000L) {
-        res += str.substring(0, len - 6);
-        if (num < 1000000000L) res += "." + str.charAt(len - 6);
-        res += 'M';
-    } else if (num >= 10000L) {
-        res += str.substring(0, len - 3);
-        if (num < 1000000L) res += "." + str.charAt(len - 3);
-        res += 'K';
-    } else res += str;
-    return res;
-  }
   
   private void addLabel(Vec2D vec, Text text, DrawContext context, int mouseX, int mouseY, float tickDelta) {
     itemText.setScale(1.0);
@@ -300,6 +251,7 @@ class StorageViewScreen extends ScriptScreen {
       (int) Math.floor((vec.y1 + vec.y2) / 2 - 4)
     );
     itemText.$render(context, mouseX, mouseY, tickDelta);
+    searchBar.render(context, mouseX, mouseY, tickDelta);
   }
 
   private static Vec2D defaultItemsPosition(int w, int h) {
@@ -310,27 +262,6 @@ class StorageViewScreen extends ScriptScreen {
 
   private static Vec2D defaultSearchBarPosition(int w, int h) {
     return new Vec2D(w / 2.0 - 88.0, h / 2.0 - 100.0, 176.0, 16.0);
-  }
-
-  private static String localeNumber(long num) {
-    String str = Long.toString(num);
-    StringBuilder res = new StringBuilder();
-    if (str.contains(".")) {
-        String[] spl = str.split("\\.", 2);
-        res.append(".").append(spl[1]);
-        str = spl[0];
-    }
-    String sign = "";
-    if (str.startsWith("-")) {
-        sign = "-";
-        str = str.substring(1);
-    }
-    int len;
-    while ((len = str.length()) > 3) {
-        res.insert(0, "," + str.substring(len - 3));
-        str = str.substring(0, len - 3);
-    }
-    return res.insert(0, sign + str).toString();
   }
 
   private byte signX = 1;
@@ -446,7 +377,7 @@ class StorageViewScreen extends ScriptScreen {
       if (getHoveredIndex(mouseX, mouseY) == clickingItem[button]) {
         if (onClickItem != null) {
           try {
-            onClickItem.apply((Integer) displayedItems.get(clickingItem[button]), Integer.valueOf(button));
+            onClickItem.apply(displayedItems.get(clickingItem[button]), Integer.valueOf(button));
           } catch (Throwable e) {
             Chat.log("[StorageViewScreen] Error in onClickItem: " + e.getLocalizedMessage());
             // Core.getInstance().profile.logError(e);
@@ -493,7 +424,6 @@ class StorageViewScreen extends ScriptScreen {
     searchVec.x2 = searchBarW = (int) Math.floor(searchVec.x2);
     searchVec.y2 = searchBarH = (int) Math.floor(searchVec.y2);
     searchBar.setPos(searchBarX, searchBarY, searchBarW, searchBarH);
-    searchBar.render(context, mouseX, mouseY, tickDelta);
 
     Vec2D itemsVec = null;
     if (itemsPositionFunction != null) {
@@ -545,12 +475,13 @@ class StorageViewScreen extends ScriptScreen {
       scrollBar.setPos(scrollBarX, y, scrollBarX + 1, y + scrollBarSize);
       scrollBar.$render(context, mouseX, mouseY, tickDelta);
     }
+    searchBar.render(context, mouseX, mouseY, tickDelta);
 
     flooredScrolled = (int) Math.floor(scrolled);
 
     int end = Math.min((flooredScrolled + countY) * countX, items.size());
 
-    Map loadedItems = Map.copyOf(loadedItems);
+    List loadedItems = List.copyOf(loadedItems);
 
     double guiScale = Options.getVideoOptions().getGuiScale();
     double textScale = Math.ceil((double) guiScale / 2.0) / guiScale;
@@ -559,32 +490,32 @@ class StorageViewScreen extends ScriptScreen {
     int textDY = 8 + (int) Math.floor((1 - textScale) * 8);
 
     for (int i = flooredScrolled * countX; i < end; ++i) {
-      ItemStackHelper item = (ItemStackHelper) itemCache.get(items.get(i));
+      ItemData item = (ItemData) items.get(i);
       if (item == null) continue;
       int x = startX + deltaX * (i % countX);
       int y = startY + deltaY * (i / countX - flooredScrolled);
-      itemRender.setItem(item).setPos(x, y).$render(context, mouseX, mouseY, tickDelta);
-      long itemCount = ((Long) loadedItems.get((Integer) items.get(i))).longValue();
-      String countText = itemCount == 1L ? "" : formatNumber(itemCount);
-      if (!countText.isBlank()) {
-        itemText.text = Text.$literal(countText);
-        itemText.width = $textRenderer.$getWidth(itemText.text);
+      itemRender.setItem(item.item).setPos(x, y).$render(context, mouseX, mouseY, tickDelta);
+      Text countText = item.getCountText(textScale);
+      if (countText != null) {
+        itemText.text = countText;
+        itemText.width = $textRenderer.$getWidth(countText);
         itemText.setPos(x + 17 - (int) Math.ceil(itemText.width * textScale), y + textDY);
         itemText.$render(context, mouseX, mouseY, tickDelta);
       }
     }
 
     int hovered = getHoveredIndex(mouseX, mouseY);
-    tooltipConverter.tooltips.clear();
     if (hovered != -1) {
-      Integer key = (Integer) items.get(hovered);
+      ItemData item = (ItemData) items.get(hovered);
       if (tooltipFunction != null) {
         try {
-          tooltipConverter.setTooltip((Object[]) tooltipFunction.apply(key));
-          if (!tooltipConverter.tooltips.isEmpty()) {
-            context.$drawTooltip($textRenderer, tooltipConverter.tooltips, mouseX + 4, mouseY + 4);
+          Object[] tooltip = (Object[]) tooltipFunction.apply(item);
+          if (tooltip != null && tooltip.length > 0) {
+            tooltipConverter.setTooltip(tooltip);
+            if (!tooltipConverter.tooltips.isEmpty()) {
+              context.$drawTooltip($textRenderer, tooltipConverter.tooltips, mouseX + 4, mouseY + 4);
+            }
           }
-          tooltipConverter.tooltips.clear();
         } catch (Throwable e) {
           Chat.log("[StorageViewScreen] Error in tooltipFunction: " + e.getLocalizedMessage());
           // Core.getInstance().profile.logError(e);
@@ -592,32 +523,30 @@ class StorageViewScreen extends ScriptScreen {
         }
       }
       if (tooltipFunction == null) {
-        ItemStackHelper item = (ItemStackHelper) itemCache.get(key);
-        if (item != null) {
-          long itemCount = ((Long) loadedItems.get(key)).longValue();
-          if (itemCount >= 10000L) {
-            tooltipConverter.addTooltip("§7Count: " + localeNumber(itemCount));
-          }
-          if (extraTooltipFunction != null) {
-            try {
-              Object[] extras = (Object[]) extraTooltipFunction.apply(key);
-              if (extras != null && extras.length > 0) {
-                List temp = tooltipConverter.tooltips;
-                tooltipConverter.setTooltip(extras);
-                temp.addAll(tooltipConverter.tooltips);
-                tooltipConverter.tooltips = temp;
-              }
-            } catch (Throwable e) {
-              Chat.log("[StorageViewScreen] Error in extraTooltipFunction: " + e.getLocalizedMessage());
-              // Core.getInstance().profile.logError(e);
-              extraTooltipFunction = null;
+        long itemCount = item.count;
+        List extra = item.getExtraTooltip();
+        if (extra != null) tooltipConverter.tooltips = extra;
+        else tooltipConverter.tooltips.clear();
+        if (extraTooltipFunction != null) {
+          List temp = tooltipConverter.tooltips;
+          try {
+            Object[] extras = (Object[]) extraTooltipFunction.apply(item);
+            if (extras != null && extras.length > 0) {
+              tooltipConverter.setTooltip(extras);
+              temp.addAll(tooltipConverter.tooltips);
+              tooltipConverter.tooltips = temp;
             }
+          } catch (Throwable e) {
+            Chat.log("[StorageViewScreen] Error in extraTooltipFunction: " + e.getLocalizedMessage());
+            // Core.getInstance().profile.logError(e);
+            tooltipConverter.tooltips = temp;
+            extraTooltipFunction = null;
           }
-          if (tooltipConverter.tooltips.isEmpty()) {
-            context.$drawItemTooltip($textRenderer, (ItemStack) item.getRaw(), mouseX + 4, mouseY + 4);
-          } else {
-            contextProxy.drawItemTooltipWithExtra($textRenderer, (ItemStack) item.getRaw(), mouseX + 4, mouseY + 4, context, tooltipConverter.tooltips);
-          }
+        }
+        if (tooltipConverter.tooltips.isEmpty()) {
+          context.$drawItemTooltip($textRenderer, (ItemStack) item.item.getRaw(), mouseX + 4, mouseY + 4);
+        } else {
+          contextProxy.drawItemTooltipWithExtra($textRenderer, (ItemStack) item.item.getRaw(), mouseX + 4, mouseY + 4, context, tooltipConverter.tooltips);
         }
       }
     }
