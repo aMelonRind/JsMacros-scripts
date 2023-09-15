@@ -3,35 +3,33 @@ import xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
 import xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper;
 import xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper;
 
-import java.util.regex.Pattern;
-import java.util.function.Predicate;
 import java.util.ArrayList;
 import java.util.List;
 
 import from_script IItemData;
 
 //# Imports: Fabric
+import net.minecraft.class_2487 as NbtCompound;
+import net.minecraft.class_2499 as NbtList;
+import net.minecraft.class_2520 as NbtElement;
 import net.minecraft.class_2561 as Text;
 
-const literal = method_43470;
-
-import net.minecraft.class_2487 as NbtCompound;
-import net.minecraft.class_2520 as NbtElement;
-import net.minecraft.class_2499 as NbtList;
-const STRING_TYPE = field_33258;
-const LIST_TYPE = field_33259;
-const COMPOUND_TYPE = field_33260;
+const STRING_TYPE    = field_33258;
+const LIST_TYPE      = field_33259;
+const COMPOUND_TYPE  = field_33260;
 const INT_ARRAY_TYPE = field_33261;
-const getType = method_10540;
-const remove = method_10551;
-const getString = method_10558;
-const containsUuid = method_25928;
-const getCompound = method_10562;
-const getCompound2 = method_10602;
-const getHeldType = method_10601;
-const get = method_10534;
-const getKeys = method_10541;
-const getList = method_10554;
+
+const get            = method_10534;
+const getType        = method_10540;
+const getKeys        = method_10541;
+const remove         = method_10551;
+const getList        = method_10554;
+const getString      = method_10558;
+const getCompound    = method_10562;
+const getHeldType    = method_10601;
+const getCompound2   = method_10602;
+const containsUuid   = method_25928;
+const literal        = method_43470;
 
 class ItemData extends IItemData {
   private static final Text[] smallCountTexts = new Text[] {
