@@ -3,6 +3,8 @@ import xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
 import xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper;
 import xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper;
 
+import java.util.regex.Pattern;
+import java.util.function.Predicate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +14,24 @@ import from_script IItemData;
 import net.minecraft.class_2561 as Text;
 
 const literal = method_43470;
+
+import net.minecraft.class_2487 as NbtCompound;
+import net.minecraft.class_2520 as NbtElement;
+import net.minecraft.class_2499 as NbtList;
+const STRING_TYPE = field_33258;
+const LIST_TYPE = field_33259;
+const COMPOUND_TYPE = field_33260;
+const INT_ARRAY_TYPE = field_33261;
+const getType = method_10540;
+const remove = method_10551;
+const getString = method_10558;
+const containsUuid = method_25928;
+const getCompound = method_10562;
+const getCompound2 = method_10602;
+const getHeldType = method_10601;
+const get = method_10534;
+const getKeys = method_10541;
+const getList = method_10554;
 
 class ItemData extends IItemData {
   private static final Text[] smallCountTexts = new Text[] {
@@ -55,6 +75,63 @@ class ItemData extends IItemData {
     while ((i -= 3) >= stop) str.insert(i, ",");
     return str.toString();
   }
+
+  public static NbtCompound cleanUUID(NbtCompound nbt) {
+    List keys = new ArrayList(nbt.$getKeys());
+    int size = keys.size();
+    for (int i = 0; i < size; i++) {
+      String key = (String) keys.get(i);
+      if (key.length() == 4) {
+        String lc = key.toLowerCase();
+        if (lc.equals("text")) continue;
+        if (lc.equals("uuid")) {
+          nbt.$remove(key);
+          continue;
+        }
+      }
+      switch (nbt.$getType(key)) {
+        case NbtElement.$STRING_TYPE: {
+          String str = nbt.$getString(key);
+          int len = str.length();
+          if (len != 32 && !(len == 36 &&
+            str.charAt(8) == '-' && str.charAt(13) == '-' && str.charAt(18) == '-' && str.charAt(23) == '-')) continue;
+          if (len == 36) str = new StringBuilder(str).deleteCharAt(8).deleteCharAt(12).deleteCharAt(16).deleteCharAt(20).toString();
+          int j = 0;
+          for (; j < 32; j++) {
+            char c = str.charAt(j);
+            if (!(('0' <= c && c <= '9') || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F'))) break;
+          }
+          if (j == 32) nbt.$remove(key);
+          break;
+        }
+        case NbtElement.$INT_ARRAY_TYPE: {
+          if (nbt.$containsUuid(key)) nbt.$remove(key);
+          break;
+        }
+        case NbtElement.$COMPOUND_TYPE: {
+          cleanUUID(nbt.$getCompound(key));
+          break;
+        }
+        case NbtElement.$LIST_TYPE: {
+          NbtList list = nbt.$getList(key, 10);
+          int j = 0;
+          while (true) {
+            try {
+              list.$get(j);
+            } catch (Throwable e) {
+              break;
+            }
+            cleanUUID(list.$getCompound2(j));
+            j++;
+          }
+          break;
+        }
+      }
+    }
+    return nbt;
+  }
+
+  public static void unpackShulker(IItemData item) {}
 
   public ItemData(ItemStackHelper item) {
     super(item);

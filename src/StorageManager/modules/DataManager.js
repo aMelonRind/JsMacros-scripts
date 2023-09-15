@@ -1,6 +1,7 @@
 // @ts-check
 const NbtIoHelper = require('../lib/NbtIoHelper')
 const NbtHelper = require('../lib/NbtHelper')
+const { ItemData } = require('../screens/classes/ItemData')
 
 const logger = require('../modules/StorageManagerLogger')
 
@@ -442,6 +443,7 @@ class DataManager {
   getItemIndex(item) {
     if (item.isEmpty()) return 0
     const nbt = NbtHelper.getNbtFromItem(item)
+    if (DataManager.Settings.getBoolean('cleanUUID', true)) ItemData.cleanUUID(nbt)
     let index = this.items.indexOf(nbt)
     if (index !== -1) return index + 1
     index = this.newItemIndex

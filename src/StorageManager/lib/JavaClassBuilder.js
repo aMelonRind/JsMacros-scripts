@@ -14,7 +14,7 @@ class JavaClassBuilder {
    * @returns {{ readonly class: JavaClass }}
    */
   static buildClass(className, sourcePath, extraImport = {}) {
-    className += `$Test${GlobalVars.getAndIncrementInt('classtesting')}`
+    className += '$At_' + FS.toRawFile(sourcePath).lastModified()
     try { // @ts-ignore
       return Java.type('xyz.wagyourtail.jsmacros.core.library.impl.classes.proxypackage.' + className)
     } catch (e) {}

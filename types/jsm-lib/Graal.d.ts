@@ -516,6 +516,7 @@ declare namespace Packages {
                 mkdirs(): boolean;
                 renameTo(dest: File): boolean;
                 setExecutable(executable: boolean, ownerOnly?: boolean): boolean;
+                lastModified(): number;
                 setLastModified(time: long): boolean;
                 setReadable(readable: boolean, ownerOnly?: boolean): boolean;
                 setWritable(writable: boolean, ownerOnly?: boolean): boolean;

@@ -7,6 +7,7 @@ export class ItemData {
   readonly static class: JavaClass<ItemData>;
 
   static localeNumber(num: long): string;
+  static cleanUUID(nbt: NbtCompound): NbtCompound;
 
   constructor (item: ItemStackHelper): ItemData;
 
