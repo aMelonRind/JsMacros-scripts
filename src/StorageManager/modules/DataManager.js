@@ -8,7 +8,7 @@ const logger = require('../modules/StorageManagerLogger')
 const filenameRegex = /^[^\\\/:*?"<>|\r\n]+$(?<!\.$)/
 const dataroot = FS.toRawPath(__dirname).getParent() + '/data/'
 
-const chestDataKeys = [ 'type', 'slots', 'items', 'counts' ]
+const chestDataKeys = [ 'type', 'slots', 'time', 'items', 'counts' ]
 const chunkPosStringRegex = /^(0|-?[1-9]\d*),(0|-?[1-9]\d*)$/
 const blockPosStringRegex = /^(0|-?[1-9]\d*),(0|-?[1-9]\d*),(0|-?[1-9]\d*)$/
 
@@ -337,6 +337,16 @@ class DataManager {
    */
   profileName
   /**
+   * @type {string}
+   * @private
+   */
+  serverId = 'default'
+  /**
+   * @type {string}
+   * @private
+   */
+  dimention
+  /**
    * @type {JavaList<NbtCompound>}
    * @readonly
    * @private
@@ -359,7 +369,7 @@ class DataManager {
   // @ts-ignore
   chestChunks = JavaUtils.createHashMap()
   /**
-   * @type {Record<ChunkPosString, number[]>}
+   * @type {Record<FullChunkPath, number[]>}
    * @readonly
    * @private
    */
@@ -393,9 +403,13 @@ class DataManager {
 
     this.chunkItemRecord = DataManager.getJsonOrDefault(`./${profileName}/chunk-item_record.json`, undefined, (json, backup) => {
       let shouldBackup = false
-      const list = FS.list(fixedPath(`./${profileName}/chests`)).filter(f => f.endsWith('.json')).map(f => f.slice(0, -5))
+      const root = fixedPath(`./${profileName}/chests`)
       for (const key in json) {
-        if (!list.includes(key) || !Array.isArray(json[key]) || !json[key].every(v => typeof v === 'number')) {
+        let fileCheck = false
+        try {
+          fileCheck = FS.isFile(`${root}/${key}.json`)
+        } catch (e) {}
+        if (!fileCheck || !Array.isArray(json[key]) || !json[key].every(v => typeof v === 'number')) {
           delete json[key]
           shouldBackup = true
         }
@@ -424,6 +438,46 @@ class DataManager {
 
     this.updateNewItemIndex()
     logger.debug?.(`new DataManager("${profileName}"), Loaded items size: ${this.items.size()}`)
+    const serverDetectorPath = fixedPath(`./${profileName}/serverDetector.js`)
+    if (!FS.isFile(serverDetectorPath)) FS.copy(__dirname + '/defaultServerDetector.js', serverDetectorPath)
+    this.updateDimention()
+  }
+
+  /**
+   * checks if this profile matches current state
+   */
+  updateDimention() {
+    /** @type {string} */
+    let idres = this.serverId
+    /** @type {string} */
+    let dimres
+    let res
+    try {
+      res = require(`../data/${this.profileName}/serverDetector.js`)()
+      if (res !== null && res !== undefined && typeof res !== 'string') throw new Error(`Wrong return type: ${typeof res}`)
+      if (typeof res === 'string') verifyName(res, 'server identifier')
+    } catch (e) {
+      logger.warn('Error while running serverDetector.js: ', e)
+      res = null
+    }
+    if (res === null) idres = 'default'
+    else if (typeof res === 'string') idres = res
+    dimres = escapeIdentifier(World.getDimension())
+    if (this.serverId !== idres || this.dimention !== dimres || this.chestChunks.size() > 255) {
+      this.chestChunks.clear()
+    }
+    this.serverId = idres
+    this.dimention = dimres
+    const path = fixedPath(`./${this.profileName}/chests/${this.serverId}/${this.dimention}`)
+    if (!FS.isDir(path) && !FS.toRawFile(path).mkdirs())
+      throw new Error(`failed to create dir: data/${this.profileName}/chests/${this.serverId}/${this.dimention}`)
+  }
+
+  /**
+   * `` `${this.serverId}/${this.dimention}` ``
+   */
+  getCurrentPath() {
+    return `${this.serverId}/${this.dimention}`
   }
 
   /** @private */
@@ -501,7 +555,7 @@ class DataManager {
       const data = this.chestChunks.get(chunkPos)
       if (data) return data
     }
-    const chunk = DataManager.getJsonOrDefault(`./${this.profileName}/chests/${chunkPos}.json`, undefined, (json, backup) => {
+    const chunk = DataManager.getJsonOrDefault(`./${this.profileName}/chests/${this.serverId}/${this.dimention}/${chunkPos}.json`, undefined, (json, backup) => {
       let shouldBackup = false
       for (const key in json) if (key !== 'chests' && key !== 'ignored') delete json[key]
       if (typeof json.chests !== 'object' || Array.isArray(json.chests)) {
@@ -536,6 +590,7 @@ class DataManager {
               if (typeof chest[prop] !== 'string') toss = true
               break
             case 'slots':
+            case 'time':
               if (typeof chest[prop] !== 'number') toss = true
               break
             case 'items':
@@ -563,7 +618,7 @@ class DataManager {
    */
   saveChestChunk(chunkPos) {
     if (!chunkPosStringRegex.test(chunkPos)) throw new SyntaxError(`Wrong chunkPos syntax! (${chunkPos})`)
-    const path = fixedPath(`./${this.profileName}/chests/${chunkPos}.json`)
+    const path = fixedPath(`./${this.profileName}/chests/${this.serverId}/${this.dimention}/${chunkPos}.json`)
     const chunk = this.chestChunks.get(chunkPos)
     const data = JSON.stringify(chunk)
     logger.debug?.(`ChestChunk data length: ${data.length}`)
@@ -573,9 +628,10 @@ class DataManager {
     if (!chunk) return
     const items = new Set(Object.values(chunk.chests).flatMap(v => v.items))
     items.delete(0)
-    if (items.size > 0 || chunkPos in this.chunkItemRecord) {
-      if (items.size === 0) delete this.chunkItemRecord[chunkPos]
-      else this.chunkItemRecord[chunkPos] = [...items]
+    const key = `${this.serverId}/${this.dimention}/${chunkPos}`
+    if (items.size > 0 || key in this.chunkItemRecord) {
+      if (items.size === 0) delete this.chunkItemRecord[key]
+      else this.chunkItemRecord[key] = [...items]
       DataManager.saveJson(`./${this.profileName}/chunk-item_record.json`, this.chunkItemRecord, null)
     }
   }
@@ -586,7 +642,7 @@ class DataManager {
    */
   hasChestChunkData(chunkPos) {
     if (!chunkPosStringRegex.test(chunkPos)) throw new SyntaxError(`Wrong chunkPos syntax! (${chunkPos})`)
-    return FS.isFile(fixedPath(`./${this.profileName}/chests/${chunkPos}.json`))
+    return FS.isFile(fixedPath(`./${this.profileName}/chests/${this.serverId}/${this.dimention}/${chunkPos}.json`))
   }
 
   /**
@@ -633,7 +689,8 @@ class DataManager {
       type: `${type}`,
       slots,
       items: mappedItems,
-      counts
+      counts,
+      time: Time.time()
     }
     this.saveChestChunk(chunkPos)
     logger.debug?.('Container Stored')
@@ -722,7 +779,7 @@ class DataManager {
    * @returns {string[]}
    */
   getAllChunks() {
-    return FS.list(fixedPath(`./${this.profileName}/chests/`))
+    return FS.list(fixedPath(`./${this.profileName}/chests/${this.serverId}/${this.dimention}/`))
       ?.filter(f => f.endsWith('.json'))
       .map(f => f.slice(0, -5))
       .filter(f => chunkPosStringRegex.test(f)) ?? []
@@ -795,15 +852,26 @@ function fixedPath(path = '') {
   return path.includes(':') ? path : dataroot + path
 }
 
+/**
+ * @param {string} id 
+ * @returns {string}
+ */
+function escapeIdentifier(id) {
+  if (id.endsWith('.')) id = id.slice(0, -1) + '_'
+  return id.replaceAll(':', '_').replaceAll('/', '_')
+}
+
 module.exports = DataManager
 
 /**
+ * @typedef {`${string}/${string}/${ChunkPosString}`} FullChunkPath
  * @typedef {`${bigint},${bigint}`} ChunkPosString
  * @typedef {`${bigint},${bigint},${bigint}`} BlockPosString
  * @typedef {{ chests: Record<BlockPosString, ChestData>, ignored: BlockPosString[] }} ChestChunkData
  * @typedef {Object} ChestData
  * @prop {string} type
  * @prop {number} slots
+ * @prop {number} time
  * @prop {readonly number[]} items
  * @prop {readonly number[]} counts
  */

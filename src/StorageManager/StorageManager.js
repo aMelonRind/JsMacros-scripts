@@ -75,6 +75,7 @@ let pos1 = null
 let pos2 = null
 
 InvPosPair.on((inv, pos01, pos02) => {
+  currentProfile?.updateDimention()
   inInv = 0
   currentScreen = inv.getRawContainer()
   rows = Math.ceil(inv.getMap().container.length / 9)
@@ -173,7 +174,7 @@ function setStatus(situation_) {
       // @ts-ignore
       situation[1] = situation[1].slice()
       // @ts-ignore
-      situation[1].push('', `§6Storage: ${currentProfile.profileName}`)
+      situation[1].push('', `§6Storage: ${currentProfile.profileName}`, `§7Path: ${currentProfile.getCurrentPath()}`)
     }
     new StatusElement('minecraft:barrel', ...situation)
       .computePosThenAddTo(currentScreen, pos => statusElementPosition(pos, inInv === 1 ? 0 : -1))
@@ -197,13 +198,16 @@ function setStatus(situation_) {
 JsMacros.on('OpenContainer', JavaWrapper.methodToJavaAsync(e => {
   if (e.inventory.getType() !== 'Survival Inventory' && e.inventory.getType() !== 'Creative Inventory') return
   Client.waitTick()
+  const past = currentProfile
   currentProfile ??= DataManager.getCurrentProfile()
+  if (currentProfile === past) currentProfile?.updateDimention()
   inInv = e.inventory.getType() === 'Survival Inventory' ? 1 : 2
   currentScreen = e.screen
   setStatus()
 }))
 
 JsMacros.on('DimensionChange', JavaWrapper.methodToJavaAsync(() => {
+  Client.waitTick(5)
   currentProfile = World.isWorldLoaded() ? DataManager.getCurrentProfile() : null
   inInv = 0
   currentScreen = null

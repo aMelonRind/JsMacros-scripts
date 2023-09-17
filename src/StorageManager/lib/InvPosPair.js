@@ -3,7 +3,7 @@
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 
 /** @type {Set<BlockId>} */
-const containerBlockIds = new Set([ 'minecraft:chest', 'minecraft:trapped_chest', 'minecraft:barrel' ])
+const containerBlockIds = new Set([ 'minecraft:chest', 'minecraft:trapped_chest', 'minecraft:barrel', 'minecraft:shulker_box' ])
 const otherHalfMap = Object.freeze({
   northright: 'west',
   northleft:  'east',
@@ -17,6 +17,7 @@ const otherHalfMap = Object.freeze({
 
 const Inventory = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory')
 const GenericContainerScreen = Java.type('net.minecraft.class_476')
+const ShulkerBoxScreen = Java.type('net.minecraft.class_495')
 
 class InvPosPair {
 
@@ -43,7 +44,7 @@ class InvPosPair {
 
   static onOpenScreen() {
     const screen = Hud.getOpenScreen()
-    if (!(screen instanceof GenericContainerScreen)) return
+    if (!(screen instanceof GenericContainerScreen) && !(screen instanceof ShulkerBoxScreen)) return
     const inv = Inventory.create(screen)
     const slots = inv.getMap().container?.length
     if (slots !== 27 && slots !== 54) return
