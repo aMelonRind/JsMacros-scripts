@@ -337,6 +337,10 @@ class DataManager {
    */
   profileName
   /**
+   * @type {() => string | null | undefined}
+   */
+  detector
+  /**
    * @type {string}
    * @private
    */
@@ -440,6 +444,7 @@ class DataManager {
     logger.debug?.(`new DataManager("${profileName}"), Loaded items size: ${this.items.size()}`)
     const serverDetectorPath = fixedPath(`./${profileName}/serverDetector.js`)
     if (!FS.isFile(serverDetectorPath)) FS.copy(__dirname + '/defaultServerDetector.js', serverDetectorPath)
+    this.detector = require(serverDetectorPath)
     this.updateDimention()
   }
 
@@ -453,7 +458,7 @@ class DataManager {
     let dimres
     let res
     try {
-      res = require(`../data/${this.profileName}/serverDetector.js`)()
+      res = this.detector()
       if (res !== null && res !== undefined && typeof res !== 'string') throw new Error(`Wrong return type: ${typeof res}`)
       if (typeof res === 'string') verifyName(res, 'server identifier')
     } catch (e) {
