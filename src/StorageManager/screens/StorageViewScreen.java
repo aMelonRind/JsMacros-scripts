@@ -60,6 +60,8 @@ class StorageViewScreen extends ScriptScreen {
   private static final FChat Chat = new FChat();
   private static final OptionsHelper Options = new OptionsHelper(mc.$options);
   private static final Text NO_ITEM_TEXT = Text.$literal("No item");
+  private static final Text LOADING_TEXT = Text.$literal("Loading..");
+  private static final Text SEARCHING_TEXT = Text.$literal("Searching..");
   private static final Text NOT_ENOUGH_SPACE_TEXT = Text.$literal("No Space. Check positionSettings.js");
 
   private final Set elements = new LinkedHashSet();
@@ -69,10 +71,9 @@ class StorageViewScreen extends ScriptScreen {
   private final Item itemRender = new Item(0, 0, 0, "minecraft:air", true, 1.0, 0.0f).setOverlayText("");
   private final ClickableWidgetHelper tooltipConverter = new ClickableWidgetHelper(null);
   private final ItemTextOverlay itemText = new ItemTextOverlay("", 0, 0, 0xFFFFFF, 0, true, 1.0, 0.0f);
-  private final Object loadSync = new Object();
-  private final ArrayList loadedItems = new ArrayList();
+  public double loadProgress = 0.0;
+  public final ArrayList loadedItems = new ArrayList();
   private final ArrayList displayedItems = new ArrayList();
-  private final ArrayList loadedItemsBuffer = new ArrayList();
   private MethodWrapper filterer = null;
   private MethodWrapper sortMethod = null;
   private MethodWrapper onClickItem = null;
@@ -96,6 +97,7 @@ class StorageViewScreen extends ScriptScreen {
   protected void $init() {
     super.$init();
     searchBar = new SearchBar($textRenderer);
+    searchBar.loadProgress = loadProgress;
   }
 
   public void $tick() {
@@ -122,26 +124,11 @@ class StorageViewScreen extends ScriptScreen {
 
   public void setLoadProgress(double progress) {
     if (searchBar != null) searchBar.loadProgress = progress;
+    else loadProgress = progress;
   }
 
-  public void addItem(ItemStackHelper itemStack, long count, int index) {
-    if (itemStack == null) return;
-    synchronized (loadSync) {
-      ItemData item = new ItemData(itemStack);
-      item.addCount(count);
-      item.index = index;
-      int i = loadedItemsBuffer.indexOf(itemStack);
-      if (i != -1) {
-        ((ItemData) loadedItemsBuffer.get(i)).merge(item);
-      } else {
-        loadedItemsBuffer.add(item);
-      }
-      dirty = true;
-    }
-  }
-
-  public void addItem(ItemStackHelper itemStack, long count) {
-    addItem(itemStack, count, -1);
+  public void markDirty() {
+    dirty = true;
   }
 
   public void destroy() {
@@ -153,8 +140,7 @@ class StorageViewScreen extends ScriptScreen {
   }
 
   public void clearItems() {
-    synchronized (loadSync) {
-      loadedItemsBuffer.clear();
+    synchronized (loadedItems) {
       loadedItems.clear();
       displayedItems.clear();
       dirty = false;
@@ -192,22 +178,7 @@ class StorageViewScreen extends ScriptScreen {
   }
 
   public void filterAndSort() {
-    if (!dirty && loadedItemsBuffer.isEmpty()) return;
-    if (!loadedItemsBuffer.isEmpty()) {
-      synchronized (loadSync) {
-        int size = loadedItemsBuffer.size();
-        for (int i = 0; i < size; i++) {
-          ItemData item = (ItemData) loadedItemsBuffer.get(i);
-          int index = loadedItems.indexOf(item);
-          if (index != -1) {
-            ((ItemData) loadedItems.get(index)).addCount(item.count);
-          } else {
-            loadedItems.add(item);
-          }
-        }
-        loadedItemsBuffer.clear();
-      }
-    }
+    if (!dirty) return;
     if (filterer != null) {
       displayedItems.clear();
       int size = loadedItems.size();
@@ -228,7 +199,9 @@ class StorageViewScreen extends ScriptScreen {
     }
     if (sortMethod != null) {
       try {
-        Collections.sort(displayedItems, sortMethod);
+        synchronized (ItemData.infoSync) {
+          Collections.sort(displayedItems, sortMethod);
+        }
         if (sortReversed) Collections.reverse(displayedItems);
       } catch (Throwable e) {
         Chat.log("[StorageViewScreen] Error in sortMethod: " + e.getLocalizedMessage());
@@ -442,7 +415,10 @@ class StorageViewScreen extends ScriptScreen {
     itemsVec.y2 = Math.ceil(itemsVec.y2);
 
     if (items.isEmpty()) {
-      addLabel(itemsVec, NO_ITEM_TEXT, context, mouseX, mouseY, tickDelta);
+      Text text = NO_ITEM_TEXT;
+      if (searchBar.loadProgress <= 1.0) text = LOADING_TEXT;
+      else if (searchBar.searchProgress > 0.0 && searchBar.searchProgress <= 1.0) text = SEARCHING_TEXT;
+      addLabel(itemsVec, text, context, mouseX, mouseY, tickDelta);
       return;
     }
 
@@ -480,8 +456,6 @@ class StorageViewScreen extends ScriptScreen {
     flooredScrolled = (int) Math.floor(scrolled);
 
     int end = Math.min((flooredScrolled + countY) * countX, items.size());
-
-    List loadedItems = List.copyOf(loadedItems);
 
     double guiScale = Options.getVideoOptions().getGuiScale();
     double textScale = Math.ceil((double) guiScale / 2.0) / guiScale;

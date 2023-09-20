@@ -9,6 +9,7 @@ import java.util.List;
 import from_script IItemData;
 
 //# Imports: Fabric
+import net.minecraft.class_1799 as ItemStack;
 import net.minecraft.class_2487 as NbtCompound;
 import net.minecraft.class_2499 as NbtList;
 import net.minecraft.class_2520 as NbtElement;
@@ -19,17 +20,17 @@ const LIST_TYPE      = field_33259;
 const COMPOUND_TYPE  = field_33260;
 const INT_ARRAY_TYPE = field_33261;
 
-const get            = method_10534;
-const getType        = method_10540;
-const getKeys        = method_10541;
-const remove         = method_10551;
-const getList        = method_10554;
-const getString      = method_10558;
-const getCompound    = method_10562;
-const getHeldType    = method_10601;
-const getCompound2   = method_10602;
-const containsUuid   = method_25928;
-const literal        = method_43470;
+const fromNbt      = method_7915;
+const get          = method_10534;
+const getType      = method_10540;
+const getKeys      = method_10541;
+const remove       = method_10551;
+const getList      = method_10554;
+const getString    = method_10558;
+const getCompound  = method_10562;
+const getCompound2 = method_10602;
+const containsUuid = method_25928;
+const literal      = method_43470;
 
 class ItemData extends IItemData {
   private static final Text[] smallCountTexts = new Text[] {
@@ -45,11 +46,11 @@ class ItemData extends IItemData {
     Text.$literal("9")
   };
   private static final String units = "KMBTQ";
-  private final Object infoSync = new Object();
+  public static final Object infoSync = new Object();
   // public final ItemStackHelper item;
   // public int index = -1;
   // public long count = 0L;
-  // public long distance = 0L;
+  // public double distance = -1.0;
   // public BlockPosHelper nearest = null;
 
   private boolean generatedCountText = false;
@@ -129,10 +130,12 @@ class ItemData extends IItemData {
     return nbt;
   }
 
-  public static void unpackShulker(IItemData item) {}
-
   public ItemData(ItemStackHelper item) {
     super(item);
+  }
+
+  public ItemData(NbtCompound nbt) {
+    this(new ItemStackHelper(ItemStack.$fromNbt(nbt)));
   }
 
   public void setCount(long count) {
@@ -152,17 +155,19 @@ class ItemData extends IItemData {
     }
   }
 
-  public void foundAt(BlockPosHelper pos, long distance) {
+  public void foundAt(BlockPosHelper pos, double distance) {
     synchronized (infoSync) {
-      if (this.distance != -1L && distance >= this.distance) return;
+      if (this.distance != -1.0 && distance >= this.distance) return;
       this.distance = distance;
       nearest = pos;
     }
   }
 
-  public void merge(IItemData other) {
+  public IItemData merge(IItemData other) {
     addCount(other.count);
     foundAt(other.nearest, other.distance);
+    if (index == -1) index = other.index;
+    return this;
   }
 
   public Text getCountText(double textScale) {
@@ -204,20 +209,20 @@ class ItemData extends IItemData {
 
   public int compareCount(IItemData other) {
     if (count == other.count) return 0;
-    return (count - other.count < 0L) ? -2 : 2;
+    return (count - other.count < 0L) ? -1 : 1;
   }
 
   public int compareName(IItemData other) {
     int c = item.getName().getString().compareTo(other.item.getName().getString());
     if (c == 0) return 0;
-    return c < 0 ? -2 : 2;
+    return c < 0 ? -1 : 1;
   }
 
   public int compareDistance(IItemData other) {
     if (distance == other.distance) return 0;
-    if (distance == -1L) return 2;
-    if (other.distance == -1L) return -2;
-    return (distance - other.distance < 0L) ? -2 : 2;
+    if (distance == -1.0) return 1;
+    if (other.distance == -1.0) return -1;
+    return (distance - other.distance < 0.0) ? -1 : 1;
   }
 
   public boolean equals(Object o) {

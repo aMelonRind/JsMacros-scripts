@@ -31,6 +31,10 @@ class DataManager {
     FS.makeDir(dataroot)
   }
 
+  static getRoot() {
+    return dataroot
+  }
+
   /**
    * @param {string} id 
    */
@@ -493,6 +497,13 @@ class DataManager {
     }
     const nullIndex = this.items.indexOf(NbtHelper.newNbtCompound())
     this.newItemIndex = nullIndex !== -1 ? nullIndex : this.items.size()
+  }
+
+  /**
+   * @returns {ArrayList<NbtCompound>}
+   */
+  getNbtItemList() {
+    return new java.util.ArrayList(this.items)
   }
 
   /**

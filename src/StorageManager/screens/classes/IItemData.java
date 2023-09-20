@@ -8,7 +8,7 @@ class IItemData {
   public final ItemStackHelper item;
   public int index = -1;
   public long count = 0L;
-  public long distance = -1L;
+  public double distance = -1.0;
   public BlockPosHelper nearest = null;
 
   public IItemData(ItemStackHelper item) {

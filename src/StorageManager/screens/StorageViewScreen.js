@@ -40,9 +40,18 @@ const StorageViewScreenClass = JavaClassBuilder.buildClass(
   }
 )
 
-class StorageViewScreen {
+/**
+ * [source](./classes/ItemsLoader.java)
+ * @type {new (screen: StorageViewScreenInstance, nbtItems: ArrayList, unpackShulker: boolean, chestsPath: Packages.java.nio.file.Path, chunks: string[], playerPos: Pos3D, loadingLabel: Text) => { load(): void }}
+ */// @ts-ignore
+const ItemsLoader = JavaClassBuilder.buildClass(
+  'MelonRind$Class$ItemsLoader', __dirname + '/classes/ItemsLoader.java', {
+    StorageViewScreen: StorageViewScreenClass.class.getTypeName(),
+    ItemData: ItemData.class.getTypeName()
+  }
+)
 
-  static searchText = 'currently is an useless searchbar'
+class StorageViewScreen {
 
   /**
    * @param {IScreen?} parent
@@ -65,7 +74,7 @@ class StorageViewScreen {
     screen.setItemsPositionFunction(await Threads.wrapCallback(itemsPosition))
     screen.setSearchBarPositionFunction(await Threads.wrapCallback(searchBarPosition))
     screen.setSortComparator(await Threads.wrapCallback((a, b) => {
-      return Math.floor(-a.compareCount(b) || a.compareName(b) || a.compareDistance(b))
+      return Math.sign(-a.compareCount(b) || a.compareName(b) || a.compareDistance(b))
     }))
     screen.setOnClickItem(JavaWrapper.methodToJavaAsync((i, btn) => {
       // currently bugged while loading because of guest object variables
@@ -87,84 +96,22 @@ class StorageViewScreen {
       Threads.cleanWrapper()
     }))
 
-    new ItemsLoader(screen, profile, loadingLabel, LoadMethod.RENDER_DISTANCE, null).load(JavaWrapper.methodToJava(() => {
-      // Threads.run(() => Hud.openScreen(screen), {screen})
-    }))
+    const loader = new ItemsLoader(
+      screen,
+      profile.getNbtItemList(),
+      DataManager.Settings.getBoolean('unpackShulker', false),
+      FS.toRawPath(DataManager.getRoot()).resolve(`./${profile.profileName}/chests/${profile.getCurrentPath()}`),
+      profile.getChunksInRenderDistance(),
+      Player.getPlayer().getPos(),
+      loadingLabel
+    )
+
+    // @ts-ignore thanks to javassist, inserting a $ inside class path making itself can't load this class
+    loader.setParser(await Threads.wrapCallback(reader => Java.type('com.google.gson.JsonParser').parseReader(reader)))
+
+    Threads.run(() => loader.load(), { loader }).then(() => Threads.clearSyncObjects())
     
     Hud.openScreen(screen)
-  }
-
-}
-
-class ItemsLoader {
-  
-  /** @private @readonly @type {StorageViewScreenInstance} */ screen
-  /** @private @readonly @type {DataManager} */ profile
-  /** @private @readonly @type {Text} */ loadingLabel
-  /** @private @readonly @type {LoadMethod} */ loadMethod
-  /** @private @readonly @type {object?} */ storageArea
-
-  /** @private @readonly */ unpackShulker = DataManager.Settings.getBoolean('unpackShulker', false)
-  stopped = false
-
-  /**
-   * @param {StorageViewScreenInstance} screen 
-   * @param {DataManager} profile 
-   * @param {Text} loadingLabel
-   * @param {LoadMethod} loadMethod
-   * @param {object?} storageArea
-   */
-  constructor (screen, profile, loadingLabel, loadMethod, storageArea = null) {
-    this.screen = screen
-    this.profile = profile
-    this.loadingLabel = loadingLabel
-    this.loadMethod = loadMethod
-    this.storageArea = storageArea
-  }
-
-  /**
-   * @param {MethodWrapper?} callback 
-   */
-  async load(callback = null) {
-    this.loading = true
-    logger.debug?.('Loading items...')
-    this.stopped = false
-    this.clean()
-    await Threads.escapeThread()
-    const chunks = this.profile.getChunksInRenderDistance() // TODO: more load methods
-    for (const index in chunks) {
-      // await Threads.escapeThread()
-      this.loadingLabel.setText(`Loading Chunk ${chunks[index]} (${index}/${chunks.length})...`)
-      this.screen.setLoadProgress((+index + 1) / chunks.length)
-      if (this.#checkStop()) break
-      const items = this.profile.getItemsInChunk(chunks[index], this.unpackShulker)
-      if (!items) continue
-      if (this.#checkStop()) break
-      for (const item of items.keySet()) {
-        if (this.#checkStop()) break
-        this.screen.addItem(this.profile.getItem(item), items.get(item) ?? 0, item)
-      }
-    }
-    this.screen.setLoadProgress(1.1)
-    this.loadingLabel.setText('')
-    logger.debug?.('Loaded items')
-    this.loading = false
-    callback?.run()
-  }
-
-  #checkStop() {
-    JavaWrapper.deferCurrentTask()
-    if (this.stopped || this.screen.isDestroyed()) return true
-    return false
-  }
-
-  stop(clean = true) {
-    this.stopped = true
-    if (clean) this.clean()
-  }
-
-  clean() {
-    this.loadingLabel.setText('')
   }
 
 }
