@@ -6,4 +6,8 @@
 
 WIP  
 currently can record opened container data and view them.  
+this is designed for vanilla server. for modded server just install [AE2](https://modrinth.com/mod/ae2) or [SS](https://modrinth.com/mod/toms-storage) or something like that.  
 this service doesn't depend on any library outside of this folder.  
+
+as i write more i started thinking it might be easier to just make it into standalone mod...  
+MethodWrapper is assignable to java.util.function.* anyways, still customizable through jsmacros
