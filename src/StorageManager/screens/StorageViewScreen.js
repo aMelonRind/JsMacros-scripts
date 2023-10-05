@@ -74,7 +74,7 @@ class StorageViewScreen {
     screen.setItemsPositionFunction(await Threads.wrapCallback(itemsPosition))
     screen.setSearchBarPositionFunction(await Threads.wrapCallback(searchBarPosition))
     screen.setSortComparator(await Threads.wrapCallback((a, b) => {
-      return Math.sign(-a.compareCount(b) || a.compareName(b) || a.compareDistance(b))
+      return Math.floor(Math.sign(-a.compareCount(b) || a.compareName(b) || a.compareDistance(b)))
     }))
     screen.setOnClickItem(JavaWrapper.methodToJavaAsync((i, btn) => {
       // currently bugged while loading because of guest object variables

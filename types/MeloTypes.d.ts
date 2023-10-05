@@ -14,10 +14,10 @@ type ArrayList<T = any> = Packages.java.util.ArrayList<T>
 type Field = Packages.java.lang.reflect.Field
 type Context = EventContainer
 type ClientPlayer = ClientPlayerEntityHelper
-type Pos2D = PositionCommon$Pos2D
-type Pos3D = PositionCommon$Pos3D
-type Vec2D = PositionCommon$Vec2D
-type Vec3D = PositionCommon$Vec3D
+// type Pos2D = PositionCommon$Pos2D
+// type Pos3D = PositionCommon$Pos3D
+// type Vec2D = PositionCommon$Vec2D
+// type Vec3D = PositionCommon$Vec3D
 type BlockPos = BlockPosHelper // minecraft types isn't installed anyways
 type NbtElement = DummyType<'NbtElement'>
 type NbtCompound = NbtElement & DummyType<'NbtCompound'>
@@ -56,9 +56,9 @@ interface PromisfiedInvMethods {
   waitInterval<R>(cb?: () => R): Promise<R | undefined>
 }
 
-interface UtilWfePromise<E extends keyof Events> extends Promise<FJsMacros$EventAndContext<E>?> {
-  cancel(): void
-}
+// interface UtilWfePromise<E extends keyof Events> extends Promise<FJsMacros$EventAndContext<E>?> {
+//   cancel(): void
+// }
 
 declare namespace Crafting {
 

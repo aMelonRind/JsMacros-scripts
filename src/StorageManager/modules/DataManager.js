@@ -647,7 +647,7 @@ class DataManager {
     const key = `${this.serverId}/${this.dimention}/${chunkPos}`
     if (items.size > 0 || key in this.chunkItemRecord) {
       if (items.size === 0) delete this.chunkItemRecord[key]
-      else this.chunkItemRecord[key] = [...items]
+      else this.chunkItemRecord[key] = [...items].sort()
       DataManager.saveJson(`./${this.profileName}/chunk-item_record.json`, this.chunkItemRecord, null)
     }
   }
