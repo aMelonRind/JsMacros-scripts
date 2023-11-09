@@ -1,4 +1,5 @@
 // @ts-check
+// works like ghost hand and angel block
 JsMacros.assertEvent(event, 'Service')
 module.exports = 0
 /** @type {Key} the key for toggle and config */

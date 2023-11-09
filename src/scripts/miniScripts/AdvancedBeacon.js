@@ -1,4 +1,5 @@
 //@ts-check
+// can freely configure the beacon. for example, speed + haste
 JsMacros.assertEvent(event, 'Service')
 module.exports = 0
 

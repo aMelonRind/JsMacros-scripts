@@ -1,3 +1,5 @@
+// can create an end gateway for current position
+// requires fabric and creative mode or /give command permission
 module.exports = 0
 
 const pos = Player.getPlayer().getPos()
