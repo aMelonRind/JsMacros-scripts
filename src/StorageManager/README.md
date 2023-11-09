@@ -11,3 +11,5 @@ this service doesn't depend on any library outside of this folder.
 
 as i write more i started thinking it might be easier to just make it into [standalone mod](https://github.com/aMelonRind/StorageBrowser)...  
 MethodWrapper is assignable to java.util.function.* anyways, still customizable through jsmacros
+
+after some more thinking i guess i'll make a jsm extension to handle heavy processes instead of standalong
