@@ -1,4 +1,3 @@
 node_modules/
 dist/
 src/StorageManager/data/*
-types/jsm-lib/JsMacros-*.d.ts

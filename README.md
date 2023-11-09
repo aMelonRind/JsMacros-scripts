@@ -1,7 +1,7 @@
 # JsMacros shared script
 <p align="left">
-  <a href="https://github.com/JsMacros/JsMacros"><img src="https://img.shields.io/badge/JsMacros-1.8.3-brightgreen.svg" alt="JsMacros Version"/></a>
-  <a href=""><img src="https://img.shields.io/badge/Minecraft-1.19.2-brightgreen.svg" alt="Minecraft Version"/></a>
+  <a href="https://github.com/JsMacros/JsMacros"><img src="https://img.shields.io/badge/JsMacros-1.9.0%20beta-orange" alt="JsMacros Version"/></a>
+  <a href=""><img src="https://img.shields.io/badge/Minecraft-1.20.2-brightgreen" alt="Minecraft Version"/></a>
 </p>
 
   my scripts that use [JsMacros](https://github.com/JsMacros/JsMacros) to run
