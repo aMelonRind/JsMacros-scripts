@@ -1,6 +1,7 @@
 
 // make loyalty trident come back to offhand if thrown by offhand
-// is service
+JsMacros.assertEvent(event, 'Service')
+module.exports = 0
 
 /** @type {ItemStackHelper=} */
 let heldTrident = undefined

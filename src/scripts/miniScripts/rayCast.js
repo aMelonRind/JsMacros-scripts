@@ -1,7 +1,7 @@
 
 // can show a ray cast in d3d
 // discard the ray by left clicking
-// is key script
+module.exports = 0
 
 const D2R = Math.PI / 180
 
@@ -118,5 +118,3 @@ if (result.coll && result.hitBlock) {
   JsMacros.waitForEvent('Key', JavaWrapper.methodToJava(e => e.key === 'key.mouse.left'))
   d3d.unregister()
 }
-
-module.exports = {}

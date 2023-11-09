@@ -1,19 +1,14 @@
 
 // able to get entity info/item
 // look at entity, use alt + middle mouse to trigger
-// is service
+JsMacros.assertEvent(event, 'Service')
+module.exports = 0
 
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 
-const LivingEntityHelper = Reflection.getClass(
-  'xyz.wagyourtail.jsmacros.client.api.helpers.LivingEntityHelper',
-  'xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.LivingEntityHelper'
-)
+const LivingEntityHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.LivingEntityHelper')
 const NBTElementHelper   = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper')
-const ItemStackHelper    = Reflection.getClass(
-  'xyz.wagyourtail.jsmacros.client.api.helpers.ItemStackHelper',
-  'xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper'
-)
+const ItemStackHelper    = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper')
 const ItemStack          = Java.type('net.minecraft.class_1799')
 
 /** @type {(text: string) => number} mc.textRenderer.getWidth */
@@ -211,5 +206,3 @@ function toSnbt(nbt) {
   nbt = nbt.match(/^[^\{]*(\{.*\})$/)?.[1] ?? ''
   return nbt.startsWith('{{') ? nbt.slice(1, -1) : nbt
 }
-
-module.exports = {}

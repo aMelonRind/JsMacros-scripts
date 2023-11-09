@@ -1,9 +1,10 @@
 
 // just a fun script that will consume bonemeal to plane flowers around you
-// is key script
+JsMacros.assertEvent(event, 'Key')
+module.exports = 0
 
-GlobalVars.putBoolean("GardenerToggle", !
-GlobalVars.getBoolean("GardenerToggle"))
+const toggle = require('../lib/Toggle')
+const logger = require('../lib/Logger')
 
 const d3d = Hud.createDraw3D()
 const worldHeight = World.getDimension() === 'minecraft:overworld' ? [-64, 319] : [0, 255]
@@ -14,15 +15,15 @@ const grass = []
 let lastPpos = Player.getPlayer().getBlockPos()
 let done = false
 
-if (GlobalVars.getBoolean('GardenerToggle')) {
-  Chat.log('[Gardener] started')
+if (toggle.check()) {
+  logger.log('started')
   d3d.register()
-  while (GlobalVars.getBoolean('GardenerToggle')) {
+  while (toggle.check()) {
     plant()
     Time.sleep(10)
   }
   d3d.unregister()
-  Chat.log('[Gardener] stopped')
+  logger.log('stopped')
 }
 
 function plant() {
@@ -138,5 +139,3 @@ function pick(slot, items) {
   Chat.actionbar(`Can't find ${items.join(' or ').replace(/_/g, ' ')} in your inventory.`, false)
   return false
 }
-
-module.exports = {}

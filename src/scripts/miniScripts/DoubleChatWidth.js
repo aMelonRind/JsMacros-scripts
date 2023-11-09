@@ -1,6 +1,7 @@
 
 // will widen the chat if focused
-// is service
+JsMacros.assertEvent(event, 'Service')
+module.exports = 0
 
 const multiplier = 2.0
 
@@ -38,5 +39,3 @@ function setWidth(value) {
   optionValue.set(widthOption, new Double(value))
   Chat.getHistory().refreshVisible()
 }
-
-module.exports = {}

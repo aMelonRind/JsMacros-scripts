@@ -1,7 +1,8 @@
 // @ts-nocheck
 // support ended, can find some useful methods here
 // config at Line 89
-// is service
+JsMacros.assertEvent(event, 'Service')
+module.exports = 0
 
 const maxSize = 128 - 1
 const CreativeInventoryActionC2SPacket = Java.type('net.minecraft.class_2873')
@@ -399,5 +400,3 @@ function RayTrace(pos = P2A(Player.getPlayer().getPos().add(0, Player.getPlayer(
   }
 }
 */
-
-module.exports = {}

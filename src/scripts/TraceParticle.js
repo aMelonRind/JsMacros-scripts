@@ -1,8 +1,7 @@
 
 // can draw lines from crosshair to particles (damage particle in this script)
-// is service
+JsMacros.assertEvent(event, 'Service')
 
-const { newLine } = require('../lib/TraceLine')
 // field_17832	NO_RENDER
 // field_17831	CUSTOM
 // field_17830	PARTICLE_SHEET_LIT
@@ -26,21 +25,35 @@ xF.setAccessible(true)
 yF.setAccessible(true)
 zF.setAccessible(true)
 
+const d3d = Hud.createDraw3D().register()
+/** @type {Map<Particle, TraceLine>} */
+const particles = new Map()
+
 JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
+  for (const p of particles.keys()) {
+    const line = particles.get(p)
+    if (!line) {
+      particles.delete(p)
+      continue
+    }
+    if (!p.method_3086()) { // .isAlive()
+      d3d.removeTraceLine(line)
+      particles.delete(p)
+      continue
+    }
+    line.setPos(xF.get(p), yF.get(p), zF.get(p))
+  }
   /** @type {JavaArray<*>} */
   const pArr = particlesF.get(ParticleManager)?.get(pSheet)?.toArray()
   pArr?.forEach((p, i) => {
     if (i > 4096) p.method_3085() // .markDead()
     if (ageF.get(p) > 1) return // sometimes is 0, sometimes is 1
     if (!(p instanceof DamageParticle)) return
-    newLine(0xFFEE00, l => {
-      // @ts-ignore
-      if (!p.method_3086()) return l.remove = true // .isAlive()
-      l.x = xF.get(p)
-      l.y = yF.get(p)
-      l.z = zF.get(p)
-    })
+    if (particles.has(p)) return
+    particles.set(p, d3d.addTraceLine(xF.get(p), yF.get(p), zF.get(p), 0xFFEE00))
   })
 }))
+
+event.stopListener = JavaWrapper.methodToJava(() => d3d.unregister())
 
 module.exports = {}

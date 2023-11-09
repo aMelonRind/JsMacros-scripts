@@ -1,37 +1,25 @@
-
+// @ts-check
 // draw lines to drowned
 // if notify is true, play trident return sound and request attention when found a drowned with trident
 // and play trident channeling sound when a trident item is dropped
-// is service
 
 const notify = true
 
-const { newLine, traceEntityBuilder } = require('../lib/TraceLine')
-const { requestAttention } = require('../lib/GLFW')
+const DrownedEntityHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.mob.DrownedEntityHelper')
+const requestAttention = notify ? require('../lib/GLFW').requestAttention : null
 
-if (World.isWorldLoaded()) Java.from(World.getEntities()).forEach(check)
-
-JsMacros.on('EntityLoad', JavaWrapper.methodToJava(e => check(e.entity)))
-
-/** @param {EntityHelper} e */
-function check(e) {
-  if (e.getType() === 'minecraft:drowned') {
-    if (e.getMainHand().getItemId() === 'minecraft:trident'
-    ||  e.getOffHand().getItemId() === 'minecraft:trident'
-    ) {
-      // this 56 is for wacky spawn distance on the server i'm playing on.
-      if (notify && Player.getPlayer().getPos().toVector(e.getPos()).getMagnitude() < 56) {
+require('../lib/SimpleTraceEntity').trace(0, function (e) {
+  if (e instanceof DrownedEntityHelper) {
+    if (e.hasTrident()) {
+      if (notify) { // && Player.getPlayer().getPos().toVector(e.getPos()).getMagnitude() < 56
         World.playSound('minecraft:item.trident.return', 2)
-        requestAttention()
+        requestAttention?.()
       }
-      newLine(0xFFFF00, traceEntityBuilder(e))
-    } else newLine(0x00FFFF, traceEntityBuilder(e))
-  } else if (e.getType() === 'minecraft:item'
-  && e.asItem().getContainedItemStack().getItemId() === 'minecraft:trident'
-  // && e.getRaw().method_18798().field_1351 === 0.2 // .getVelocity().y
-  ) {
-    // Chat.log(`[Debug] VelocityY: ${e.getRaw().method_18798().field_1351}`)
+      this.builder.color(0xFFFF00)
+    } else this.builder.color(0x00FFFF)
+    return true
+  } else if (e.getType() === 'minecraft:item' && e.asItem().getContainedItemStack().getItemId() === 'minecraft:trident') {
     e.setGlowing(true).setGlowingColor(0xFFFF00)
     if (notify) World.playSound('minecraft:item.trident.thunder', 1, 1, e.getX(), e.getY(), e.getZ())
   }
-}
+}).registerStopListener().enableDimensionClear()

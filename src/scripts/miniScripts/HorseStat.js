@@ -1,6 +1,7 @@
 
 // show horse stat when you look at it
-// is service
+JsMacros.assertEvent(event, 'Service')
+module.exports = 0
 
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 const d2d = Hud.createDraw2D()
@@ -64,7 +65,7 @@ d2d.setOnInit(JavaWrapper.methodToJava(() => {
 }))
 
 JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
-  const horse = Player.rayTraceEntity()
+  const horse = Player.getInteractionManager().getTargetedEntity()
   if (horseid && (horse?.getUUID() === horseid)) return keep = 8
   if (horse?.getType() !== 'minecraft:horse')
     if (!horseid || keep-- > 0) return
@@ -124,5 +125,3 @@ JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
 event.stopListener = JavaWrapper.methodToJava(() => {
   if (horseid) d2d.unregister()
 })
-
-module.exports = {}

@@ -1,6 +1,7 @@
 // @ts-nocheck
 // show armor, hand and inventory space info
-// is service
+JsMacros.assertEvent(event, 'Service')
+module.exports = 0
 
 /** @type {(width: int, height: int) => {x: int, y: int}} */
 const POSITION = (width, height) => ({
@@ -219,5 +220,3 @@ JsMacros.on('OpenScreen', JavaWrapper.methodToJava(e => {
 event.stopListener = JavaWrapper.methodToJava(() => {
   d2d.unregister()
 })
-
-module.exports = {}

@@ -1,6 +1,7 @@
 
 // able to know the locations and distance of leashed mobs
-// is service
+JsMacros.assertEvent(event, 'Service')
+module.exports = 0
 
 const warnOrange     = 8    ** 2
 const warnRed        = 10   ** 2
@@ -91,5 +92,3 @@ class LeashedMob {
     return true
   }
 }
-
-module.exports = {}

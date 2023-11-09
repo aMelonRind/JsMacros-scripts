@@ -6,9 +6,9 @@
  *  bpos: looking at block pos
  *  cpos: camera pos, for freecam
  * add a comma (,) to separate with comma
- * 
- * is service script
  */
+JsMacros.assertEvent(event, 'Service')
+module.exports = 0
 
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 
@@ -346,5 +346,3 @@ function getF(f, name) {
  * @typedef {Packages.java.lang.reflect.Field} Field
  * @typedef {Packages.java.lang.reflect.AccessibleObject} AccessibleObject
  */
-
-module.exports = {}

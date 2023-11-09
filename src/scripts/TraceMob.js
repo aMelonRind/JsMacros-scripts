@@ -1,21 +1,4 @@
 
 // can draw lines from crosshair to mob
-// is service
 
-const { newLine, traceEntityBuilder } = require('../lib/TraceLine')
-
-if (World.isWorldLoaded()) Java.from(World.getEntities()).forEach(check)
-
-JsMacros.on('EntityLoad', JavaWrapper.methodToJava(e => check(e.entity)))
-
-/**
- * @param {EntityHelper} e 
- * @returns 
- */
-function check(e) {
-  // if (Player.getPlayer().getRaw().equals(e.getRaw())) return
-  if (!e.getType().endsWith(':sheep')) return
-  newLine(0x00FFFF, traceEntityBuilder(e))
-}
-
-module.exports = {}
+require('../lib/SimpleTraceEntity').trace(0x00FFFF, 'minecraft:donkey', true).registerStopListener()

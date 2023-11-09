@@ -1,7 +1,8 @@
 
 // long distance build on plane
 // requires /setblock perm
-// is service
+JsMacros.assertEvent(event, 'Service')
+module.exports = 0
 
 const BlockPosHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.BlockPosHelper')
 /** @type {(pos: Record<"getX" | "getY" | "getZ", () => number>) => Pos3DTuple} */
@@ -167,5 +168,3 @@ function jump(axis, to, cull = false, vec = lookToVec(), pos = P2A(p.getPos().ad
   }
   return result
 }
-
-module.exports = {}
