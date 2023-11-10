@@ -17,14 +17,22 @@ class Logger {
       .build()
   }
 
+  wrap(msg, separator = ' ') {
+    return Chat.createTextBuilder().append(this.prefix).append(separator).append(msg).build()
+  }
+
+  actionbar(msg) {
+    Chat.actionbar(this.wrap(msg))
+  }
+
   log(msg) {
-    const text = Chat.createTextBuilder().append(this.prefix).append(' ').append(msg).build()
+    const text = this.wrap(msg)
     Chat.log(text)
     this.internalLogger.info(text.getString())
   }
 
   #debug(msg) {
-    const text = Chat.createTextBuilder().append(this.prefix).append('[debug] ').append(msg).build()
+    const text = this.wrap(msg, '[debug] ')
     Chat.log(text)
     this.internalLogger.debug(text.getString())
   }
