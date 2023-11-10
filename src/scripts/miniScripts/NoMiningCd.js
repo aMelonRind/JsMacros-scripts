@@ -2,10 +2,10 @@
 JsMacros.assertEvent(event, 'Service')
 module.exports = 0
 
+let im = Player.getInteractionManager()?.getRaw()
+
 const cdf = Reflection.getDeclaredField(im.getClass(), 'field_3716')
 cdf.setAccessible(true)
-
-let im = Player.getInteractionManager()?.getRaw()
 
 JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
   if (im) cdf.set(im, 0)
