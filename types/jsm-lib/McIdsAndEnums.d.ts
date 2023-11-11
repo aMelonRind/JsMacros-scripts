@@ -4493,7 +4493,7 @@ type EntityIdToTypeMap = {
   'minecraft:piglin': PiglinEntityHelper
   'minecraft:piglin_brute': AbstractPiglinEntityHelper
   'minecraft:pillager': PillagerEntityHelper
-  'minecraft:player': EntityHelper
+  'minecraft:player': PlayerEntityHelper
   'minecraft:polar_bear': PolarBearEntityHelper
   'minecraft:potion': EntityHelper
   'minecraft:pufferfish': PufferfishEntityHelper
