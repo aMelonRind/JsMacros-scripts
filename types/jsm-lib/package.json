@@ -1,8 +1,0 @@
-{
-  "name": "@types/jsm",
-  "version": "1.9.0",
-  "description": "TypeScript definitions pack for JsMacros",
-  "homepage": "https://github.com/JsMacros/JsMacros/releases",
-  "license": "MIT",
-  "types": "index.d.ts"
-}
