@@ -4411,132 +4411,136 @@ type BlockTag =
 | 'minecraft:wool'
 | 'minecraft:wool_carpets'
 
-//@RegistryHelper getEntityTypeIds
-type EntityId =
-| 'minecraft:allay'
-| 'minecraft:area_effect_cloud'
-| 'minecraft:armor_stand'
-| 'minecraft:arrow'
-| 'minecraft:axolotl'
-| 'minecraft:bat'
-| 'minecraft:bee'
-| 'minecraft:blaze'
-| 'minecraft:block_display'
-| 'minecraft:boat'
-| 'minecraft:camel'
-| 'minecraft:cat'
-| 'minecraft:cave_spider'
-| 'minecraft:chest_boat'
-| 'minecraft:chest_minecart'
-| 'minecraft:chicken'
-| 'minecraft:cod'
-| 'minecraft:command_block_minecart'
-| 'minecraft:cow'
-| 'minecraft:creeper'
-| 'minecraft:dolphin'
-| 'minecraft:donkey'
-| 'minecraft:dragon_fireball'
-| 'minecraft:drowned'
-| 'minecraft:egg'
-| 'minecraft:elder_guardian'
-| 'minecraft:end_crystal'
-| 'minecraft:ender_dragon'
-| 'minecraft:ender_pearl'
-| 'minecraft:enderman'
-| 'minecraft:endermite'
-| 'minecraft:evoker'
-| 'minecraft:evoker_fangs'
-| 'minecraft:experience_bottle'
-| 'minecraft:experience_orb'
-| 'minecraft:eye_of_ender'
-| 'minecraft:falling_block'
-| 'minecraft:fireball'
-| 'minecraft:firework_rocket'
-| 'minecraft:fishing_bobber'
-| 'minecraft:fox'
-| 'minecraft:frog'
-| 'minecraft:furnace_minecart'
-| 'minecraft:ghast'
-| 'minecraft:giant'
-| 'minecraft:glow_item_frame'
-| 'minecraft:glow_squid'
-| 'minecraft:goat'
-| 'minecraft:guardian'
-| 'minecraft:hoglin'
-| 'minecraft:hopper_minecart'
-| 'minecraft:horse'
-| 'minecraft:husk'
-| 'minecraft:illusioner'
-| 'minecraft:interaction'
-| 'minecraft:iron_golem'
-| 'minecraft:item'
-| 'minecraft:item_display'
-| 'minecraft:item_frame'
-| 'minecraft:leash_knot'
-| 'minecraft:lightning_bolt'
-| 'minecraft:llama'
-| 'minecraft:llama_spit'
-| 'minecraft:magma_cube'
-| 'minecraft:marker'
-| 'minecraft:minecart'
-| 'minecraft:mooshroom'
-| 'minecraft:mule'
-| 'minecraft:ocelot'
-| 'minecraft:painting'
-| 'minecraft:panda'
-| 'minecraft:parrot'
-| 'minecraft:phantom'
-| 'minecraft:pig'
-| 'minecraft:piglin'
-| 'minecraft:piglin_brute'
-| 'minecraft:pillager'
-| 'minecraft:player'
-| 'minecraft:polar_bear'
-| 'minecraft:potion'
-| 'minecraft:pufferfish'
-| 'minecraft:rabbit'
-| 'minecraft:ravager'
-| 'minecraft:salmon'
-| 'minecraft:sheep'
-| 'minecraft:shulker'
-| 'minecraft:shulker_bullet'
-| 'minecraft:silverfish'
-| 'minecraft:skeleton'
-| 'minecraft:skeleton_horse'
-| 'minecraft:slime'
-| 'minecraft:small_fireball'
-| 'minecraft:sniffer'
-| 'minecraft:snow_golem'
-| 'minecraft:snowball'
-| 'minecraft:spawner_minecart'
-| 'minecraft:spectral_arrow'
-| 'minecraft:spider'
-| 'minecraft:squid'
-| 'minecraft:stray'
-| 'minecraft:strider'
-| 'minecraft:tadpole'
-| 'minecraft:text_display'
-| 'minecraft:tnt'
-| 'minecraft:tnt_minecart'
-| 'minecraft:trader_llama'
-| 'minecraft:trident'
-| 'minecraft:tropical_fish'
-| 'minecraft:turtle'
-| 'minecraft:vex'
-| 'minecraft:villager'
-| 'minecraft:vindicator'
-| 'minecraft:wandering_trader'
-| 'minecraft:warden'
-| 'minecraft:witch'
-| 'minecraft:wither'
-| 'minecraft:wither_skeleton'
-| 'minecraft:wither_skull'
-| 'minecraft:wolf'
-| 'minecraft:zoglin'
-| 'minecraft:zombie'
-| 'minecraft:zombie_horse'
-| 'minecraft:zombie_villager'
-| 'minecraft:zombified_piglin'
+//@Custom
+type EntityId = keyof EntityIdToTypeMap;
+type EntityTypeFromId<E extends EntityId> = EntityIdToTypeMap[CompleteNamespace<E>] extends infer R ?
+  EntityIdToTypeMap[EntityId] extends R ? EntityHelper : R : never;
+type EntityIdToTypeMap = {
+  'minecraft:allay': AllayEntityHelper
+  'minecraft:area_effect_cloud': EntityHelper
+  'minecraft:armor_stand': ArmorStandEntityHelper
+  'minecraft:arrow': ArrowEntityHelper
+  'minecraft:axolotl': AxolotlEntityHelper
+  'minecraft:bat': BatEntityHelper
+  'minecraft:bee': BeeEntityHelper
+  'minecraft:blaze': BlazeEntityHelper
+  'minecraft:block_display': EntityHelper
+  'minecraft:boat': BoatEntityHelper
+  'minecraft:camel': AbstractHorseEntityHelper
+  'minecraft:cat': CatEntityHelper
+  'minecraft:cave_spider': SpiderEntityHelper
+  'minecraft:chest_boat': BoatEntityHelper
+  'minecraft:chest_minecart': EntityHelper
+  'minecraft:chicken': AnimalEntityHelper
+  'minecraft:cod': FishEntityHelper
+  'minecraft:command_block_minecart': EntityHelper
+  'minecraft:cow': AnimalEntityHelper
+  'minecraft:creeper': CreeperEntityHelper
+  'minecraft:dolphin': DolphinEntityHelper
+  'minecraft:donkey': DonkeyEntityHelper
+  'minecraft:dragon_fireball': EntityHelper
+  'minecraft:drowned': DrownedEntityHelper
+  'minecraft:egg': EntityHelper
+  'minecraft:elder_guardian': GuardianEntityHelper
+  'minecraft:end_crystal': EndCrystalEntityHelper
+  'minecraft:ender_dragon': EnderDragonEntityHelper
+  'minecraft:ender_pearl': EntityHelper
+  'minecraft:enderman': EndermanEntityHelper
+  'minecraft:endermite': LivingEntityHelper
+  'minecraft:evoker': SpellcastingIllagerEntityHelper
+  'minecraft:evoker_fangs': EntityHelper
+  'minecraft:experience_bottle': EntityHelper
+  'minecraft:experience_orb': EntityHelper
+  'minecraft:eye_of_ender': EntityHelper
+  'minecraft:falling_block': EntityHelper
+  'minecraft:fireball': EntityHelper
+  'minecraft:firework_rocket': EntityHelper
+  'minecraft:fishing_bobber': FishingBobberEntityHelper
+  'minecraft:fox': FoxEntityHelper
+  'minecraft:frog': FrogEntityHelper
+  'minecraft:furnace_minecart': FurnaceMinecartEntityHelper
+  'minecraft:ghast': GhastEntityHelper
+  'minecraft:giant': LivingEntityHelper
+  'minecraft:glow_item_frame': ItemFrameEntityHelper
+  'minecraft:glow_squid': LivingEntityHelper
+  'minecraft:goat': GoatEntityHelper
+  'minecraft:guardian': GuardianEntityHelper
+  'minecraft:hoglin': AnimalEntityHelper
+  'minecraft:hopper_minecart': EntityHelper
+  'minecraft:horse': HorseEntityHelper
+  'minecraft:husk': ZombieEntityHelper
+  'minecraft:illusioner': SpellcastingIllagerEntityHelper
+  'minecraft:interaction': EntityHelper
+  'minecraft:iron_golem': IronGolemEntityHelper
+  'minecraft:item': ItemEntityHelper
+  'minecraft:item_display': EntityHelper
+  'minecraft:item_frame': ItemFrameEntityHelper
+  'minecraft:leash_knot': EntityHelper
+  'minecraft:lightning_bolt': EntityHelper
+  'minecraft:llama': LlamaEntityHelper
+  'minecraft:llama_spit': EntityHelper
+  'minecraft:magma_cube': SlimeEntityHelper
+  'minecraft:marker': EntityHelper
+  'minecraft:minecart': EntityHelper
+  'minecraft:mooshroom': MooshroomEntityHelper
+  'minecraft:mule': DonkeyEntityHelper
+  'minecraft:ocelot': OcelotEntityHelper
+  'minecraft:painting': PaintingEntityHelper
+  'minecraft:panda': PandaEntityHelper
+  'minecraft:parrot': ParrotEntityHelper
+  'minecraft:phantom': PhantomEntityHelper
+  'minecraft:pig': PigEntityHelper
+  'minecraft:piglin': PiglinEntityHelper
+  'minecraft:piglin_brute': AbstractPiglinEntityHelper
+  'minecraft:pillager': PillagerEntityHelper
+  'minecraft:player': EntityHelper
+  'minecraft:polar_bear': PolarBearEntityHelper
+  'minecraft:potion': EntityHelper
+  'minecraft:pufferfish': PufferfishEntityHelper
+  'minecraft:rabbit': RabbitEntityHelper
+  'minecraft:ravager': LivingEntityHelper
+  'minecraft:salmon': FishEntityHelper
+  'minecraft:sheep': SheepEntityHelper
+  'minecraft:shulker': ShulkerEntityHelper
+  'minecraft:shulker_bullet': EntityHelper
+  'minecraft:silverfish': LivingEntityHelper
+  'minecraft:skeleton': LivingEntityHelper
+  'minecraft:skeleton_horse': AbstractHorseEntityHelper
+  'minecraft:slime': SlimeEntityHelper
+  'minecraft:small_fireball': EntityHelper
+  'minecraft:sniffer': AnimalEntityHelper
+  'minecraft:snow_golem': SnowGolemEntityHelper
+  'minecraft:snowball': EntityHelper
+  'minecraft:spawner_minecart': EntityHelper
+  'minecraft:spectral_arrow': EntityHelper
+  'minecraft:spider': SpiderEntityHelper
+  'minecraft:squid': LivingEntityHelper
+  'minecraft:stray': LivingEntityHelper
+  'minecraft:strider': StriderEntityHelper
+  'minecraft:tadpole': FishEntityHelper
+  'minecraft:text_display': EntityHelper
+  'minecraft:tnt': EntityHelper
+  'minecraft:tnt_minecart': TntMinecartEntityHelper
+  'minecraft:trader_llama': LlamaEntityHelper
+  'minecraft:trident': TridentEntityHelper
+  'minecraft:tropical_fish': TropicalFishEntityHelper
+  'minecraft:turtle': AnimalEntityHelper
+  'minecraft:vex': VexEntityHelper
+  'minecraft:villager': VillagerEntityHelper
+  'minecraft:vindicator': VindicatorEntityHelper
+  'minecraft:wandering_trader': MerchantEntityHelper
+  'minecraft:warden': WardenEntityHelper
+  'minecraft:witch': WitchEntityHelper
+  'minecraft:wither': WitherEntityHelper
+  'minecraft:wither_skeleton': LivingEntityHelper
+  'minecraft:wither_skull': WitherSkullEntityHelper
+  'minecraft:wolf': WolfEntityHelper
+  'minecraft:zoglin': LivingEntityHelper
+  'minecraft:zombie': ZombieEntityHelper
+  'minecraft:zombie_horse': AbstractHorseEntityHelper
+  'minecraft:zombie_villager': ZombieVillagerEntityHelper
+  'minecraft:zombified_piglin': ZombieEntityHelper
+}
 
 //@Eval world.method_8433().method_8126().toArray().map(r => r.toString())
 type RecipeId =

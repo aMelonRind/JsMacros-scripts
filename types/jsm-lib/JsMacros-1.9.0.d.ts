@@ -2016,7 +2016,7 @@ declare namespace World {
      * @return all entities in the render distance, that match the specified entity type.
      * @since 1.8.4
      */
-    function getEntities(...types: CanOmitNamespace<EntityId>[]): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>>;
+    function getEntities<E extends CanOmitNamespace<EntityId>>(...types: E[]): JavaList<EntityTypeFromId<E>>;
 
     /**
      * @param distance the maximum distance to search for entities
@@ -2031,7 +2031,7 @@ declare namespace World {
      * @return a list of entities within the specified distance to the player, that match the specified entity type.
      * @since 1.8.4
      */
-    function getEntities(distance: double, ...types: CanOmitNamespace<EntityId>[]): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>>;
+    function getEntities<E extends CanOmitNamespace<EntityId>>(distance: double, ...types: E[]): JavaList<EntityTypeFromId<E>>;
 
     /**
      * @param filter the entity filter
@@ -2056,7 +2056,7 @@ declare namespace World {
      * @return the current dimension.
      * @since 1.1.2
      */
-    function getDimension(): string;
+    function getDimension(): Dimension;
 
     /**
      * @return the current biome.
@@ -30867,7 +30867,7 @@ declare namespace Packages {
                              * @return an {@link EntityHelper} for the given entity.
                              * @since 1.8.4
                              */
-                            getEntity(type: CanOmitNamespace<EntityId>): xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
+                            getEntity<E extends CanOmitNamespace<EntityId>>(type: E): EntityTypeFromId<E>;
 
                             /**
                              * @param type the id of the entity's type
@@ -38277,11 +38277,39 @@ declare namespace Packages {
                                 scanSphereArea(x: double, y: double, z: double, radius: double): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
 
                                 /**
+                                 * scan area in blocks
+                                 * @param pos1 first pos, inclusive
+                                 * @param pos2 second pos, inclusive
+                                 * @since 1.9.0
+                                 */
+                                scanCubeAreaInclusive(pos1: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, pos2: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
+                                 * scan area in blocks
+                                 * @param x1 first x coordinate, inclusive
+                                 * @param y1 first y coordinate, inclusive
+                                 * @param z1 first z coordinate, inclusive
+                                 * @param x2 second x coordinate, inclusive
+                                 * @param y2 second y coordinate, inclusive
+                                 * @param z2 second z coordinate, inclusive
+                                 * @since 1.9.0
+                                 */
+                                scanCubeAreaInclusive(x1: int, y1: int, z1: int, x2: int, y2: int, z2: int): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
                                  * scan around with player pos and player reach.<br>  
                                  *  this doesn't filter out positions that has obstacle.
                                  * @since 1.9.0
                                  */
                                 scanReachable(): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
+                                 * scan around with player pos and player reach.<br>  
+                                 *  this doesn't filter out positions that has obstacle.
+                                 * @param strict if it should check for block outline instead of full cube, default is true
+                                 * @since 1.9.0
+                                 */
+                                scanReachable(strict: boolean): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
 
                                 /**
                                  * scan around with the given pos and player reach.<br>  
@@ -38313,6 +38341,13 @@ declare namespace Packages {
                                  * @since 1.9.0
                                  */
                                 scanClosestReachable(): xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D | null;
+
+                                /**
+                                 * scan around with player pos and player reach, and return the closest one.<br>  
+                                 *  this doesn't filter out positions that has obstacle.
+                                 * @since 1.9.0
+                                 */
+                                scanClosestReachable(strict: boolean): xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D | null;
 
                                 /**
                                  * scan around with player pos and player reach, and return the closest one.<br>  
@@ -42640,8 +42675,8 @@ declare namespace Packages {
                                 getNBT(): xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper$NBTCompoundHelper | null;
                                 /** @since 1.1.3 */
                                 getCreativeTab(): JavaList<xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper>;
-                                /** @deprecated */
-                                getItemID(): ItemId;
+                                // /** @deprecated */
+                                // getItemID(): ItemId;
                                 /** @since 1.6.4 */
                                 getItemId(): ItemId;
                                 /** @since 1.8.2 */
@@ -46555,6 +46590,12 @@ declare namespace Packages {
                                      * @return the type of the entity.
                                      */
                                     getType(): EntityId;
+
+                                    /**
+                                     * checks if this entity type equals to any of the specified types<br>
+                                     * @since 1.9.0
+                                     */
+                                    is<E extends CanOmitNamespace<EntityId>>(...types: E[]): this is EntityTypeFromId<E>;
 
                                     /**
                                      * @return if the entity has the glowing effect.
