@@ -15,9 +15,16 @@ class Toggle {
   /**
    * same as Client.waitTick(ticks), but short circuits when check() is false 
    * @param {int} ticks 
+   * @param {(() => any)?} [stopCondition]
+   * @param {(() => any)?} [stopConditionOnSec]
    */
-  checkWhileWait(ticks) {
-    while (ticks-- > 0 && this.check()) Client.waitTick()
+  checkWhileWait(ticks, stopCondition, stopConditionOnSec) {
+    while (ticks-- > 0
+      && this.check()
+      && !stopCondition?.()
+      && !(stopConditionOnSec && !(ticks % 20) && stopConditionOnSec?.())
+    ) Client.waitTick()
+    return this.check()
   }
 
   /**
@@ -62,7 +69,7 @@ if (contexts.length === 0) {
   if (stopRequests > 1) {
     const logger = require('./Logger')
     if (stopRequests === 2) {
-      logger.log(`There's ${contexts.length} open contexts!`)
+      logger.log(`There's ${contexts.length} open context${contexts.length === 1 ? '' : 's'}!`)
       logger.log(`Click again to attempt to forcefully close them. Might cause unexpected behavior!`)
     } else {
       for (const context of contexts) context.closeContext()

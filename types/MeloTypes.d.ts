@@ -11,6 +11,7 @@ type Condition<A extends [...any] = []> = (...args: A) => any
 type DummyType<C extends string> = JavaObject & Record<` $ts_className_${C}`, C> & { [key: string]: any }
 
 type ArrayList<T = any> = Packages.java.util.ArrayList<T>
+type HashMap<K = any, V = any> = Packages.java.util.HashMap<K, V>
 type Field = Packages.java.lang.reflect.Field
 type ClientPlayer = ClientPlayerEntityHelper
 type BlockPos = BlockPosHelper // minecraft types isn't installed anyways
@@ -20,14 +21,15 @@ type NbtElement = DummyType<'NbtElement'>
 type NbtCompound = NbtElement & DummyType<'NbtCompound'>
 type NbtList = NbtElement & DummyType<'NbtList'>
 
+type Axis = 'x' | 'y' | 'z'
 type Pos3DTuple = [number, number, number]
 
 type Pos3DLike =
 | Pos3D
 | number[]
 | Pos3DTuple
-| Record<'x' | 'y' | 'z', number>
-| Record<'getX' | 'getY' | 'getZ', () => number>
+| Record<Axis, number>
+| Record<`get${Uppercase<Axis>}`, () => number>
 
 interface InfoInventory extends Inventory {
   /** @deprecated */ quick(n: never): never
