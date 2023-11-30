@@ -26,7 +26,6 @@ const prefix = Chat.createTextBuilder()
 /** @type {MethodWrapper<Events.MouseScroll, EventContainer>} */
 const scrollCallback = JavaWrapper.methodToJava(e => {
   if (!state || !pressed || e.deltaY === 0) return
-  // @ts-ignore
   e.cancel()
   configuring = true
   const decreasing = e.deltaY < 0
