@@ -31809,6 +31809,12 @@ declare namespace Packages {
                                 getType(): ScreenName;
 
                                 /**
+                                 * checks if this inventory type equals to any of the specified types<br>
+                                 * @since 1.9.0
+                                 */
+                                is<T extends ScreenName>(...types: T[]): this is T extends keyof InvNameToTypeMap ? InvNameToTypeMap[keyof InvNameToTypeMap] extends InvNameToTypeMap[T] ? Inventory : InvNameToTypeMap[T] : this;
+
+                                /**
                                  * @return the inventory mappings different depending on the type of open container/inventory.
                                  * @since 1.1.3
                                  */
@@ -52192,6 +52198,7 @@ type HandledScreenName = | `${ 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 } Row Chest`
 | 'Horse'
 | 'Creative Inventory'
 | 'Chat'
+| string & {}
 | 'unknown'
 type HealSource = DamageSource;
 type IllagerSpell = 'NONE' | 'SUMMON_VEX' | 'FANGS' | 'WOLOLO' | 'DISAPPEAR' | 'BLINDNESS' | 'ERROR';
@@ -52235,6 +52242,37 @@ declare namespace InvMapType {
     | Smithing
     | Grindstone
     | CartographyTable
+}
+type InvNameToTypeMap = {
+    '1 Row Chest': ContainerInventory;
+    '2 Row Chest': ContainerInventory;
+    '3 Row Chest': ContainerInventory;
+    '4 Row Chest': ContainerInventory;
+    '5 Row Chest': ContainerInventory;
+    '6 Row Chest': ContainerInventory;
+    '7 Row Chest': ContainerInventory;
+    '8 Row Chest': ContainerInventory;
+    '9 Row Chest': ContainerInventory;
+    '3x3 Container': ContainerInventory;
+    'Anvil': AnvilInventory;
+    'Beacon': BeaconInventory;
+    'Blast Furnace': FurnaceInventory;
+    'Brewing Stand': BrewingStandInventory;
+    'Crafting Table': CraftingInventory;
+    'Enchanting Table': EnchantInventory;
+    'Furnace': FurnaceInventory;
+    'Grindstone': GrindStoneInventory;
+    'Hopper': ContainerInventory;
+    'Loom': LoomInventory;
+    'Villager': VillagerInventory;
+    'Shulker Box': ContainerInventory;
+    'Smithing Table': SmithingInventory;
+    'Smoker': FurnaceInventory;
+    'Cartography Table': CartographyInventory;
+    'Stonecutter': StoneCutterInventory;
+    'Survival Inventory': PlayerInventory;
+    'Horse': HorseInventory;
+    'Creative Inventory': CreativeInventory;
 }
 type KeyMods = KeyMod.shift | KeyMod.ctrl | KeyMod.alt
 | `${KeyMod.shift}+${KeyMod.ctrl | KeyMod.alt}`
