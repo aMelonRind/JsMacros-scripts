@@ -3,7 +3,11 @@ const path = file.getPath()
 const keySession = path + ':toggle:session'
 const keyStopRequest = path + ':toggle:stopRequests'
 
-const contexts = Java.from(JsMacros.getOpenContexts()).filter(c => c.getFile()?.getPath() === path && c !== context.getCtx())
+const contexts = Java.from(JsMacros.getOpenContexts()).filter(c =>
+  c.getFile()?.getPath() === path &&
+  c !== context.getCtx() &&
+  c.getMainThread().isAlive()
+)
 
 class Toggle {
 
@@ -66,6 +70,8 @@ if (contexts.length === 0) {
 } else {
   const stopRequests = GlobalVars.incrementAndGetInt(keyStopRequest)
   if (stopRequests === null) throw new TypeError('The stopRequests key is occupied by something else!')
+  const isRenderThread = JavaWrapper.methodToJava(th => th.getName() === 'Render thread')
+  for (const context of contexts) if (context.getBoundThreads().removeIf(isRenderThread)) Chat.log(`Render thread found and removed.`)
   if (stopRequests > 1) {
     const logger = require('./Logger')
     if (stopRequests === 2) {
