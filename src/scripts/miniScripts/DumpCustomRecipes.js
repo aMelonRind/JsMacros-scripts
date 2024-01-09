@@ -12,6 +12,7 @@ const recipes = byidF.get(recipeManager)
 const customRecipes = Array
   .from(recipes.keySet())
   .filter(id => !id.toString().startsWith('minecraft:'))
+  .sort()
   .map(id => new RecipeHelper(recipes.get(id), 0))
 
 if (customRecipes.length === 0) {
@@ -34,16 +35,17 @@ if (customRecipes.length === 0) {
       const y = sy + Math.floor(i / r) * 18
       const item = recipe.getOutput()
       screen.addItem(x, y, item)
+      const rx = cx - 27
+      const ry = sy - 60
       const txt = Chat.createTextBuilder()
         .append('空空')
         .withShowItemHover(item)
         .withCustomClickEvent(JavaWrapper.methodToJava(() => {
           ingreds.splice(0, Infinity).forEach(e => screen.removeElement(e))
-          const y = sy - 40
-          const is = Java.from(recipe.getIngredients()).filter(v => v.size() > 0)
-          const sx = cx - is.length * 9
-          is.forEach((it, i) => {
-            const x = sx + i * 18
+          Java.from(recipe.getIngredients()).forEach((it, i) => {
+            if (it.size() <= 0) return
+            const x = rx + Math.max(i % 3, i - 6) * 18
+            const y = ry + Math.min(Math.floor(i / 3), 2) * 18
             const fi = it.get(0)
             ingreds.push(screen.addItem(x, y, fi))
             const txt = Chat.createTextBuilder()
