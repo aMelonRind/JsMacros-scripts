@@ -218,7 +218,12 @@ JsMacros.on('OpenScreen', JavaWrapper.methodToJava(e => {
     // i sure hope this message won't appear anymore COPIUM
     if (!input) return Chat.log(`[PosFiller err] null input in class ${screen.getClass()}`)
     const composed = changedListenerF.get(input)?.andThen(JavaWrapper.methodToJava(text => {
-      triggerSuggest(screen, input, text)
+      try {
+        triggerSuggest(screen, input, text)
+      } catch (e) {
+        Chat.log(`[PosFiller] exception`)
+        JsMacros.getProfile().logError(e)
+      }
     }))
     
     if (composed) input.method_1863(composed) // input.setChangedListener()
