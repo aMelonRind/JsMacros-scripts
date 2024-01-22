@@ -117,12 +117,12 @@ declare namespace Events {
         /**
          * @return inventory associated with the event
          */
-        getInventory(): Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
+        getInventory(): Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory;
 
     }
 
     interface ContainerUpdate extends BaseEvent {
-        readonly inventory: Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
+        readonly inventory: Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory;
         readonly screen: Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.IScreen;
     }
 
@@ -137,7 +137,7 @@ declare namespace Events {
         /**
          * @return inventory associated with the event
          */
-        getInventory(): Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
+        getInventory(): Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory;
 
     }
 
@@ -151,7 +151,7 @@ declare namespace Events {
     }
 
     interface OpenContainer extends BaseEvent, Cancellable {
-        readonly inventory: Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
+        readonly inventory: Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory;
         readonly screen: Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.IScreen;
     }
 
@@ -164,7 +164,7 @@ declare namespace Events {
         /**
          * @return inventory associated with the event
          */
-        getInventory(): Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
+        getInventory(): Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory;
 
     }
 
@@ -1492,7 +1492,7 @@ declare namespace Player {
      * @return the Inventory handler
      * @see Inventory
      */
-    function openInventory(): Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
+    function openInventory(): Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory;
 
     /**
      * @return the player entity wrapper.
@@ -31614,7 +31614,7 @@ declare namespace Packages {
                              * @author Wagyourtail
                              * @since 1.0.8
                              */
-                            abstract class Inventory<T = /* net.minecraft.client.gui.screen.ingame.HandledScreen<any> */ any> extends java.lang.Object {
+                            abstract class Inventory<T = /* net.minecraft.client.gui.screen.ingame.HandledScreen<any> */ IScreen> extends java.lang.Object {
                                 static readonly class: JavaClass<Inventory<any>>;
                                 /** @deprecated */ static prototype: undefined;
 
@@ -52006,7 +52006,7 @@ type Image = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.compone
 type Image$Builder = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Image$Builder;
 type InteractionManagerHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.InteractionManagerHelper;
 type InteractionProxy$Break$BreakBlockResult = Packages.xyz.wagyourtail.jsmacros.client.api.classes.InteractionProxy$Break$BreakBlockResult;
-type Inventory<T = /* net.minecraft.client.gui.screen.ingame.HandledScreen<any> */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<T>;
+type Inventory<T = /* net.minecraft.client.gui.screen.ingame.HandledScreen<any> */ IScreen> = Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<T>;
 type IronGolemEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.passive.IronGolemEntityHelper;
 type Item = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
 type Item$Builder = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item$Builder;
