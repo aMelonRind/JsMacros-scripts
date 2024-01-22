@@ -3,6 +3,8 @@ const path = file.getPath()
 const keySession = path + ':toggle:session'
 const keyStopRequest = path + ':toggle:stopRequests'
 
+const isRenderThread = JavaWrapper.methodToJava(th => th.getName() === 'Render thread')
+
 const contexts = Java.from(JsMacros.getOpenContexts()).filter(c =>
   c.getFile()?.getPath() === path &&
   c !== context.getCtx() &&
@@ -26,7 +28,7 @@ class Toggle {
     while (ticks-- > 0
       && this.check()
       && !stopCondition?.()
-      && !(stopConditionOnSec && !(ticks % 20) && stopConditionOnSec?.())
+      && !(stopConditionOnSec && !(ticks % 20) && stopConditionOnSec())
     ) Client.waitTick()
     return this.check()
   }
@@ -53,6 +55,7 @@ class Toggle {
     }
     if (value != null) logger.log(value)
 
+    context.getCtx().getBoundThreads().removeIf(isRenderThread)
     logger.log('stopped')
   }
 
@@ -70,7 +73,6 @@ if (contexts.length === 0) {
 } else {
   const stopRequests = GlobalVars.incrementAndGetInt(keyStopRequest)
   if (stopRequests === null) throw new TypeError('The stopRequests key is occupied by something else!')
-  const isRenderThread = JavaWrapper.methodToJava(th => th.getName() === 'Render thread')
   for (const context of contexts) if (context.getBoundThreads().removeIf(isRenderThread)) Chat.log(`Render thread found and removed.`)
   if (stopRequests > 1) {
     const logger = require('./Logger')
