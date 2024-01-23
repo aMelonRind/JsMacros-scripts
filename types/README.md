@@ -1,0 +1,12 @@
+If you want to write ts, you probably shouldn't follow the instructions here. Instead, go to [Wagyourtail's Discord Server](https://github.com/JsMacros/JsMacros?tab=readme-ov-file#jsmacros) then search `autocomplete` in #bot-commands.
+
+How to install as a fake node_module package:
+1. Download this repo, extract it somewhere (in `Macros` folder if you can't decide)
+2. Open environment.zip, extract the node_modules folder to `jsMacros` folder, which is the parent of `Macros` folder
+3. Open `node_modules/@types/jsm/index.d.ts`, redirect the path to the index.d.ts in this folder, where you extracted it in step 1
+4. Reload vscode, then open `Macros` folder in vscode if you didn't
+5. Should be good to go, vscode should be able to load the environment types
+
+tip: put `//@ts-check` at the first line to enable type checking in js.
+
+i didn't use jsconfig is because i don't want a file that is not code nor data to exist in `Macros` folder, and i don't want to open `jsMacros` in vscode because it doesn't look good imo.
