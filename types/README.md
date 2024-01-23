@@ -9,4 +9,4 @@ How to install as a fake node_module package (for vscode to work, i'm not sure a
 
 tip: put `//@ts-check` at the first line to enable type checking in js.
 
-i didn't use jsconfig is because i don't want a file that is not code nor data to exist in `Macros` folder, and i don't want to open `jsMacros` in vscode because it doesn't look good imo.
+i didn't use jsconfig is because i don't want a file that is not code nor data to exist in the root of `Macros` folder, and i don't want to open `jsMacros` in vscode because it doesn't look good imo.
