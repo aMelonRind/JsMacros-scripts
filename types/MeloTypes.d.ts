@@ -31,6 +31,8 @@ type Pos3DLike =
 | Record<Axis, number>
 | Record<`get${Uppercase<Axis>}`, () => number>
 
+type ItemRecord<T = number> = Partial<Record<ItemId, T>>
+
 interface InfoInventory extends Inventory {
   /** @deprecated */ quick(n: never): never
   /** @deprecated */ grabAll(n: never): never

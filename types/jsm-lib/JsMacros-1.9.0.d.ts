@@ -293,7 +293,7 @@ declare namespace Events {
     }
 
     interface Bossbar extends BaseEvent {
-        readonly bossBar: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.BossBarHelper;
+        readonly bossBar: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.BossBarHelper | null;
         readonly uuid: string;
         readonly type: BossBarUpdateType;
     }
@@ -1504,6 +1504,12 @@ declare namespace Player {
     function getInteractionManager(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.InteractionManagerHelper;
 
     /**
+     * alias for {@link Player.getInteractionManager}
+     * @since 1.9.0
+     */
+    function interactions(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.InteractionManagerHelper;
+
+    /**
      * @return the player's current gamemode.
      * @since 1.0.9
      */
@@ -1899,12 +1905,12 @@ declare namespace World {
     /**
      * @return players within render distance.
      */
-    function getLoadedPlayers(): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.PlayerEntityHelper</* net.minecraft.entity.player.PlayerEntity */ any>>;
+    function getLoadedPlayers(): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.PlayerEntityHelper</* net.minecraft.entity.player.PlayerEntity */ any>> | null;
 
     /**
      * @return players on the tablist.
      */
-    function getPlayers(): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.PlayerListEntryHelper>;
+    function getPlayers(): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.PlayerListEntryHelper> | null;
 
     /**
      * @param name the name of the player to get the entry for
@@ -1928,7 +1934,7 @@ declare namespace World {
      * @return ChunkHelper for the chunk coordinates {@link ChunkHelper}.
      * @since 1.8.4
      */
-    function getChunk(x: int, z: int): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.ChunkHelper;
+    function getChunk(x: int, z: int): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.ChunkHelper | null;
 
     /**
      * Usage: <br>  
@@ -1951,19 +1957,19 @@ declare namespace World {
      * @return a scanner for the current world.
      * @since 1.6.5
      */
-    function getWorldScanner(blockFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockHelper, any, boolean, any> | null, stateFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper, any, boolean, any> | null): Packages.xyz.wagyourtail.jsmacros.client.api.classes.worldscanner.WorldScanner;
+    function getWorldScanner(blockFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockHelper, any, boolean, any> | null, stateFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper, any, boolean, any> | null): Packages.xyz.wagyourtail.jsmacros.client.api.classes.worldscanner.WorldScanner | null;
     /** @since 1.6.4 */
-    function findBlocksMatching(centerX: int, centerZ: int, id: CanOmitNamespace<BlockId>, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+    function findBlocksMatching(centerX: int, centerZ: int, id: CanOmitNamespace<BlockId>, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
     /** @since 1.6.4 */
-    function findBlocksMatching(id: CanOmitNamespace<BlockId>, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+    function findBlocksMatching(id: CanOmitNamespace<BlockId>, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
     /** @since 1.6.4 */
-    function findBlocksMatching(ids: CanOmitNamespace<BlockId>[], chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+    function findBlocksMatching(ids: CanOmitNamespace<BlockId>[], chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
     /** @since 1.6.4 */
-    function findBlocksMatching(centerX: int, centerZ: int, ids: CanOmitNamespace<BlockId>[], chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+    function findBlocksMatching(centerX: int, centerZ: int, ids: CanOmitNamespace<BlockId>[], chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
     /** @since 1.6.4 */
-    function findBlocksMatching(blockFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockHelper, any, boolean, any>, stateFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper, any, boolean, any> | null, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+    function findBlocksMatching(blockFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockHelper, any, boolean, any>, stateFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper, any, boolean, any> | null, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
     /** @since 1.6.4 */
-    function findBlocksMatching(chunkX: int, chunkZ: int, blockFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockHelper, any, boolean, any>, stateFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper, any, boolean, any> | null, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+    function findBlocksMatching(chunkX: int, chunkZ: int, blockFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockHelper, any, boolean, any>, stateFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper, any, boolean, any> | null, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
 
     /**
      * By default, air blocks are ignored and the callback is only called for real blocks.
@@ -2004,26 +2010,26 @@ declare namespace World {
      * @return a helper for the scoreboards provided to the client.
      * @since 1.2.9
      */
-    function getScoreboards(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.ScoreboardsHelper;
+    function getScoreboards(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.ScoreboardsHelper | null;
 
     /**
      * @return all entities in the render distance.
      */
-    function getEntities(): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>>;
+    function getEntities(): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>> | null;
 
     /**
      * @param types the entity types to consider
      * @return all entities in the render distance, that match the specified entity type.
      * @since 1.8.4
      */
-    function getEntities<E extends CanOmitNamespace<EntityId>>(...types: E[]): JavaList<EntityTypeFromId<E>>;
+    function getEntities<E extends CanOmitNamespace<EntityId>>(...types: E[]): JavaList<EntityTypeFromId<E>> | null;
 
     /**
      * @param distance the maximum distance to search for entities
      * @return a list of entities within the specified distance to the player.
      * @since 1.8.4
      */
-    function getEntities(distance: double): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>>;
+    function getEntities(distance: double): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>> | null;
 
     /**
      * @param distance the maximum distance to search for entities
@@ -2031,14 +2037,14 @@ declare namespace World {
      * @return a list of entities within the specified distance to the player, that match the specified entity type.
      * @since 1.8.4
      */
-    function getEntities<E extends CanOmitNamespace<EntityId>>(distance: double, ...types: E[]): JavaList<EntityTypeFromId<E>>;
+    function getEntities<E extends CanOmitNamespace<EntityId>>(distance: double, ...types: E[]): JavaList<EntityTypeFromId<E>> | null;
 
     /**
      * @param filter the entity filter
      * @return a list of entities that match the specified filter.
      * @since 1.8.4
      */
-    function getEntities(filter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>, any, any, any>): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>>;
+    function getEntities(filter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>, any, any, any>): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>> | null;
 
     /**
      * raytrace between two points returning the first block hit.
@@ -2056,24 +2062,24 @@ declare namespace World {
      * @return the current dimension.
      * @since 1.1.2
      */
-    function getDimension(): Dimension;
+    function getDimension(): Dimension | null;
 
     /**
      * @return the current biome.
      * @since 1.1.5
      */
-    function getBiome(): string;
+    function getBiome(): Biome | null;
 
     /**
      * ticks processed since world was started.
-     * @return the current world time.
+     * @return the current world time. `-1` if world is not loaded.
      * @since 1.1.5
      */
     function getTime(): number;
 
     /**
-     * icks passed since world was started INCLUDING those skipped when nights were cut short with sleeping.
-     * @return the current world time of day.
+     * ticks passed since world was started INCLUDING those skipped when nights were cut short with sleeping.
+     * @return the current world time of day. `-1` if world is not loaded.
      * @since 1.1.5
      */
     function getTimeOfDay(): number;
@@ -2114,28 +2120,28 @@ declare namespace World {
      * @return respawn position.
      * @since 1.2.6
      */
-    function getRespawnPos(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper;
+    function getRespawnPos(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper | null;
 
     /**
-     * @return world difficulty as an int.
+     * @return world difficulty as an int. `-1` if world is not loaded.
      * @since 1.2.6
      */
     function getDifficulty(): number;
 
     /**
-     * @return moon phase as an int.
+     * @return moon phase as an int. `-1` if world is not loaded.
      * @since 1.2.6
      */
     function getMoonPhase(): number;
 
     /**
-     * @return sky light as an int.
+     * @return sky light as an int. `-1` if world is not loaded.
      * @since 1.1.2
      */
     function getSkyLight(x: int, y: int, z: int): number;
 
     /**
-     * @return block light as an int.
+     * @return block light as an int. `-1` if world is not loaded.
      * @since 1.1.2
      */
     function getBlockLight(x: int, y: int, z: int): number;
@@ -2195,13 +2201,13 @@ declare namespace World {
      * @return biome at specified location, only works if the block/chunk is loaded.
      * @since 1.2.2 [Citation Needed]
      */
-    function getBiomeAt(x: int, z: int): string;
+    function getBiomeAt(x: int, z: int): Biome | null;
 
     /**
      * @return biome at specified location, only works if the block/chunk is loaded.
      * @since 1.8.4
      */
-    function getBiomeAt(x: int, y: int, z: int): string;
+    function getBiomeAt(x: int, y: int, z: int): Biome | null;
 
     /**
      * @return best attempt to measure and give the server tps with various timings.
@@ -2248,6 +2254,12 @@ declare namespace World {
      * @since 1.8.4
      */
     function spawnParticle(id: CanOmitNamespace<ParticleId>, x: double, y: double, z: double, deltaX: double, deltaY: double, deltaZ: double, speed: double, count: int, force: boolean): void;
+
+    /**
+     * @return the raw minecraft world.
+     * @since 1.9.1
+     */
+    function getRaw(): /* net.minecraft.client.world.ClientWorld */ any | null;
 
     /**
      * @return best attempt to measure and give the server tps.
