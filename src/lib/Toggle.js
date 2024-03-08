@@ -25,6 +25,16 @@ class Toggle {
    * @param {(() => any)?} [stopConditionOnSec]
    */
   checkWhileWait(ticks, stopCondition, stopConditionOnSec) {
+    return this.waitTick(ticks, stopCondition, stopConditionOnSec)
+  }
+
+  /**
+   * @alias checkWhileWait 
+   * @param {int} ticks 
+   * @param {(() => any)?} [stopCondition]
+   * @param {(() => any)?} [stopConditionOnSec]
+   */
+  waitTick(ticks, stopCondition, stopConditionOnSec) {
     while (ticks-- > 0
       && this.check()
       && !stopCondition?.()
@@ -49,11 +59,45 @@ class Toggle {
     interval = Math.ceil(interval)
     if (interval < 1) {
       while (this.check()) if ((value = cb()) !== undefined) break
-    } else while (this.check()) {
+    } else do {
       if ((value = cb()) !== undefined) break
-      this.checkWhileWait(interval)
-    }
+    } while (this.waitTick(interval))
     if (value != null) logger.log(value)
+
+    context.getCtx().getBoundThreads().removeIf(isRenderThread)
+    logger.log('stopped')
+  }
+
+  /**
+   * a yielding loop with interval.  
+   * you probably need a good understanding of
+   * [how generator works](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/function*)
+   * in order to use this.
+   * @param {() => Generator<any, void>} cb if it yields undefined, the loop will continue.  
+   *  if it yields number, will wait for ticks then continue.  
+   *  if it yields anything else, the loop will break. then if the value is not null, will log the value.
+   * @param {int} interval interval in ticks.
+   *  setting to non-positive number will assume you have wait function in the callback
+   * @param {() => boolean} [onYield] the callback to call on yield. if the return value is falsy, will break the inner loop.
+   */
+  yieldingLoop(cb, interval, onYield = () => true) {
+    if (!this.check()) return
+    const logger = require('./Logger')
+    logger.log('started')
+
+    let value
+    interval = Math.ceil(interval)
+    outer: do for (value of cb()) {
+      if (!toggle.check()) break outer
+      if (!onYield()) break
+      if (value === undefined) continue
+      if (typeof value === 'number') {
+        if (!toggle.waitTick(value)) break outer
+        continue
+      }
+      if (value !== null) logger.log(value)
+      break outer
+    } while (toggle.waitTick(interval))
 
     context.getCtx().getBoundThreads().removeIf(isRenderThread)
     logger.log('stopped')

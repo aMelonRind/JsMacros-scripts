@@ -4,7 +4,7 @@ const TextProxy = (() => {
   const className = 'MelonRind$RenderElement$ItemTextOverlay' // + `$Test${GlobalVars.getAndIncrementInt('classtesting')}`
   try {
     return Java.type('xyz.wagyourtail.jsmacros.core.library.impl.classes.proxypackage.' + className)
-  } catch (e) {}
+  } catch {}
   const Text = 'xyz.wagyourtail.jsmacros.client.api.classes.render.components.Text'
   const DrawContext = 'net.minecraft.class_332'
 

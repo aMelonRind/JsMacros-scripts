@@ -66,16 +66,13 @@ function getDefaultLangJson(lang = 'en_us') {
   const Identifier = Java.type('net.minecraft.class_2960')
   const assetsType = Java.type('net.minecraft.class_3264').field_14188
   
-  for (const prof of Client.getMinecraft().method_1520().method_14441()) { // .getResourcePackManager().getProfiles()
-    if (prof.method_14463() !== 'vanilla') continue
-    /** @type {(() => Packages.java.io.InputStream)?} */
-    const supplier = prof.method_14458().method_14405(assetsType, new Identifier(`minecraft:lang/${lang.replace(/-/g, '_')}.json`))
-    if (!supplier) return null
-    const is = supplier()
-    /** @type {string} *///@ts-ignore
-    const str = new java.lang.String(is.readAllBytes(), 'utf-8')
-    is.close()
-    return JSON.parse(str)
-  }
-  return null
+  /** @type {(() => Packages.java.io.InputStream)?} */
+  const supplier = Client.getMinecraft().method_45573().method_14405(assetsType, new Identifier(`minecraft:lang/${lang.replace(/-/g, '_')}.json`))
+  // .getDefaultResourcePack().open()
+  if (!supplier) return null
+  const is = supplier()
+  /** @type {string} *///@ts-ignore
+  const str = new java.lang.String(is.readAllBytes(), 'utf-8')
+  is.close()
+  return JSON.parse(str)
 }

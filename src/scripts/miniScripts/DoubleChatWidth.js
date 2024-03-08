@@ -1,4 +1,4 @@
-
+//@ts-check
 // will widen the chat if focused
 JsMacros.assertEvent(event, 'Service')
 module.exports = 0
@@ -7,35 +7,25 @@ const multiplier = 2.0
 
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 
-const Double = Java.type('java.lang.Double')
-
-const optionValue = Java.type('net.minecraft.class_7172').class.getDeclaredField('field_37868')
-optionValue.setAccessible(true)
-
-const widthOption = Client.getGameOptions().getRaw().method_42556() // .getChatWidth()
+const chatOption = Client.getGameOptions().getChatOptions()
 
 let isOpen = false
 let was = 1.0
 
-JsMacros.on('OpenScreen', JavaWrapper.methodToJava(e => {
+JsMacros.on('OpenScreen', JavaWrapper.methodToJavaAsync(e => {
   if (e.screenName === 'Chat') {
-    if (!isOpen) was = Math.min(1, optionValue.get(widthOption))
+    if (!isOpen) was = Math.min(1, chatOption.getChatWidth())
     isOpen = true
     setWidth(was * multiplier)
   } else if (isOpen) {
-    setWidth(was)
     isOpen = false
+    setWidth()
   }
 }))
 
-event.stopListener = JavaWrapper.methodToJava(() => {
-  if (isOpen) setWidth(was)
-})
+event.stopListener = JavaWrapper.methodToJava(() => isOpen && setWidth())
 
-/**
- * @param {number} value 
- */
-function setWidth(value) {
-  optionValue.set(widthOption, new Double(value))
+function setWidth(value = was) {
+  chatOption.setChatWidth(value)
   Chat.getHistory().refreshVisible()
 }

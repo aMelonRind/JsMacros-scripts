@@ -4,6 +4,8 @@
 JsMacros.assertEvent(event, 'Service')
 module.exports = 0
 
+if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
+
 const mc = Client.getMinecraft()
 let im = Player.getInteractionManager()?.getRaw()
 let p = Player.getPlayer().getRaw()
