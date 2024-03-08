@@ -1,7 +1,5 @@
 # JsMacros shared script
-<p align="left">
-  <a href="https://github.com/JsMacros/JsMacros"><img src="https://img.shields.io/badge/JsMacros-1.9.0-brightgreen" alt="JsMacros Version"/></a>
-  <a href=""><img src="https://img.shields.io/badge/Minecraft-1.20.4-brightgreen" alt="Minecraft Version"/></a>
-</p>
+[![JsMacros](https://img.shields.io/badge/JsMacros-1.9.1--beta-orange)](https://github.com/JsMacros/JsMacros)
+![Minecraft Version](https://img.shields.io/badge/Minecraft-1.20.4-brightgreen)
 
-  my scripts that use [JsMacros](https://github.com/JsMacros/JsMacros) to run
+my scripts that uses [JsMacros](https://github.com/JsMacros/JsMacros) to run
