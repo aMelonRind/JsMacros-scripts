@@ -2038,7 +2038,7 @@ declare namespace World {
      * @return all entities in the render distance, that match the specified entity type.
      * @since 1.8.4
      */
-    function getEntities<E extends CanOmitNamespace<EntityId>>(...types: E[]): JavaList<EntityTypeFromId<E>>;
+    function getEntities<E extends CanOmitNamespace<EntityId>>(...types: E[]): JavaList<EntityTypeFromId<E>> | null;
 
     /**
      * @param distance the maximum distance to search for entities
@@ -2053,7 +2053,7 @@ declare namespace World {
      * @return a list of entities within the specified distance to the player, that match the specified entity type.
      * @since 1.8.4
      */
-    function getEntities<E extends CanOmitNamespace<EntityId>>(distance: double, ...types: E[]): JavaList<EntityTypeFromId<E>>;
+    function getEntities<E extends CanOmitNamespace<EntityId>>(distance: double, ...types: E[]): JavaList<EntityTypeFromId<E>> | null;
 
     /**
      * @param filter the entity filter
@@ -2078,13 +2078,13 @@ declare namespace World {
      * @return the current dimension.
      * @since 1.1.2
      */
-    function getDimension(): Dimension;
+    function getDimension(): Dimension | null;
 
     /**
      * @return the current biome.
      * @since 1.1.5
      */
-    function getBiome(): Biome;
+    function getBiome(): Biome | null;
 
     /**
      * ticks processed since world was started.
@@ -2217,13 +2217,13 @@ declare namespace World {
      * @return biome at specified location, only works if the block/chunk is loaded.
      * @since 1.2.2 [Citation Needed]
      */
-    function getBiomeAt(x: int, z: int): Biome;
+    function getBiomeAt(x: int, z: int): Biome | null;
 
     /**
      * @return biome at specified location, only works if the block/chunk is loaded.
      * @since 1.8.4
      */
-    function getBiomeAt(x: int, y: int, z: int): Biome;
+    function getBiomeAt(x: int, y: int, z: int): Biome | null;
 
     /**
      * @return best attempt to measure and give the server tps with various timings.
@@ -4501,7 +4501,7 @@ declare namespace Packages {
                 static readonly class: JavaClass<IntBidirectionalIterator>;
                 /** @deprecated */ static prototype: undefined;
             }
-            interface IntBidirectionalIterator extends it.unimi.dsi.fastutil.objects.ObjectBidirectionalIterator<java.lang.Integer>, IntIterator {
+            interface IntBidirectionalIterator extends IntIterator, it.unimi.dsi.fastutil.objects.ObjectBidirectionalIterator<java.lang.Integer> {
 
                 previousInt(): number;
                 /** @deprecated */
@@ -4636,7 +4636,7 @@ declare namespace Packages {
                 static of(...arg0: JavaVarArgs<int>): IntList;
 
             }
-            interface IntList extends IntCollection, java.util.List<java.lang.Integer>, java.lang.Comparable<java.util.List<java.lang.Integer>> {
+            interface IntList extends IntCollection, java.lang.Comparable<java.util.List<java.lang.Integer>>, java.util.List<java.lang.Integer> {
 
                 iterator(): IntListIterator;
                 spliterator(): IntSpliterator;
@@ -4721,7 +4721,7 @@ declare namespace Packages {
                 static readonly class: JavaClass<IntPredicate>;
                 /** @deprecated */ static prototype: undefined;
             }
-            interface IntPredicate extends java.util.function.Predicate<java.lang.Integer>, java.util.function.IntPredicate {
+            interface IntPredicate extends java.util.function.IntPredicate, java.util.function.Predicate<java.lang.Integer> {
 
                 /** @deprecated */
                 test(arg0: int): boolean;
@@ -4979,7 +4979,7 @@ declare namespace Packages {
 
             }
 
-            interface Component extends java.io.Serializable, MenuContainer, java.awt.image.ImageObserver {}
+            interface Component extends MenuContainer, java.awt.image.ImageObserver, java.io.Serializable {}
             abstract class Component extends java.lang.Object {
                 static readonly class: JavaClass<Component>;
                 /** @deprecated */ static prototype: undefined;
@@ -6139,7 +6139,7 @@ declare namespace Packages {
 
             }
 
-            interface Menu extends javax.accessibility.Accessible, MenuContainer {}
+            interface Menu extends MenuContainer, javax.accessibility.Accessible {}
             class Menu extends MenuItem {
                 static readonly class: JavaClass<Menu>;
                 /** @deprecated */ static prototype: undefined;
@@ -6169,7 +6169,7 @@ declare namespace Packages {
 
             }
 
-            interface MenuBar extends javax.accessibility.Accessible, MenuContainer {}
+            interface MenuBar extends MenuContainer, javax.accessibility.Accessible {}
             class MenuBar extends MenuComponent {
                 static readonly class: JavaClass<MenuBar>;
                 /** @deprecated */ static prototype: undefined;
@@ -6675,7 +6675,7 @@ declare namespace Packages {
 
             }
 
-            interface RenderingHints extends java.util.Map<java.lang.Object, java.lang.Object>, java.lang.Cloneable {}
+            interface RenderingHints extends java.lang.Cloneable, java.util.Map<java.lang.Object, java.lang.Object> {}
             class RenderingHints extends java.lang.Object {
                 static readonly class: JavaClass<RenderingHints>;
                 /** @deprecated */ static prototype: undefined;
@@ -7147,7 +7147,7 @@ declare namespace Packages {
 
                 }
 
-                interface DataFlavor extends java.lang.Cloneable, java.io.Externalizable {}
+                interface DataFlavor extends java.io.Externalizable, java.lang.Cloneable {}
                 class DataFlavor extends java.lang.Object {
                     static readonly class: JavaClass<DataFlavor>;
                     /** @deprecated */ static prototype: undefined;
@@ -7345,7 +7345,7 @@ declare namespace Packages {
 
                 }
 
-                interface DragSourceContext extends java.io.Serializable, DragSourceListener, DragSourceMotionListener {}
+                interface DragSourceContext extends DragSourceListener, DragSourceMotionListener, java.io.Serializable {}
                 class DragSourceContext extends java.lang.Object {
                     static readonly class: JavaClass<DragSourceContext>;
                     /** @deprecated */ static prototype: undefined;
@@ -8606,7 +8606,7 @@ declare namespace Packages {
 
                 }
 
-                interface Line2D extends java.lang.Cloneable, java.awt.Shape {}
+                interface Line2D extends java.awt.Shape, java.lang.Cloneable {}
                 abstract class Line2D extends java.lang.Object {
                     static readonly class: JavaClass<Line2D>;
                     /** @deprecated */ static prototype: undefined;
@@ -8732,7 +8732,7 @@ declare namespace Packages {
 
                 }
 
-                interface RectangularShape extends java.lang.Cloneable, java.awt.Shape {}
+                interface RectangularShape extends java.awt.Shape, java.lang.Cloneable {}
                 abstract class RectangularShape extends java.lang.Object {
                     static readonly class: JavaClass<RectangularShape>;
                     /** @deprecated */ static prototype: undefined;
@@ -8847,7 +8847,7 @@ declare namespace Packages {
 
             namespace image {
 
-                interface BufferedImage extends WritableRenderedImage, java.awt.Transparency {}
+                interface BufferedImage extends java.awt.Transparency, WritableRenderedImage {}
                 class BufferedImage extends java.awt.Image {
                     static readonly class: JavaClass<BufferedImage>;
                     /** @deprecated */ static prototype: undefined;
@@ -9975,7 +9975,7 @@ declare namespace Packages {
 
             }
 
-            interface Boolean extends java.io.Serializable, java.lang.constant.Constable, Comparable<Boolean> {}
+            interface Boolean extends Comparable<Boolean>, java.io.Serializable, java.lang.constant.Constable {}
             class Boolean extends java.lang.Object {
                 static readonly class: JavaClass<Boolean>;
                 /** @deprecated */ static prototype: undefined;
@@ -10006,7 +10006,7 @@ declare namespace Packages {
 
             }
 
-            interface Character extends java.io.Serializable, Comparable<Character>, java.lang.constant.Constable {}
+            interface Character extends Comparable<Character>, java.io.Serializable, java.lang.constant.Constable {}
             class Character extends java.lang.Object {
                 static readonly class: JavaClass<Character>;
                 /** @deprecated */ static prototype: undefined;
@@ -10245,7 +10245,7 @@ declare namespace Packages {
 
             }
 
-            interface Double extends java.lang.constant.Constable, Comparable<Double>, java.lang.constant.ConstantDesc {}
+            interface Double extends Comparable<Double>, java.lang.constant.Constable, java.lang.constant.ConstantDesc {}
             class Double extends Number {
                 static readonly class: JavaClass<Double>;
                 /** @deprecated */ static prototype: undefined;
@@ -10298,7 +10298,7 @@ declare namespace Packages {
 
             }
 
-            interface Enum<E extends Enum<E>> extends java.io.Serializable, Comparable<E>, java.lang.constant.Constable {}
+            interface Enum<E extends Enum<E>> extends Comparable<E>, java.io.Serializable, java.lang.constant.Constable {}
             abstract class Enum<E extends Enum<E>> extends java.lang.Object {
                 static readonly class: JavaClass<Enum<any>>;
                 /** @deprecated */ static prototype: undefined;
@@ -10389,7 +10389,7 @@ declare namespace Packages {
 
             }
 
-            interface Integer extends java.lang.constant.Constable, Comparable<Integer>, java.lang.constant.ConstantDesc {}
+            interface Integer extends Comparable<Integer>, java.lang.constant.Constable, java.lang.constant.ConstantDesc {}
             class Integer extends Number {
                 static readonly class: JavaClass<Integer>;
                 /** @deprecated */ static prototype: undefined;
@@ -10457,7 +10457,7 @@ declare namespace Packages {
 
             }
 
-            interface Long extends java.lang.constant.Constable, Comparable<Long>, java.lang.constant.ConstantDesc {}
+            interface Long extends Comparable<Long>, java.lang.constant.Constable, java.lang.constant.ConstantDesc {}
             class Long extends Number {
                 static readonly class: JavaClass<Long>;
                 /** @deprecated */ static prototype: undefined;
@@ -10659,7 +10659,7 @@ declare namespace Packages {
 
             }
 
-            interface String extends java.io.Serializable, Comparable<String>, java.lang.constant.Constable, CharSequence, java.lang.constant.ConstantDesc {}
+            interface String extends CharSequence, Comparable<String>, java.io.Serializable, java.lang.constant.Constable, java.lang.constant.ConstantDesc {}
             class String extends java.lang.Object {
                 static readonly class: JavaClass<String>;
                 /** @deprecated */ static prototype: undefined;
@@ -10768,7 +10768,7 @@ declare namespace Packages {
 
             }
 
-            interface StringBuffer extends java.io.Serializable, Comparable<StringBuffer>, CharSequence {}
+            interface StringBuffer extends CharSequence, Comparable<StringBuffer>, java.io.Serializable {}
             class StringBuffer extends AbstractStringBuilder {
                 static readonly class: JavaClass<StringBuffer>;
                 /** @deprecated */ static prototype: undefined;
@@ -10831,7 +10831,7 @@ declare namespace Packages {
 
             }
 
-            interface StringBuilder extends java.io.Serializable, Comparable<StringBuilder>, CharSequence {}
+            interface StringBuilder extends CharSequence, Comparable<StringBuilder>, java.io.Serializable {}
             class StringBuilder extends AbstractStringBuilder {
                 static readonly class: JavaClass<StringBuilder>;
                 /** @deprecated */ static prototype: undefined;
@@ -11090,7 +11090,7 @@ declare namespace Packages {
                     static ofDescriptor(arg0: string): ClassDesc;
 
                 }
-                interface ClassDesc extends java.lang.invoke.TypeDescriptor$OfField<ClassDesc>, ConstantDesc {
+                interface ClassDesc extends ConstantDesc, java.lang.invoke.TypeDescriptor$OfField<ClassDesc> {
 
                     arrayType(): ClassDesc;
                     arrayType(arg0: int): ClassDesc;
@@ -12111,7 +12111,7 @@ declare namespace Packages {
                     static readonly class: JavaClass<TypeVariable<any>>;
                     /** @deprecated */ static prototype: undefined;
                 }
-                interface TypeVariable<D extends GenericDeclaration> extends Type, AnnotatedElement {
+                interface TypeVariable<D extends GenericDeclaration> extends AnnotatedElement, Type {
 
                     getBounds(): JavaArray<Type>;
                     getGenericDeclaration(): D;
@@ -12874,7 +12874,7 @@ declare namespace Packages {
 
             }
 
-            interface CharBuffer extends java.lang.Comparable<CharBuffer>, java.lang.Appendable, java.lang.Readable, java.lang.CharSequence {}
+            interface CharBuffer extends java.lang.Appendable, java.lang.CharSequence, java.lang.Comparable<CharBuffer>, java.lang.Readable {}
             abstract class CharBuffer extends Buffer {
                 static readonly class: JavaClass<CharBuffer>;
                 /** @deprecated */ static prototype: undefined;
@@ -13273,7 +13273,7 @@ declare namespace Packages {
 
                 }
 
-                interface DatagramChannel extends GatheringByteChannel, MulticastChannel, ByteChannel, ScatteringByteChannel {}
+                interface DatagramChannel extends ByteChannel, GatheringByteChannel, MulticastChannel, ScatteringByteChannel {}
                 abstract class DatagramChannel extends java.nio.channels.spi.AbstractSelectableChannel {
                     static readonly class: JavaClass<DatagramChannel>;
                     /** @deprecated */ static prototype: undefined;
@@ -13301,7 +13301,7 @@ declare namespace Packages {
 
                 }
 
-                interface FileChannel extends GatheringByteChannel, SeekableByteChannel, ScatteringByteChannel {}
+                interface FileChannel extends GatheringByteChannel, ScatteringByteChannel, SeekableByteChannel {}
                 abstract class FileChannel extends java.nio.channels.spi.AbstractInterruptibleChannel {
                     static readonly class: JavaClass<FileChannel>;
                     /** @deprecated */ static prototype: undefined;
@@ -13571,7 +13571,7 @@ declare namespace Packages {
 
                 }
 
-                interface SocketChannel extends GatheringByteChannel, NetworkChannel, ByteChannel, ScatteringByteChannel {}
+                interface SocketChannel extends ByteChannel, GatheringByteChannel, NetworkChannel, ScatteringByteChannel {}
                 abstract class SocketChannel extends java.nio.channels.spi.AbstractSelectableChannel {
                     static readonly class: JavaClass<SocketChannel>;
                     /** @deprecated */ static prototype: undefined;
@@ -13645,7 +13645,7 @@ declare namespace Packages {
 
                 namespace spi {
 
-                    interface AbstractInterruptibleChannel extends java.nio.channels.InterruptibleChannel, java.nio.channels.Channel {}
+                    interface AbstractInterruptibleChannel extends java.nio.channels.Channel, java.nio.channels.InterruptibleChannel {}
                     abstract class AbstractInterruptibleChannel extends java.lang.Object {
                         static readonly class: JavaClass<AbstractInterruptibleChannel>;
                         /** @deprecated */ static prototype: undefined;
@@ -13901,7 +13901,7 @@ declare namespace Packages {
 
                 }
 
-                interface LinkOption extends OpenOption, CopyOption {}
+                interface LinkOption extends CopyOption, OpenOption {}
                 abstract class LinkOption extends java.lang.Enum<LinkOption> {
                     static readonly class: JavaClass<LinkOption>;
                     /** @deprecated */ static prototype: undefined;
@@ -13927,7 +13927,7 @@ declare namespace Packages {
                     static of(arg0: java.net.URI): Path;
 
                 }
-                interface Path extends java.lang.Comparable<Path>, Watchable, java.lang.Iterable<Path> {
+                interface Path extends java.lang.Comparable<Path>, java.lang.Iterable<Path>, Watchable {
 
                     getFileSystem(): FileSystem;
                     isAbsolute(): boolean;
@@ -14289,7 +14289,7 @@ declare namespace Packages {
 
             }
 
-            interface Permission extends java.io.Serializable, Guard {}
+            interface Permission extends Guard, java.io.Serializable {}
             class Permission extends java.lang.Object {
                 static readonly class: JavaClass<Permission>;
                 /** @deprecated */ static prototype: undefined;
@@ -14669,7 +14669,7 @@ declare namespace Packages {
 
             }
 
-            interface Duration extends java.io.Serializable, java.time.temporal.TemporalAmount, java.lang.Comparable<Duration> {}
+            interface Duration extends java.io.Serializable, java.lang.Comparable<Duration>, java.time.temporal.TemporalAmount {}
             abstract class Duration extends java.lang.Object {
                 static readonly class: JavaClass<Duration>;
                 /** @deprecated */ static prototype: undefined;
@@ -14803,7 +14803,7 @@ declare namespace Packages {
 
             }
 
-            interface LocalDate extends java.io.Serializable, java.time.temporal.Temporal, java.time.temporal.TemporalAdjuster, java.time.chrono.ChronoLocalDate {}
+            interface LocalDate extends java.io.Serializable, java.time.chrono.ChronoLocalDate, java.time.temporal.Temporal, java.time.temporal.TemporalAdjuster {}
             abstract class LocalDate extends java.lang.Object {
                 static readonly class: JavaClass<LocalDate>;
                 /** @deprecated */ static prototype: undefined;
@@ -14966,7 +14966,7 @@ declare namespace Packages {
 
             }
 
-            interface LocalTime extends java.io.Serializable, java.time.temporal.Temporal, java.time.temporal.TemporalAdjuster, java.lang.Comparable<LocalTime> {}
+            interface LocalTime extends java.io.Serializable, java.lang.Comparable<LocalTime>, java.time.temporal.Temporal, java.time.temporal.TemporalAdjuster {}
             abstract class LocalTime extends java.lang.Object {
                 static readonly class: JavaClass<LocalTime>;
                 /** @deprecated */ static prototype: undefined;
@@ -15073,7 +15073,7 @@ declare namespace Packages {
 
             }
 
-            interface OffsetDateTime extends java.io.Serializable, java.time.temporal.Temporal, java.time.temporal.TemporalAdjuster, java.lang.Comparable<OffsetDateTime> {}
+            interface OffsetDateTime extends java.io.Serializable, java.lang.Comparable<OffsetDateTime>, java.time.temporal.Temporal, java.time.temporal.TemporalAdjuster {}
             abstract class OffsetDateTime extends java.lang.Object {
                 static readonly class: JavaClass<OffsetDateTime>;
                 /** @deprecated */ static prototype: undefined;
@@ -15225,7 +15225,7 @@ declare namespace Packages {
 
             }
 
-            interface Period extends java.time.chrono.ChronoPeriod, java.io.Serializable {}
+            interface Period extends java.io.Serializable, java.time.chrono.ChronoPeriod {}
             abstract class Period extends java.lang.Object {
                 static readonly class: JavaClass<Period>;
                 /** @deprecated */ static prototype: undefined;
@@ -15269,7 +15269,7 @@ declare namespace Packages {
 
             }
 
-            interface ZonedDateTime extends java.time.chrono.ChronoZonedDateTime<LocalDate>, java.io.Serializable, java.time.temporal.Temporal {}
+            interface ZonedDateTime extends java.io.Serializable, java.time.chrono.ChronoZonedDateTime<LocalDate>, java.time.temporal.Temporal {}
             abstract class ZonedDateTime extends java.lang.Object {
                 static readonly class: JavaClass<ZonedDateTime>;
                 /** @deprecated */ static prototype: undefined;
@@ -15372,7 +15372,7 @@ declare namespace Packages {
 
             }
 
-            interface ZoneOffset extends java.time.temporal.TemporalAccessor, java.io.Serializable, java.time.temporal.TemporalAdjuster, java.lang.Comparable<ZoneOffset> {}
+            interface ZoneOffset extends java.io.Serializable, java.lang.Comparable<ZoneOffset>, java.time.temporal.TemporalAccessor, java.time.temporal.TemporalAdjuster {}
             abstract class ZoneOffset extends ZoneId {
                 static readonly class: JavaClass<ZoneOffset>;
                 /** @deprecated */ static prototype: undefined;
@@ -16057,7 +16057,7 @@ declare namespace Packages {
 
             namespace zone {
 
-                interface ZoneOffsetTransition extends java.lang.Comparable<ZoneOffsetTransition>, java.io.Serializable {}
+                interface ZoneOffsetTransition extends java.io.Serializable, java.lang.Comparable<ZoneOffsetTransition> {}
                 abstract class ZoneOffsetTransition extends java.lang.Object {
                     static readonly class: JavaClass<ZoneOffsetTransition>;
                     /** @deprecated */ static prototype: undefined;
@@ -16225,7 +16225,7 @@ declare namespace Packages {
 
             }
 
-            interface ArrayList<E> extends java.io.Serializable, RandomAccess, java.lang.Cloneable, java.util.List<E> {}
+            interface ArrayList<E> extends java.io.Serializable, java.lang.Cloneable, RandomAccess, java.util.List<E> {}
             class ArrayList<E> extends AbstractList<E> {
                 static readonly class: JavaClass<ArrayList<any>>;
                 /** @deprecated */ static prototype: undefined;
@@ -16467,7 +16467,7 @@ declare namespace Packages {
 
             }
 
-            interface HashMap<K, V> extends java.util.Map<K, V>, java.io.Serializable, java.lang.Cloneable {}
+            interface HashMap<K, V> extends java.io.Serializable, java.lang.Cloneable, java.util.Map<K, V> {}
             class HashMap<K, V> extends AbstractMap<K, V> {
                 static readonly class: JavaClass<HashMap<any, any>>;
                 /** @deprecated */ static prototype: undefined;
@@ -17181,7 +17181,7 @@ declare namespace Packages {
 
             }
 
-            interface SplittableRandom extends java.util.random.RandomGenerator$SplittableGenerator, java.util.random.RandomGenerator {}
+            interface SplittableRandom extends java.util.random.RandomGenerator, java.util.random.RandomGenerator$SplittableGenerator {}
             class SplittableRandom extends java.lang.Object {
                 static readonly class: JavaClass<SplittableRandom>;
                 /** @deprecated */ static prototype: undefined;
@@ -17239,7 +17239,7 @@ declare namespace Packages {
 
             }
 
-            interface Vector<E> extends java.io.Serializable, RandomAccess, java.lang.Cloneable, java.util.List<E> {}
+            interface Vector<E> extends java.io.Serializable, java.lang.Cloneable, RandomAccess, java.util.List<E> {}
             class Vector<E> extends AbstractList<E> {
                 static readonly class: JavaClass<Vector<any>>;
                 /** @deprecated */ static prototype: undefined;
@@ -17846,7 +17846,7 @@ declare namespace Packages {
 
                 }
 
-                interface CompletableFuture<T> extends Future<T>, CompletionStage<T> {}
+                interface CompletableFuture<T> extends CompletionStage<T>, Future<T> {}
                 class CompletableFuture<T> extends java.lang.Object {
                     static readonly class: JavaClass<CompletableFuture<any>>;
                     /** @deprecated */ static prototype: undefined;
@@ -20783,7 +20783,7 @@ declare namespace Packages {
                     static readonly class: JavaClass<ExecutableElement>;
                     /** @deprecated */ static prototype: undefined;
                 }
-                interface ExecutableElement extends Parameterizable, Element {
+                interface ExecutableElement extends Element, Parameterizable {
 
                     asType(): javax.lang.model.type.TypeMirror;
                     getTypeParameters(): JavaList<TypeParameterElement>;
@@ -20826,7 +20826,7 @@ declare namespace Packages {
                     static readonly class: JavaClass<ModuleElement>;
                     /** @deprecated */ static prototype: undefined;
                 }
-                interface ModuleElement extends QualifiedNameable, Element {
+                interface ModuleElement extends Element, QualifiedNameable {
 
                     asType(): javax.lang.model.type.TypeMirror;
                     getQualifiedName(): Name;
@@ -20967,7 +20967,7 @@ declare namespace Packages {
                     static readonly class: JavaClass<PackageElement>;
                     /** @deprecated */ static prototype: undefined;
                 }
-                interface PackageElement extends QualifiedNameable, Element {
+                interface PackageElement extends Element, QualifiedNameable {
 
                     asType(): javax.lang.model.type.TypeMirror;
                     getQualifiedName(): Name;
@@ -21014,7 +21014,7 @@ declare namespace Packages {
                     static readonly class: JavaClass<TypeElement>;
                     /** @deprecated */ static prototype: undefined;
                 }
-                interface TypeElement extends QualifiedNameable, Parameterizable, Element {
+                interface TypeElement extends Element, Parameterizable, QualifiedNameable {
 
                     asType(): javax.lang.model.type.TypeMirror;
                     getEnclosedElements(): JavaList<Element>;
@@ -26897,7 +26897,7 @@ declare namespace Packages {
                                  * @author Wagyourtail
                                  * @since 1.2.3
                                  */
-                                interface Image extends RenderElement, Alignable<Image> {}
+                                interface Image extends Alignable<Image>, RenderElement {}
                                 class Image extends java.lang.Object {
                                     static readonly class: JavaClass<Image>;
                                     /** @deprecated */ static prototype: undefined;
@@ -29585,7 +29585,7 @@ declare namespace Packages {
                                  * @author Wagyourtail
                                  * @since 1.6.5
                                  */
-                                interface Surface extends RenderElement3D<Surface>, xyz.wagyourtail.jsmacros.client.api.classes.render.components.RenderElement {}
+                                interface Surface extends xyz.wagyourtail.jsmacros.client.api.classes.render.components.RenderElement, RenderElement3D<Surface> {}
                                 class Surface extends xyz.wagyourtail.jsmacros.client.api.classes.render.Draw2D {
                                     static readonly class: JavaClass<Surface>;
                                     /** @deprecated */ static prototype: undefined;
@@ -41734,7 +41734,7 @@ declare namespace Packages {
                  * @author Wagyourtail
                  * @see IFWrapper
                  */
-                interface MethodWrapper<T, U, R, C extends xyz.wagyourtail.jsmacros.core.language.BaseScriptContext<any>> extends java.util.function.Predicate<T>, java.util.function.BiConsumer<T, U>, java.util.function.Function<T, R>, java.lang.Runnable, java.util.function.Consumer<T>, java.util.function.BiPredicate<T, U>, java.util.function.BiFunction<T, U, R>, java.util.function.Supplier<R>, java.util.Comparator<T> {}
+                interface MethodWrapper<T, U, R, C extends xyz.wagyourtail.jsmacros.core.language.BaseScriptContext<any>> extends java.lang.Runnable, java.util.Comparator<T>, java.util.function.BiConsumer<T, U>, java.util.function.BiFunction<T, U, R>, java.util.function.BiPredicate<T, U>, java.util.function.Consumer<T>, java.util.function.Function<T, R>, java.util.function.Predicate<T>, java.util.function.Supplier<R> {}
                 class MethodWrapper<T, U, R, C extends xyz.wagyourtail.jsmacros.core.language.BaseScriptContext<any>> extends java.lang.Object {
                     static readonly class: JavaClass<MethodWrapper<any, any, any, any>>;
                     /** @deprecated */ static prototype: undefined;
