@@ -123,6 +123,8 @@ type Key =
 | 'key.mouse.left'
 | 'key.mouse.middle'
 | 'key.mouse.right'
+| 'key.mouse.3'
+| 'key.mouse.4'
 
 // option.allKeys.map(getTranslationKey())
 //@Eval Java.from(Client.getGameOptions().getRaw().field_1839).map(k => k.method_1431())
