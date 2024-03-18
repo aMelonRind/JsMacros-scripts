@@ -5804,6 +5804,7 @@ type Dimension =
 | 'minecraft:overworld_caves'
 | 'minecraft:the_end'
 | 'minecraft:the_nether'
+| string & {}
 
 //@Custom
 type ScreenName =

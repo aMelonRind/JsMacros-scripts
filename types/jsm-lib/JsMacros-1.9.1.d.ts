@@ -29,145 +29,6 @@ declare namespace Events {
 
     }
 
-    interface Key extends BaseEvent, Cancellable {
-        readonly action: number;
-        readonly key: globalThis.Key;
-        readonly mods: KeyMods;
-    }
-
-    interface LaunchGame extends BaseEvent {
-        readonly playerName: string;
-    }
-
-    interface MouseScroll extends BaseEvent, Cancellable {
-        readonly deltaX: number;
-        readonly deltaY: number;
-    }
-
-    interface QuitGame extends BaseEvent {}
-
-    interface RecvMessage extends BaseEvent, Cancellable {
-        text: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper | null;
-        /** @since 1.8.2 */
-        signature: JavaArray<number> | null;
-        /** @since 1.8.2 */
-        messageType: string | null;
-    }
-
-    interface RecvPacket extends BaseEvent, Cancellable {
-        packet: /* net.minecraft.network.packet.Packet<any> */ any | null;
-        readonly type: PacketName;
-
-        /**
-         * After modifying the buffer, use {@link PacketByteBufferHelper.toPacket}() to get the modified
-         *  packet and replace this packet with the modified one.
-         * @return a helper for accessing and modifying the packet's data.
-         * @since 1.8.4
-         */
-        getPacketBuffer(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.PacketByteBufferHelper;
-
-    }
-
-    interface ResourcePackLoaded extends BaseEvent {
-        readonly isGameStart: boolean;
-        readonly loadedPacks: JavaList<string>;
-    }
-
-    interface SendMessage extends BaseEvent, Cancellable {
-        message: string | null;
-    }
-
-    interface SendPacket extends BaseEvent, Cancellable {
-        packet: /* net.minecraft.network.packet.Packet<any> */ any | null;
-        readonly type: PacketName;
-
-        /**
-         * Replaces the packet of this event with a new one of the same type, created from the given
-         *  arguments. It's recommended to use {@link getPacketBuffer}() to modify the packet instead.
-         * @param args the arguments to pass to the packet's constructor
-         * @throws NullPointerException if this.packet is null
-         * @since 1.8.4
-         */
-        replacePacket(...args: JavaVarArgs<any>): void;
-
-        /**
-         * After modifying the buffer, use {@link PacketByteBufferHelper.toPacket}() to get the modified
-         *  packet and replace this packet with the modified one.
-         * @return a helper for accessing and modifying the packet's data.
-         * @since 1.8.4
-         */
-        getPacketBuffer(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.PacketByteBufferHelper;
-
-    }
-
-    interface Title extends BaseEvent, Cancellable {
-        readonly type: TitleType;
-        message: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper | null;
-    }
-
-    interface ClickSlot extends BaseEvent, Cancellable {
-
-        /**
-         * [https://wiki.vg/Protocol#Click_Window](https://wiki.vg/Protocol#Click_Window)
-         */
-        readonly mode: number;
-        readonly button: ClickSlotButton;
-        readonly slot: number;
-
-        /**
-         * @return inventory associated with the event
-         */
-        getInventory(): Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
-
-    }
-
-    interface ContainerUpdate extends BaseEvent {
-        readonly inventory: Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
-        readonly screen: Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.IScreen;
-    }
-
-    interface DropSlot extends BaseEvent, Cancellable {
-        readonly slot: number;
-
-        /**
-         * whether it's all or a single item being dropped
-         */
-        readonly all: boolean;
-
-        /**
-         * @return inventory associated with the event
-         */
-        getInventory(): Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
-
-    }
-
-    interface ItemDamage extends BaseEvent {
-        readonly item: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
-        readonly damage: number;
-    }
-
-    interface ItemPickup extends BaseEvent {
-        readonly item: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
-    }
-
-    interface OpenContainer extends BaseEvent, Cancellable {
-        readonly inventory: Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
-        readonly screen: Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.IScreen;
-    }
-
-    interface SlotUpdate extends BaseEvent {
-        readonly type: SlotUpdateType;
-        readonly slot: number;
-        readonly oldStack: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
-        readonly newStack: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
-
-        /**
-         * @return inventory associated with the event
-         */
-        getInventory(): Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
-
-    }
-
     interface AirChange extends BaseEvent {
         readonly air: number;
     }
@@ -185,106 +46,6 @@ declare namespace Events {
 
     interface AttackEntity extends BaseEvent {
         readonly entity: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
-    }
-
-    interface Damage extends BaseEvent {
-
-        /**
-         * @deprecated may not work on servers
-         */
-        readonly attacker: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
-
-        /**
-         * @deprecated may not work on servers
-         */
-        readonly source: DamageSource;
-        readonly health: number;
-        readonly change: number;
-    }
-
-    interface Death extends BaseEvent {
-        readonly deathPos: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper;
-        readonly inventory: JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper>;
-
-        /**
-         * Respawns the player. Should be used with some delay, one tick should be enough.
-         * @since 1.8.4
-         */
-        respawn(): void;
-
-    }
-
-    interface EXPChange extends BaseEvent {
-        readonly progress: number;
-        readonly total: number;
-        readonly level: number;
-        /** @since 1.6.5 */
-        readonly prevProgress: number;
-        /** @since 1.6.5 */
-        readonly prevTotal: number;
-        /** @since 1.6.5 */
-        readonly prevLevel: number;
-    }
-
-    interface FallFlying extends BaseEvent {
-        readonly state: boolean;
-    }
-
-    interface Heal extends BaseEvent {
-        readonly source: HealSource;
-        readonly health: number;
-        readonly change: number;
-    }
-
-    interface HealthChange extends BaseEvent {
-        readonly health: number;
-        readonly change: number;
-    }
-
-    interface HeldItemChange extends BaseEvent {
-        readonly offHand: boolean;
-        readonly item: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
-        readonly oldItem: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
-    }
-
-    interface HungerChange extends BaseEvent {
-        readonly foodLevel: number;
-    }
-
-    interface InteractBlock extends BaseEvent {
-        readonly offhand: boolean;
-        readonly result: ActionResult;
-        readonly block: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper;
-        readonly side: Side;
-    }
-
-    interface InteractEntity extends BaseEvent {
-        readonly offhand: boolean;
-        readonly result: ActionResult;
-        readonly entity: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
-    }
-
-    interface OpenScreen extends BaseEvent {
-        readonly screen: Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.IScreen;
-        readonly screenName: ScreenName;
-    }
-
-    interface Riding extends BaseEvent {
-        readonly state: boolean;
-        readonly entity: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
-    }
-
-    interface SignEdit extends BaseEvent, Cancellable {
-        readonly pos: Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D;
-        closeScreen: boolean;
-        signText: JavaList<string> | null;
-    }
-
-    interface StatusEffectUpdate extends BaseEvent {
-        readonly oldEffect: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.StatusEffectHelper;
-        readonly newEffect: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.StatusEffectHelper;
-        readonly added: boolean;
-        readonly removed: boolean;
     }
 
     interface BlockUpdate extends BaseEvent {
@@ -309,73 +70,19 @@ declare namespace Events {
         readonly z: number;
     }
 
-    interface DimensionChange extends BaseEvent {
-        readonly dimension: Dimension;
-    }
-
-    interface Disconnect extends BaseEvent {
-        /** @since 1.6.4 */
-        readonly message: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper;
-    }
-
-    interface EntityDamaged extends BaseEvent {
-        readonly entity: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
-        /** @since 1.6.5 */
-        readonly health: number;
-        readonly damage: number;
-    }
-
-    interface EntityHealed extends BaseEvent {
-        readonly entity: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
-        readonly health: number;
-        readonly damage: number;
-    }
-
-    interface EntityLoad extends BaseEvent {
-        readonly entity: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
-    }
-
-    interface EntityUnload extends BaseEvent {
-        readonly entity: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
-        readonly reason: EntityUnloadReason;
-    }
-
-    interface JoinServer extends BaseEvent {
-        readonly player: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.ClientPlayerEntityHelper</* net.minecraft.client.network.ClientPlayerEntity */ any>;
-        readonly address: string;
-    }
-
-    interface PlayerJoin extends BaseEvent {
-        readonly UUID: string;
-        readonly player: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.PlayerListEntryHelper;
-    }
-
-    interface PlayerLeave extends BaseEvent {
-        readonly UUID: string;
-        readonly player: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.PlayerListEntryHelper;
-    }
-
-    interface Sound extends BaseEvent, Cancellable {
-        readonly sound: SoundId;
-        readonly volume: number;
-        readonly pitch: number;
-        readonly position: Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D;
-    }
-
-    interface Tick extends BaseEvent {}
-
-    interface CommandContext extends BaseEvent {
-
-        getRaw(): Packages.com.mojang.brigadier.context.CommandContext<any>;
+    interface ClickSlot extends BaseEvent, Cancellable {
 
         /**
-         * @throws CommandSyntaxException
-         * @since 1.4.2
+         * [https://wiki.vg/Protocol#Click_Window](https://wiki.vg/Protocol#Click_Window)
          */
-        getArg(name: string): any;
-        getChild(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.CommandContextHelper;
-        getRange(): Packages.com.mojang.brigadier.context.StringRange;
-        getInput(): string;
+        readonly mode: number;
+        readonly button: ClickSlotButton;
+        readonly slot: number;
+
+        /**
+         * @return inventory associated with the event
+         */
+        getInventory(): Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
 
     }
 
@@ -451,6 +158,26 @@ declare namespace Events {
          */
         getThemeData(): JavaMap<string, JavaArray<number>>;
 
+    }
+
+    interface CommandContext extends BaseEvent {
+
+        getRaw(): Packages.com.mojang.brigadier.context.CommandContext<any>;
+
+        /**
+         * @throws CommandSyntaxException
+         * @since 1.4.2
+         */
+        getArg(name: string): any;
+        getChild(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.CommandContextHelper;
+        getRange(): Packages.com.mojang.brigadier.context.StringRange;
+        getInput(): string;
+
+    }
+
+    interface ContainerUpdate extends BaseEvent {
+        readonly inventory: Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
+        readonly screen: Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.IScreen;
     }
 
     interface Custom extends BaseEvent {
@@ -555,20 +282,240 @@ declare namespace Events {
 
     }
 
+    interface Damage extends BaseEvent {
+
+        /**
+         * @deprecated may not work on servers
+         */
+        readonly attacker: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
+
+        /**
+         * @deprecated may not work on servers
+         */
+        readonly source: DamageSource;
+        readonly health: number;
+        readonly change: number;
+    }
+
+    interface Death extends BaseEvent {
+        readonly deathPos: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper;
+        readonly inventory: JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper>;
+
+        /**
+         * Respawns the player. Should be used with some delay, one tick should be enough.
+         * @since 1.8.4
+         */
+        respawn(): void;
+
+    }
+
+    interface DimensionChange extends BaseEvent {
+        readonly dimension: Dimension;
+    }
+
+    interface Disconnect extends BaseEvent {
+        /** @since 1.6.4 */
+        readonly message: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper;
+    }
+
+    interface DropSlot extends BaseEvent, Cancellable {
+        readonly slot: number;
+
+        /**
+         * whether it's all or a single item being dropped
+         */
+        readonly all: boolean;
+
+        /**
+         * @return inventory associated with the event
+         */
+        getInventory(): Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
+
+    }
+
+    interface EntityDamaged extends BaseEvent {
+        readonly entity: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
+        /** @since 1.6.5 */
+        readonly health: number;
+        readonly damage: number;
+    }
+
+    interface EntityHealed extends BaseEvent {
+        readonly entity: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
+        readonly health: number;
+        readonly damage: number;
+    }
+
+    interface EntityLoad extends BaseEvent {
+        readonly entity: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
+    }
+
+    interface EntityUnload extends BaseEvent {
+        readonly entity: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
+        readonly reason: EntityUnloadReason;
+    }
+
+    interface EXPChange extends BaseEvent {
+        readonly progress: number;
+        readonly total: number;
+        readonly level: number;
+        /** @since 1.6.5 */
+        readonly prevProgress: number;
+        /** @since 1.6.5 */
+        readonly prevTotal: number;
+        /** @since 1.6.5 */
+        readonly prevLevel: number;
+    }
+
+    interface FallFlying extends BaseEvent {
+        readonly state: boolean;
+    }
+
+    interface Heal extends BaseEvent {
+        readonly source: HealSource;
+        readonly health: number;
+        readonly change: number;
+    }
+
+    interface HealthChange extends BaseEvent {
+        readonly health: number;
+        readonly change: number;
+    }
+
+    interface HeldItemChange extends BaseEvent {
+        readonly offHand: boolean;
+        readonly item: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
+        readonly oldItem: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
+    }
+
+    interface HungerChange extends BaseEvent {
+        readonly foodLevel: number;
+    }
+
+    interface InteractBlock extends BaseEvent {
+        readonly offhand: boolean;
+        readonly result: ActionResult;
+        readonly block: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper;
+        readonly side: Side;
+    }
+
+    interface InteractEntity extends BaseEvent {
+        readonly offhand: boolean;
+        readonly result: ActionResult;
+        readonly entity: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
+    }
+
+    interface ItemDamage extends BaseEvent {
+        readonly item: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
+        readonly damage: number;
+    }
+
+    interface ItemPickup extends BaseEvent {
+        readonly item: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
+    }
+
+    interface JoinServer extends BaseEvent {
+        readonly player: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.ClientPlayerEntityHelper</* net.minecraft.client.network.ClientPlayerEntity */ any>;
+        readonly address: string;
+    }
+
+    interface Key extends BaseEvent, Cancellable {
+        readonly action: number;
+        readonly key: globalThis.Key;
+        readonly mods: KeyMods;
+    }
+
+    interface LaunchGame extends BaseEvent {
+        readonly playerName: string;
+    }
+
+    interface MouseScroll extends BaseEvent, Cancellable {
+        readonly deltaX: number;
+        readonly deltaY: number;
+    }
+
+    interface OpenContainer extends BaseEvent, Cancellable {
+        readonly inventory: Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
+        readonly screen: Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.IScreen;
+    }
+
+    interface OpenScreen extends BaseEvent {
+        readonly screen: Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.IScreen;
+        readonly screenName: ScreenName;
+    }
+
+    interface PlayerJoin extends BaseEvent {
+        readonly UUID: string;
+        readonly player: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.PlayerListEntryHelper;
+    }
+
+    interface PlayerLeave extends BaseEvent {
+        readonly UUID: string;
+        readonly player: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.PlayerListEntryHelper;
+    }
+
     interface ProfileLoad extends BaseEvent {
         readonly profileName: string;
     }
 
-    interface WrappedScript extends BaseEvent {
-        readonly arg1: T;
-        readonly arg2: U;
-        result: R;
+    interface QuitGame extends BaseEvent {}
 
-        setReturnBoolean(b: boolean): void;
-        setReturnInt(i: int): void;
-        setReturnDouble(d: double): void;
-        setReturnString(s: string): void;
-        setReturnObject(o: any): void;
+    interface RecvMessage extends BaseEvent, Cancellable {
+        text: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper | null;
+        /** @since 1.8.2 */
+        signature: JavaArray<number> | null;
+        /** @since 1.8.2 */
+        messageType: string | null;
+    }
+
+    interface RecvPacket extends BaseEvent, Cancellable {
+        packet: /* net.minecraft.network.packet.Packet<any> */ any | null;
+        readonly type: PacketName;
+
+        /**
+         * After modifying the buffer, use {@link PacketByteBufferHelper.toPacket}() to get the modified
+         *  packet and replace this packet with the modified one.
+         * @return a helper for accessing and modifying the packet's data.
+         * @since 1.8.4
+         */
+        getPacketBuffer(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.PacketByteBufferHelper;
+
+    }
+
+    interface ResourcePackLoaded extends BaseEvent {
+        readonly isGameStart: boolean;
+        readonly loadedPacks: JavaList<string>;
+    }
+
+    interface Riding extends BaseEvent {
+        readonly state: boolean;
+        readonly entity: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
+    }
+
+    interface SendMessage extends BaseEvent, Cancellable {
+        message: string | null;
+    }
+
+    interface SendPacket extends BaseEvent, Cancellable {
+        packet: /* net.minecraft.network.packet.Packet<any> */ any | null;
+        readonly type: PacketName;
+
+        /**
+         * Replaces the packet of this event with a new one of the same type, created from the given
+         *  arguments. It's recommended to use {@link getPacketBuffer}() to modify the packet instead.
+         * @param args the arguments to pass to the packet's constructor
+         * @throws NullPointerException if this.packet is null
+         * @since 1.8.4
+         */
+        replacePacket(...args: JavaVarArgs<any>): void;
+
+        /**
+         * After modifying the buffer, use {@link PacketByteBufferHelper.toPacket}() to get the modified
+         *  packet and replace this packet with the modified one.
+         * @return a helper for accessing and modifying the packet's data.
+         * @since 1.8.4
+         */
+        getPacketBuffer(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.PacketByteBufferHelper;
 
     }
 
@@ -685,33 +632,85 @@ declare namespace Events {
 
     }
 
+    interface SignEdit extends BaseEvent, Cancellable {
+        readonly pos: Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D;
+        closeScreen: boolean;
+        signText: JavaList<string> | null;
+    }
+
+    interface SlotUpdate extends BaseEvent {
+        readonly type: SlotUpdateType;
+        readonly slot: number;
+        readonly oldStack: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
+        readonly newStack: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
+
+        /**
+         * @return inventory associated with the event
+         */
+        getInventory(): Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
+
+    }
+
+    interface Sound extends BaseEvent, Cancellable {
+        readonly sound: SoundId;
+        readonly volume: number;
+        readonly pitch: number;
+        readonly position: Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D;
+    }
+
+    interface StatusEffectUpdate extends BaseEvent {
+        readonly oldEffect: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.StatusEffectHelper;
+        readonly newEffect: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.StatusEffectHelper;
+        readonly added: boolean;
+        readonly removed: boolean;
+    }
+
+    interface Tick extends BaseEvent {}
+
+    interface Title extends BaseEvent, Cancellable {
+        readonly type: TitleType;
+        message: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper | null;
+    }
+
+    interface WrappedScript extends BaseEvent {
+        readonly arg1: T;
+        readonly arg2: U;
+        result: R;
+
+        setReturnBoolean(b: boolean): void;
+        setReturnInt(i: int): void;
+        setReturnDouble(d: double): void;
+        setReturnString(s: string): void;
+        setReturnObject(o: any): void;
+
+    }
+
 }
 
 interface Events {
 
-    Key: Events.Key;
-    LaunchGame: Events.LaunchGame;
-    MouseScroll: Events.MouseScroll;
-    QuitGame: Events.QuitGame;
-    RecvMessage: Events.RecvMessage;
-    RecvPacket: Events.RecvPacket;
-    ResourcePackLoaded: Events.ResourcePackLoaded;
-    SendMessage: Events.SendMessage;
-    SendPacket: Events.SendPacket;
-    Title: Events.Title;
-    ClickSlot: Events.ClickSlot;
-    ContainerUpdate: Events.ContainerUpdate;
-    DropSlot: Events.DropSlot;
-    ItemDamage: Events.ItemDamage;
-    ItemPickup: Events.ItemPickup;
-    OpenContainer: Events.OpenContainer;
-    SlotUpdate: Events.SlotUpdate;
     AirChange: Events.AirChange;
     ArmorChange: Events.ArmorChange;
     AttackBlock: Events.AttackBlock;
     AttackEntity: Events.AttackEntity;
+    BlockUpdate: Events.BlockUpdate;
+    Bossbar: Events.Bossbar;
+    ChunkLoad: Events.ChunkLoad;
+    ChunkUnload: Events.ChunkUnload;
+    ClickSlot: Events.ClickSlot;
+    CodeRender: Events.CodeRender;
+    CommandContext: Events.CommandContext;
+    ContainerUpdate: Events.ContainerUpdate;
+    Custom: Events.Custom;
     Damage: Events.Damage;
     Death: Events.Death;
+    DimensionChange: Events.DimensionChange;
+    Disconnect: Events.Disconnect;
+    DropSlot: Events.DropSlot;
+    EntityDamaged: Events.EntityDamaged;
+    EntityHealed: Events.EntityHealed;
+    EntityLoad: Events.EntityLoad;
+    EntityUnload: Events.EntityUnload;
     EXPChange: Events.EXPChange;
     FallFlying: Events.FallFlying;
     Heal: Events.Heal;
@@ -720,31 +719,32 @@ interface Events {
     HungerChange: Events.HungerChange;
     InteractBlock: Events.InteractBlock;
     InteractEntity: Events.InteractEntity;
-    OpenScreen: Events.OpenScreen;
-    Riding: Events.Riding;
-    SignEdit: Events.SignEdit;
-    StatusEffectUpdate: Events.StatusEffectUpdate;
-    BlockUpdate: Events.BlockUpdate;
-    Bossbar: Events.Bossbar;
-    ChunkLoad: Events.ChunkLoad;
-    ChunkUnload: Events.ChunkUnload;
-    DimensionChange: Events.DimensionChange;
-    Disconnect: Events.Disconnect;
-    EntityDamaged: Events.EntityDamaged;
-    EntityHealed: Events.EntityHealed;
-    EntityLoad: Events.EntityLoad;
-    EntityUnload: Events.EntityUnload;
+    ItemDamage: Events.ItemDamage;
+    ItemPickup: Events.ItemPickup;
     JoinServer: Events.JoinServer;
+    Key: Events.Key;
+    LaunchGame: Events.LaunchGame;
+    MouseScroll: Events.MouseScroll;
+    OpenContainer: Events.OpenContainer;
+    OpenScreen: Events.OpenScreen;
     PlayerJoin: Events.PlayerJoin;
     PlayerLeave: Events.PlayerLeave;
-    Sound: Events.Sound;
-    Tick: Events.Tick;
-    CommandContext: Events.CommandContext;
-    CodeRender: Events.CodeRender;
-    Custom: Events.Custom;
     ProfileLoad: Events.ProfileLoad;
-    WrappedScript: Events.WrappedScript;
+    QuitGame: Events.QuitGame;
+    RecvMessage: Events.RecvMessage;
+    RecvPacket: Events.RecvPacket;
+    ResourcePackLoaded: Events.ResourcePackLoaded;
+    Riding: Events.Riding;
+    SendMessage: Events.SendMessage;
+    SendPacket: Events.SendPacket;
     Service: Events.Service;
+    SignEdit: Events.SignEdit;
+    SlotUpdate: Events.SlotUpdate;
+    Sound: Events.Sound;
+    StatusEffectUpdate: Events.StatusEffectUpdate;
+    Tick: Events.Tick;
+    Title: Events.Title;
+    WrappedScript: Events.WrappedScript;
 
 }
 
@@ -1169,6 +1169,303 @@ declare namespace Client {
 }
 
 /**
+ * Better File-System functions.  
+ *
+ * @author Wagyourtail
+ * @since 1.1.8
+ */
+declare namespace FS {
+
+    /**
+     * List files in path.
+     * @param path relative to the script's folder.
+     * @return An array of file names as string.
+     * @since 1.1.8
+     */
+    function list(path: string): JavaArray<string> | null;
+
+    /**
+     * Check if a file exists.
+     * @param path relative to the script's folder.
+     * @since 1.1.8
+     */
+    function exists(path: string): boolean;
+
+    /**
+     * Check if a file is a directory.
+     * @param path relative to the script's folder.
+     * @since 1.1.8
+     */
+    function isDir(path: string): boolean;
+
+    /**
+     * @param path the path relative to the script's folder
+     * @return `true` if the path leads to a file, `false` otherwise.
+     * @since 1.8.4
+     */
+    function isFile(path: string): boolean;
+
+    /**
+     * Get the last part (name) of a file.
+     * @param path relative to the script's folder.
+     * @return a string of the file name.
+     * @since 1.1.8
+     */
+    function getName(path: string): string;
+
+    /**
+     * @param absolutePath the absolute path to the file
+     * @return a path relative to the script's folder to the given absolute path.
+     * @since 1.8.4
+     */
+    function toRelativePath(absolutePath: string): string;
+
+    /**
+     * Creates a new file in the specified path, relative to the script's folder. This will only
+     *  work if the parent directory already exists. See {@link createFile}(String, String, boolean)
+     *  to automatically create all parent directories.
+     * @param path the path relative to the script's folder
+     * @param name the name of the file
+     * @return `true` if the file was created successfully, `false` otherwise.
+     * @throws IOException if there occurs an error while creating the file.
+     * @since 1.8.4
+     */
+    function createFile(path: string, name: string): boolean;
+
+    /**
+     * Creates a new file in the specified path, relative to the script's folder. Optionally parent
+     *  directories can be created if they do not exist.
+     * @param path the path relative to the script's folder
+     * @param name the name of the file
+     * @param createDirs whether to create parent directories if they do not exist or not
+     * @return `true` if the file was created successfully, `false` otherwise.
+     * @throws IOException if there occurs an error while creating the file.
+     * @since 1.8.4
+     */
+    function createFile(path: string, name: string, createDirs: boolean): boolean;
+
+    /**
+     * Make a directory.
+     * @param path relative to the script's folder.
+     * @return a boolean for success.
+     * @since 1.1.8
+     */
+    function makeDir(path: string): boolean;
+
+    /**
+     * Move a file.
+     * @param from relative to the script's folder.
+     * @param to relative to the script's folder.
+     * @throws IOException
+     * @since 1.1.8
+     */
+    function move(from: string, to: string): void;
+
+    /**
+     * Copy a file.
+     * @param from relative to the script's folder.
+     * @param to relative to the script's folder.
+     * @throws IOException
+     * @since 1.1.8
+     */
+    function copy(from: string, to: string): void;
+
+    /**
+     * Delete a file.
+     * @param path relative to the script's folder.
+     * @return a boolean for success.
+     * @since 1.2.9
+     */
+    function unlink(path: string): boolean;
+
+    /**
+     * Combine 2 paths.
+     * @param patha path is relative to the script's folder.
+     * @return a string of the combined path.
+     * @throws IOException
+     * @since 1.1.8
+     */
+    function combine(patha: string, pathb: string): string;
+
+    /**
+     * Gets the directory part of a file path, or the parent directory of a folder.
+     * @param path relative to the script's folder.
+     * @return a string of the combined path.
+     * @throws IOException
+     * @since 1.1.8
+     */
+    function getDir(path: string): string;
+
+    /**
+     * Open a FileHandler for the file at the specified path.
+     * @param path relative to the script's folder.
+     * @return a {@link FileHandler} for the file path.
+     * @see FileHandler
+     * @since 1.1.8
+     */
+    function open(path: string): Packages.xyz.wagyourtail.jsmacros.core.library.impl.classes.FileHandler;
+
+    /**
+     * Open a FileHandler for the file at the specified path.
+     * @param path relative to the script's folder.
+     * @param charset the charset to use for reading/writing the file (default is UTF-8)
+     * @return a {@link FileHandler} for the file path.
+     * @see FileHandler
+     * @since 1.8.4
+     */
+    function open(path: string, charset: string): Packages.xyz.wagyourtail.jsmacros.core.library.impl.classes.FileHandler;
+
+    /**
+     * An advanced method to walk a directory tree and get some information about the files, as well
+     *  as their paths.
+     * @param path the relative path of the directory to walk through
+     * @param maxDepth the maximum depth to follow, can cause stack overflow if too high
+     * @param followLinks whether to follow symbolic links
+     * @param visitor the visitor that is called for each file with the path of the file and its
+     *                     attributes
+     * @throws IOException
+     * @since 1.8.4
+     */
+    function walkFiles(path: string, maxDepth: int, followLinks: boolean, visitor: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<string, Packages.java.nio.file.attribute.BasicFileAttributes, any, any>): void;
+
+    /**
+     * @param path the relative path to get the file object for
+     * @return the file object for the specified path.
+     * @since 1.8.4
+     */
+    function toRawFile(path: string): Packages.java.io.File;
+
+    /**
+     * @param path the relative path to get the path object for
+     * @return the path object for the specified path.
+     * @since 1.8.4
+     */
+    function toRawPath(path: string): Packages.java.nio.file.Path;
+
+    /**
+     * @param path the path relative to the script's folder
+     * @return the attributes of the file at the specified path.
+     * @throws IOException
+     * @since 1.8.4
+     */
+    function getRawAttributes(path: string): Packages.java.nio.file.attribute.BasicFileAttributes;
+
+}
+
+/**
+ * "Global" variables for passing to other contexts.  
+ *
+ * @author Wagyourtail
+ * @since 1.0.4
+ */
+declare namespace GlobalVars {
+
+    /**
+     * Put an Integer into the global variable space.
+     * @since 1.0.4
+     */
+    function putInt(name: string, i: int): number;
+
+    /**
+     * put a String into the global variable space.
+     * @since 1.0.4
+     */
+    function putString(name: string, str: string): string;
+
+    /**
+     * put a Double into the global variable space.
+     * @since 1.0.8
+     */
+    function putDouble(name: string, d: double): number;
+
+    /**
+     * put a Boolean into the global variable space.
+     * @since 1.1.7
+     */
+    function putBoolean(name: string, b: boolean): boolean;
+
+    /**
+     * put anything else into the global variable space.
+     * @since 1.1.7
+     */
+    function putObject(name: string, o: any): any;
+
+    /**
+     * Returns the type of the defined item in the global variable space as a string.
+     * @since 1.0.4
+     */
+    function getType(name: string): string | null;
+
+    /**
+     * Gets an Integer from the global variable space.
+     * @since 1.0.4
+     */
+    function getInt(name: string): number | null;
+
+    /**
+     * Gets an Integer from the global variable space. and then increment it there.
+     * @since 1.6.5
+     */
+    function getAndIncrementInt(name: string): number | null;
+
+    /**
+     * Gets an integer from the global variable space. and then decrement it there.
+     * @since 1.6.5
+     */
+    function getAndDecrementInt(name: string): number | null;
+
+    /**
+     * increment an Integer in the global variable space. then return it.
+     * @since 1.6.5
+     */
+    function incrementAndGetInt(name: string): number | null;
+
+    /**
+     * decrement an Integer in the global variable space. then return it.
+     * @since 1.6.5
+     */
+    function decrementAndGetInt(name: string): number | null;
+
+    /**
+     * Gets a String from the global variable space
+     * @since 1.0.4
+     */
+    function getString(name: string): string | null;
+
+    /**
+     * Gets a Double from the global variable space.
+     * @since 1.0.8
+     */
+    function getDouble(name: string): number | null;
+
+    /**
+     * Gets a Boolean from the global variable space.
+     * @since 1.1.7
+     */
+    function getBoolean(name: string): boolean | null;
+
+    /**
+     * toggles a global boolean and returns its new value
+     * @since 1.6.5
+     */
+    function toggleBoolean(name: string): boolean | null;
+
+    /**
+     * Gets an Object from the global variable space.
+     * @since 1.1.7
+     */
+    function getObject(name: string): any;
+
+    /**
+     * removes a key from the global variable space.
+     * @since 1.2.0
+     */
+    function remove(key: string): void;
+    function getRaw(): JavaMap<string, any>;
+
+}
+
+/**
  * Functions for displaying stuff in 2 to 3 dimensions
  *
  * @author Wagyourtail
@@ -1420,6 +1717,332 @@ declare namespace JavaUtils {
      * @since 1.8.4
      */
     function arrayDeepToString(array: any[]): string;
+
+}
+
+/**
+ * {@link FunctionalInterface} implementation for wrapping methods to match the language spec.  
+ *  <br><br>    
+ *  <br><br>  
+ *  Javascript:  
+ *  language spec requires that only one thread can hold an instance of the language at a time,  
+ *  so this implementation uses a non-preemptive priority queue for the threads that call the resulting {@link MethodWrapper}.  
+ *  <br><br>  
+ *  JEP:  
+ *  language spec requires everything to be on the same thread, on the java end, so all calls to {@link MethodWrapper}
+ *  call back to JEP's starting thread and wait for the call to complete.  
+ *  <br><br>  
+ *  Jython:  
+ *  no limitations
+ *  <br><br>  
+ *  LUA:  
+ *  no limitations
+ * @author Wagyourtail
+ * @since 1.2.5, re-named from `consumer` in 1.3.2
+ */
+declare namespace JavaWrapper {
+
+    /**
+     * @return a new {@link MethodWrapper}
+     * @since 1.4.0
+     */
+    function methodToJava<A, B, R>(c: (arg0: A, arg1: B) => R | void): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<A, B, R, any>;
+
+    /**
+     * @return a new {@link MethodWrapper}
+     * @since 1.4.0
+     */
+    function methodToJavaAsync<A, B, R>(c: (arg0: A, arg1: B) => R | void): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<A, B, R, any>;
+
+    /**
+     * JS/JEP ONLY
+     *  allows you to set the position of the thread in the queue. you can use this for return value one's too...
+     * @since 1.8.0
+     */
+    function methodToJavaAsync<A, B, R>(priority: int, c: (arg0: A, arg1: B) => R | void): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<A, B, R, any>;
+
+    /**
+     * JS/JEP only, puts current task at end of queue.  
+     *  use with caution, don't accidentally cause circular waiting.
+     * @throws InterruptedException
+     * @since 1.4.0 [citation needed]
+     */
+    function deferCurrentTask(): void;
+
+    /**
+     * JS/JEP only, puts current task at end of queue.  
+     *  use with caution, don't accidentally cause circular waiting.
+     * @param priorityAdjust the amount to adjust the priority by
+     * @throws InterruptedException
+     * @since 1.8.0
+     */
+    function deferCurrentTask(priorityAdjust: int): void;
+
+    /**
+     * JS/JEP only, get priority of current task.
+     * @throws InterruptedException
+     * @since 1.8.0
+     */
+    function getCurrentPriority(): number;
+
+    /**
+     * Close the current context
+     * @since 1.2.2
+     */
+    function stop(): void;
+
+}
+
+/**
+ * Functions that interact directly with JsMacros or Events.  
+ *
+ * @author Wagyourtail
+ */
+declare namespace JsMacros {
+
+    /**
+     * @return the JsMacros profile class.
+     */
+    function getProfile(): Packages.xyz.wagyourtail.jsmacros.core.config.BaseProfile;
+
+    /**
+     * @return the JsMacros config management class.
+     */
+    function getConfig(): Packages.xyz.wagyourtail.jsmacros.core.config.ConfigManager;
+
+    /**
+     * services are background scripts designed to run full time and are mainly noticed by their side effects.
+     * @return for managing services.
+     * @since 1.6.3
+     */
+    function getServiceManager(): Packages.xyz.wagyourtail.jsmacros.core.service.ServiceManager;
+
+    /**
+     * @return list of non-garbage-collected ScriptContext's
+     * @since 1.4.0
+     */
+    function getOpenContexts(): JavaList<Packages.xyz.wagyourtail.jsmacros.core.language.BaseScriptContext<any>>;
+
+    /**
+     * @see JsMacros.runScript(String, String, MethodWrapper)
+     * @since 1.1.5
+     */
+    function runScript(file: string): Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>;
+
+    /**
+     * @param fakeEvent you probably actually want to pass an instance created by {@link createCustomEvent}(String)
+     * @since 1.6.3
+     */
+    function runScript(file: string, fakeEvent: Events.BaseEvent | null): Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>;
+
+    /**
+     * runs a script with a eventCustom to be able to pass args
+     * @return container the script is running on.
+     * @since 1.6.3 (1.1.5 - 1.6.3 didn't have fakeEvent)
+     */
+    function runScript(file: string, fakeEvent: Events.BaseEvent | null, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.java.lang.Throwable, any, any, any> | null): Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>;
+
+    /**
+     * @see JsMacros.runScript(String, String, MethodWrapper)
+     * @since 1.2.4
+     */
+    function runScript(language: string, script: string): Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>;
+
+    /**
+     * Runs a string as a script.
+     * @param callback calls your method as a {@link Packages.java.util.function.Consumer}<{@link String}>
+     * @return the {@link EventContainer} the script is running on.
+     * @since 1.2.4
+     */
+    function runScript(language: string, script: string, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.java.lang.Throwable, any, any, any> | null): Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>;
+    /** @since 1.6.0 */
+    function runScript(language: string, script: string, file: string | null, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.java.lang.Throwable, any, any, any> | null): Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>;
+    /** @since 1.7.0 */
+    function runScript(language: string, script: string, file: string | null, event: Events.BaseEvent | null, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.java.lang.Throwable, any, any, any> | null): Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>;
+    /** @since 1.7.0 */
+    function wrapScriptRun<T, U, R>(file: string): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<T, U, R, any>;
+    /** @since 1.7.0 */
+    function wrapScriptRun<T, U, R>(language: string, script: string): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<T, U, R, any>;
+    /** @since 1.7.0 */
+    function wrapScriptRun<T, U, R>(language: string, script: string, file: string | null): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<T, U, R, any>;
+    /** @since 1.7.0 */
+    function wrapScriptRunAsync<T, U, R>(file: string): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<T, U, R, any>;
+    /** @since 1.7.0 */
+    function wrapScriptRunAsync<T, U, R>(language: string, script: string): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<T, U, R, any>;
+    /** @since 1.7.0 */
+    function wrapScriptRunAsync<T, U, R>(language: string, script: string, file: string | null): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<T, U, R, any>;
+
+    /**
+     * Opens a file with the default system program.
+     * @param path relative to the script's folder.
+     * @since 1.1.8
+     * @deprecated use the Utils library instead.
+     */
+    function open(path: string): void;
+
+    /**
+     * @throws MalformedURLException
+     * @since 1.6.0
+     * @deprecated use the Utils library instead.
+     */
+    function openUrl(url: string): void;
+
+    /**
+     * Creates a listener for an event, this function can be more efficient that running a script file when used properly.
+     * @param callback calls your method as a {@link Packages.java.util.function.BiConsumer}<{@link BaseEvent}, {@link EventContainer}>
+     * @see IEventListener
+     * @since 1.2.7
+     */
+    function on<E extends keyof Events>(event: E, callback: MethodWrapper<Events[E], EventContainer>): Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener;
+
+    /**
+     * Creates a listener for an event, this function can be more efficient that running a script file when used properly.
+     * @param callback calls your method as a {@link Packages.java.util.function.BiConsumer}<{@link BaseEvent}, {@link EventContainer}>
+     * @see IEventListener
+     * @since 1.9.0
+     */
+    function on<E extends keyof Events>(event: E, joined: boolean, callback: MethodWrapper<Events[E], EventContainer>): Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener;
+
+    /**
+     * Creates a single-run listener for an event, this function can be more efficient that running a script file when used properly.
+     * @param callback calls your method as a {@link Packages.java.util.function.BiConsumer}<{@link BaseEvent}, {@link EventContainer}>
+     * @return the listener.
+     * @see IEventListener
+     * @since 1.2.7
+     */
+    function once<E extends keyof Events>(event: E, callback: MethodWrapper<Events[E], EventContainer>): Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener;
+
+    /**
+     * Creates a single-run listener for an event, this function can be more efficient that running a script file when used properly.
+     * @param callback calls your method as a {@link Packages.java.util.function.BiConsumer}<{@link BaseEvent}, {@link EventContainer}>
+     * @return the listener.
+     * @see IEventListener
+     * @since 1.9.0
+     */
+    function once<E extends keyof Events>(event: E, joined: boolean, callback: MethodWrapper<Events[E], EventContainer>): Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener;
+
+    /**
+     * @see JsMacros.off(String, IEventListener)
+     * @since 1.2.3
+     */
+    function off(listener: Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener): boolean;
+
+    /**
+     * Removes a {@link IEventListener} from an event.
+     * @see IEventListener
+     * @since 1.2.3
+     */
+    function off<E extends keyof Events>(event: E, listener: IEventListener): boolean;
+
+    /**
+     * Will also disable all listeners for the given event, including JsMacros own event listeners.
+     * @param event the event to remove all listeners from
+     * @since 1.8.4
+     */
+    function disableAllListeners(event: keyof Events): void;
+
+    /**
+     * Will also disable all listeners, including JsMacros own event listeners.
+     * @since 1.8.4
+     */
+    function disableAllListeners(): void;
+
+    /**
+     * Will only disable user created event listeners for the given event. This includes listeners
+     *  created from {@link on}(String, MethodWrapper), {@link once}(String, MethodWrapper),  
+     *  {@link waitForEvent}(String), {@link waitForEvent}(String, MethodWrapper) and
+     *  {@link waitForEvent}(String, MethodWrapper, MethodWrapper).
+     * @param event the event to remove all listeners from
+     * @since 1.8.4
+     */
+    function disableScriptListeners(event: keyof Events): void;
+
+    /**
+     * Will only disable user created event listeners.  This includes listeners created from
+     *  {@link on}(String, MethodWrapper), {@link once}(String, MethodWrapper),  
+     *  {@link waitForEvent}(String), {@link waitForEvent}(String, MethodWrapper) and
+     *  {@link waitForEvent}(String, MethodWrapper, MethodWrapper).
+     * @since 1.8.4
+     */
+    function disableScriptListeners(): void;
+
+    /**
+     * @param event event to wait for
+     * @return a event and a new context if the event you're waiting for was joined, to leave it early.
+     * @throws InterruptedException
+     * @since 1.5.0
+     */
+    function waitForEvent<E extends keyof Events>(event: E): FJsMacros$EventAndContext<Events[E]>;
+
+    /**
+     * @param event event to wait for
+     * @return a event and a new context if the event you're waiting for was joined, to leave it early.
+     * @throws InterruptedException
+     * @since 1.9.0
+     */
+    function waitForEvent<E extends keyof Events>(event: E, join: boolean): FJsMacros$EventAndContext<Events[E]>;
+
+    /**
+     * @throws InterruptedException
+     * @since 1.5.0 [citation needed]
+     */
+    function waitForEvent<E extends keyof Events>(event: E, filter: MethodWrapper<Events[E], undefined, boolean>): FJsMacros$EventAndContext<Events[E]>;
+
+    /**
+     * @throws InterruptedException
+     * @since 1.9.0
+     */
+    function waitForEvent<E extends keyof Events>(event: E, join: boolean, filter: MethodWrapper<Events[E], undefined, boolean>): FJsMacros$EventAndContext<Events[E]>;
+
+    /**
+     * waits for an event. if this thread is bound to an event already, this will release current lock.
+     * @param event event to wait for
+     * @param filter filter the event until it has the proper values or whatever.
+     * @param runBeforeWaiting runs as a {@link Runnable}, run before waiting, this is a thread-safety thing to prevent "interrupts" from going in between this and things like deferCurrentTask
+     * @return a event and a new context if the event you're waiting for was joined, to leave it early.
+     * @throws InterruptedException
+     * @since 1.5.0
+     */
+    function waitForEvent<E extends keyof Events>(event: E, filter: MethodWrapper<Events[E], undefined, boolean>, runBeforeWaiting: MethodWrapper<JavaObject, JavaObject, JavaObject>): FJsMacros$EventAndContext<Events[E]>;
+
+    /**
+     * waits for an event. if this thread is bound to an event already, this will release current lock.
+     * @param event event to wait for
+     * @param filter filter the event until it has the proper values or whatever.
+     * @param runBeforeWaiting runs as a {@link Runnable}, run before waiting, this is a thread-safety thing to prevent "interrupts" from going in between this and things like deferCurrentTask
+     * @return a event and a new context if the event you're waiting for was joined, to leave it early.
+     * @throws InterruptedException
+     * @since 1.9.0
+     */
+    function waitForEvent<E extends keyof Events>(event: E, join: boolean, filter: MethodWrapper<Events[E], undefined, boolean>, runBeforeWaiting: MethodWrapper<JavaObject, JavaObject, JavaObject>): FJsMacros$EventAndContext<Events[E]>;
+
+    /**
+     * @return a list of script-added listeners.
+     * @since 1.2.3
+     */
+    function listeners(event: keyof Events): JavaList<Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener>;
+
+    /**
+     * create a custom event object that can trigger a event. It's recommended to use
+     *  {@link EventCustom.registerEvent}() to set up the event to be visible in the GUI.
+     * @param eventName name of the event. please don't use an existing one... your scripts might not like that.
+     * @see BaseEventRegistry.addEvent(String)
+     * @since 1.2.8
+     */
+    function createCustomEvent(eventName: string): Packages.xyz.wagyourtail.jsmacros.core.event.impl.EventCustom;
+
+    /**
+     * asserts if `event` is the correct type of event<br>  
+     *  and convert `event` type to target type in ts<br>  
+     *  example:  
+     *  ```  
+     *  JsMacros.assertEvent(event, 'Service')
+     *  ```
+     * @param event the event to assert
+     * @param type string of the event type
+     * @since 1.9.0
+     */
+    function assertEvent<E extends keyof Events>(event: Events.BaseEvent, type: E): asserts event is Events[E];
 
 }
 
@@ -1800,1133 +2423,6 @@ declare namespace PositionCommon {
 }
 
 /**
- * @author Etheradon
- * @since 1.8.4
- */
-declare namespace Utils {
-
-    /**
-     * @param url the url to open
-     * @since 1.8.4
-     */
-    function openUrl(url: string): void;
-
-    /**
-     * @param path the path top open, relative the config folder
-     * @since 1.8.4
-     */
-    function openFile(path: string): void;
-
-    /**
-     * Copies the text to the clipboard.
-     * @param text the text to copy
-     * @since 1.8.4
-     */
-    function copyToClipboard(text: string): void;
-
-    /**
-     * @return the text from the clipboard.
-     * @since 1.8.4
-     */
-    function getClipboard(): string;
-
-    /**
-     * Tries to guess the name of the sender of a given message. This is not guaranteed to work and
-     *  for specific servers it may be better to use regex instead.
-     * @param text the text to check
-     * @return the name of the sender or `null` if it couldn't be guessed.
-     * @since 1.8.4
-     */
-    function guessName(text: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper): string;
-
-    /**
-     * Tries to guess the name of the sender of a given message. This is not guaranteed to work and
-     *  for specific servers it may be better to use regex instead.
-     * @param text the text to check
-     * @return the name of the sender or `null` if it couldn't be guessed.
-     * @since 1.8.4
-     */
-    function guessName(text: string): string;
-
-    /**
-     * Tries to guess the name, as well as the titles and roles of the sender of the given message.  
-     *  This is not guaranteed to work and for specific servers it may be better to use regex
-     *  instead.
-     * @param text the text to check
-     * @return a list of names, titles and roles of the sender or an empty list if it couldn't be
-     *  guessed.
-     * @since 1.8.4
-     */
-    function guessNameAndRoles(text: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper): JavaList<string>;
-
-    /**
-     * Tries to guess the name, as well as the titles and roles of the sender of the given message.  
-     *  This is not guaranteed to work and for specific servers it may be better to use regex
-     *  instead.
-     * @param text the text to check
-     * @return a list of names, titles and roles of the sender or an empty list if it couldn't be
-     *  guessed.
-     * @since 1.8.4
-     */
-    function guessNameAndRoles(text: string): JavaList<string>;
-
-    /**
-     * Hashes the given string with sha-256.
-     * @param message the message to hash
-     * @return the hashed message.
-     * @since 1.8.4
-     */
-    function hashString(message: string | null): string;
-
-    /**
-     * Hashes the given string with sha-256 the selected algorithm.
-     * @param message the message to hash
-     * @param algorithm sha1 | sha256 | sha384 | sha512 | md2 | md5
-     * @return the hashed message.
-     * @since 1.8.4
-     */
-    function hashString(message: string | null, algorithm: string): string | null;
-
-    /**
-     * Encodes the given string with Base64.
-     * @param message the message to encode
-     * @return the encoded message.
-     * @since 1.8.4
-     */
-    function encode(message: string): string;
-
-    /**
-     * Decodes the given string with Base64.
-     * @param message the message to decode
-     * @return the decoded message.
-     * @since 1.8.4
-     */
-    function decode(message: string): string;
-
-}
-
-/**
- * Functions for getting and using world data.  
- *
- * @author Wagyourtail
- */
-declare namespace World {
-
-    /**
-     * returns whether a world is currently loaded
-     * @since 1.3.0
-     */
-    function isWorldLoaded(): boolean;
-
-    /**
-     * @return players within render distance.
-     */
-    function getLoadedPlayers(): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.PlayerEntityHelper</* net.minecraft.entity.player.PlayerEntity */ any>> | null;
-
-    /**
-     * @return players on the tablist.
-     */
-    function getPlayers(): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.PlayerListEntryHelper> | null;
-
-    /**
-     * @param name the name of the player to get the entry for
-     * @return player entry for the given player's name or `null` if not found.
-     * @since 1.8.4
-     */
-    function getPlayerEntry(name: string): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.PlayerListEntryHelper | null;
-
-    /**
-     * @return The block at that position.
-     */
-    function getBlock(x: int, y: int, z: int): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper | null;
-    function getBlock(pos: Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper | null;
-    function getBlock(pos: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper | null;
-
-    /**
-     * The x and z position of the chunk can be calculated by the following formula: xChunk =
-     *  x >> 4; zChunk = z >> 4;
-     * @param x the x coordinate of the chunk, not the absolute position
-     * @param z the z coordinate of the chunk, not the absolute position
-     * @return ChunkHelper for the chunk coordinates {@link ChunkHelper}.
-     * @since 1.8.4
-     */
-    function getChunk(x: int, z: int): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.ChunkHelper | null;
-
-    /**
-     * Usage: <br>  
-     *  This will return all blocks that are facing south, don't require a tool to break,  
-     *  have a hardness of 10 or less and whose name contains either chest or barrel.  
-     *  ```  
-     *  World.getWorldScanner()
-     *      .withBlockFilter("getHardness").is("<=", 10)
-     *      .andStringBlockFilter().contains("chest", "barrel")
-     *      .withStringStateFilter().contains("facing=south")
-     *      .andStateFilter("isToolRequired").is(false)
-     *      .build()
-     *  ```
-     * @return a builder to create a WorldScanner.
-     * @since 1.6.5
-     */
-    function getWorldScanner(): TypedWorldScannerBuilder.Initial;
-
-    /**
-     * @return a scanner for the current world.
-     * @since 1.6.5
-     */
-    function getWorldScanner(blockFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockHelper, any, boolean, any> | null, stateFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper, any, boolean, any> | null): Packages.xyz.wagyourtail.jsmacros.client.api.classes.worldscanner.WorldScanner | null;
-    /** @since 1.6.4 */
-    function findBlocksMatching(centerX: int, centerZ: int, id: CanOmitNamespace<BlockId>, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
-    /** @since 1.6.4 */
-    function findBlocksMatching(id: CanOmitNamespace<BlockId>, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
-    /** @since 1.6.4 */
-    function findBlocksMatching(ids: CanOmitNamespace<BlockId>[], chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
-    /** @since 1.6.4 */
-    function findBlocksMatching(centerX: int, centerZ: int, ids: CanOmitNamespace<BlockId>[], chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
-    /** @since 1.6.4 */
-    function findBlocksMatching(blockFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockHelper, any, boolean, any>, stateFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper, any, boolean, any> | null, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
-    /** @since 1.6.4 */
-    function findBlocksMatching(chunkX: int, chunkZ: int, blockFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockHelper, any, boolean, any>, stateFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper, any, boolean, any> | null, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
-
-    /**
-     * By default, air blocks are ignored and the callback is only called for real blocks.
-     * @param pos the center position
-     * @param radius the radius to scan
-     * @param callback the callback to call for each block
-     * @since 1.8.4
-     */
-    function iterateSphere(pos: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, radius: int, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper, any, any, any>): void;
-
-    /**
-     * @param pos the center position
-     * @param radius the radius to scan
-     * @param ignoreAir whether to ignore air blocks
-     * @param callback the callback to call for each block
-     * @since 1.8.4
-     */
-    function iterateSphere(pos: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, radius: int, ignoreAir: boolean, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper, any, any, any>): void;
-
-    /**
-     * @param pos1 the first position
-     * @param pos2 the second position
-     * @param callback the callback to call for each block
-     * @since 1.8.4
-     */
-    function iterateBox(pos1: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, pos2: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper, any, any, any>): void;
-
-    /**
-     * @param pos1 the first position
-     * @param pos2 the second position
-     * @param callback the callback to call for each block
-     * @param ignoreAir whether to ignore air blocks
-     * @since 1.8.4
-     */
-    function iterateBox(pos1: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, pos2: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, ignoreAir: boolean, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper, any, any, any>): void;
-
-    /**
-     * @return a helper for the scoreboards provided to the client.
-     * @since 1.2.9
-     */
-    function getScoreboards(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.ScoreboardsHelper | null;
-
-    /**
-     * @return all entities in the render distance.
-     */
-    function getEntities(): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>> | null;
-
-    /**
-     * @param types the entity types to consider
-     * @return all entities in the render distance, that match the specified entity type.
-     * @since 1.8.4
-     */
-    function getEntities<E extends CanOmitNamespace<EntityId>>(...types: E[]): JavaList<EntityTypeFromId<E>> | null;
-
-    /**
-     * @param distance the maximum distance to search for entities
-     * @return a list of entities within the specified distance to the player.
-     * @since 1.8.4
-     */
-    function getEntities(distance: double): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>> | null;
-
-    /**
-     * @param distance the maximum distance to search for entities
-     * @param types the entity types to consider
-     * @return a list of entities within the specified distance to the player, that match the specified entity type.
-     * @since 1.8.4
-     */
-    function getEntities<E extends CanOmitNamespace<EntityId>>(distance: double, ...types: E[]): JavaList<EntityTypeFromId<E>> | null;
-
-    /**
-     * @param filter the entity filter
-     * @return a list of entities that match the specified filter.
-     * @since 1.8.4
-     */
-    function getEntities(filter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>, any, any, any>): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>> | null;
-
-    /**
-     * raytrace between two points returning the first block hit.
-     * @since 1.6.5
-     */
-    function rayTraceBlock(x1: double, y1: double, z1: double, x2: double, y2: double, z2: double, fluid: boolean): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper | null;
-
-    /**
-     * raytrace between two points returning the first entity hit.
-     * @since 1.8.3
-     */
-    function rayTraceEntity(x1: double, y1: double, z1: double, x2: double, y2: double, z2: double): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any> | null;
-
-    /**
-     * @return the current dimension.
-     * @since 1.1.2
-     */
-    function getDimension(): Dimension | null;
-
-    /**
-     * @return the current biome.
-     * @since 1.1.5
-     */
-    function getBiome(): Biome | null;
-
-    /**
-     * ticks processed since world was started.
-     * @return the current world time. `-1` if world is not loaded.
-     * @since 1.1.5
-     */
-    function getTime(): number;
-
-    /**
-     * ticks passed since world was started INCLUDING those skipped when nights were cut short with sleeping.
-     * @return the current world time of day. `-1` if world is not loaded.
-     * @since 1.1.5
-     */
-    function getTimeOfDay(): number;
-
-    /**
-     * @return `true` if it is daytime, `false` otherwise.
-     * @since 1.8.4
-     */
-    function isDay(): boolean;
-
-    /**
-     * @return `true` if it is nighttime, `false` otherwise.
-     * @since 1.8.4
-     */
-    function isNight(): boolean;
-
-    /**
-     * @return `true` if it is raining, `false` otherwise.
-     * @since 1.8.4
-     */
-    function isRaining(): boolean;
-
-    /**
-     * @return `true` if it is thundering, `false` otherwise.
-     * @since 1.8.4
-     */
-    function isThundering(): boolean;
-
-    /**
-     * @return an identifier for the loaded world that is based on the world's name or server ip and
-     *  thus most likely unique enough to identify a specific world, or
-     *  `"UNKNOWN_NAME"` if no world was found.
-     * @since 1.8.4
-     */
-    function getWorldIdentifier(): string;
-
-    /**
-     * @return respawn position.
-     * @since 1.2.6
-     */
-    function getRespawnPos(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper | null;
-
-    /**
-     * @return world difficulty as an int. `-1` if world is not loaded.
-     * @since 1.2.6
-     */
-    function getDifficulty(): number;
-
-    /**
-     * @return moon phase as an int. `-1` if world is not loaded.
-     * @since 1.2.6
-     */
-    function getMoonPhase(): number;
-
-    /**
-     * @return sky light as an int. `-1` if world is not loaded.
-     * @since 1.1.2
-     */
-    function getSkyLight(x: int, y: int, z: int): number;
-
-    /**
-     * @return block light as an int. `-1` if world is not loaded.
-     * @since 1.1.2
-     */
-    function getBlockLight(x: int, y: int, z: int): number;
-
-    /**
-     * plays a sound file using javax's sound stuff.
-     * @throws LineUnavailableException
-     * @throws IOException
-     * @throws UnsupportedAudioFileException
-     * @since 1.1.7
-     */
-    function playSoundFile(file: string, volume: double): Packages.javax.sound.sampled.Clip;
-
-    /**
-     * @see World.playSound(String, double, double, double, double, double)
-     * @since 1.1.7
-     */
-    function playSound(id: SoundId): void;
-
-    /**
-     * @see World.playSound(String, double, double, double, double, double)
-     * @since 1.1.7
-     */
-    function playSound(id: SoundId, volume: double): void;
-
-    /**
-     * @see World.playSound(String, double, double, double, double, double)
-     * @since 1.1.7
-     */
-    function playSound(id: CanOmitNamespace<SoundId>, volume: double, pitch: double): void;
-
-    /**
-     * plays a minecraft sound using the internal system.
-     * @since 1.1.7
-     */
-    function playSound(id: CanOmitNamespace<SoundId>, volume: double, pitch: double, x: double, y: double, z: double): void;
-
-    /**
-     * @return a map of boss bars by the boss bar's UUID.
-     * @since 1.2.1
-     */
-    function getBossBars(): JavaMap<string, Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.BossBarHelper>;
-
-    /**
-     * Check whether a chunk is within the render distance and loaded.
-     * @since 1.2.2
-     */
-    function isChunkLoaded(chunkX: int, chunkZ: int): boolean;
-
-    /**
-     * @return the current server address as a string (`server.address/server.ip:port`).
-     * @since 1.2.2
-     */
-    function getCurrentServerAddress(): string | null;
-
-    /**
-     * @return biome at specified location, only works if the block/chunk is loaded.
-     * @since 1.2.2 [Citation Needed]
-     */
-    function getBiomeAt(x: int, z: int): Biome | null;
-
-    /**
-     * @return biome at specified location, only works if the block/chunk is loaded.
-     * @since 1.8.4
-     */
-    function getBiomeAt(x: int, y: int, z: int): Biome | null;
-
-    /**
-     * @return best attempt to measure and give the server tps with various timings.
-     * @since 1.2.7
-     */
-    function getServerTPS(): `${number}, 1M: ${number}, 5M: ${number}, 15M: ${number}`;
-
-    /**
-     * @return text helper for the top part of the tab list (above the players)
-     * @since 1.3.1
-     */
-    function getTabListHeader(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper | null;
-
-    /**
-     * @return text helper for the bottom part of the tab list (below the players)
-     * @since 1.3.1
-     */
-    function getTabListFooter(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper | null;
-
-    /**
-     * Summons the amount of particles at the desired position.
-     * @param id the particle id
-     * @param x the x position to spawn the particle
-     * @param y the y position to spawn the particle
-     * @param z the z position to spawn the particle
-     * @param count the amount of particles to spawn
-     * @since 1.8.4
-     */
-    function spawnParticle(id: ParticleId, x: double, y: double, z: double, count: int): void;
-
-    /**
-     * Summons the amount of particles at the desired position with some variation of delta and the
-     *  given speed.
-     * @param id the particle id
-     * @param x the x position to spawn the particle
-     * @param y the y position to spawn the particle
-     * @param z the z position to spawn the particle
-     * @param deltaX the x variation of the particle
-     * @param deltaY the y variation of the particle
-     * @param deltaZ the z variation of the particle
-     * @param speed the speed of the particle
-     * @param count the amount of particles to spawn
-     * @param force whether to show the particle if it's more than 32 blocks away
-     * @since 1.8.4
-     */
-    function spawnParticle(id: CanOmitNamespace<ParticleId>, x: double, y: double, z: double, deltaX: double, deltaY: double, deltaZ: double, speed: double, count: int, force: boolean): void;
-
-    /**
-     * @return the raw minecraft world.
-     * @since 1.9.1
-     */
-    function getRaw(): /* net.minecraft.client.world.ClientWorld */ any | null;
-
-    /**
-     * @return best attempt to measure and give the server tps.
-     * @since 1.2.7
-     */
-    function getServerInstantTPS(): number;
-
-    /**
-     * @return best attempt to measure and give the server tps over the previous 1 minute average.
-     * @since 1.2.7
-     */
-    function getServer1MAverageTPS(): number;
-
-    /**
-     * @return best attempt to measure and give the server tps over the previous 5 minute average.
-     * @since 1.2.7
-     */
-    function getServer5MAverageTPS(): number;
-
-    /**
-     * @return best attempt to measure and give the server tps over the previous 15 minute average.
-     * @since 1.2.7
-     */
-    function getServer15MAverageTPS(): number;
-
-}
-
-/**
- * {@link FunctionalInterface} implementation for wrapping methods to match the language spec.  
- *  <br><br>    
- *  <br><br>  
- *  Javascript:  
- *  language spec requires that only one thread can hold an instance of the language at a time,  
- *  so this implementation uses a non-preemptive priority queue for the threads that call the resulting {@link MethodWrapper}.  
- *  <br><br>  
- *  JEP:  
- *  language spec requires everything to be on the same thread, on the java end, so all calls to {@link MethodWrapper}
- *  call back to JEP's starting thread and wait for the call to complete.  
- *  <br><br>  
- *  Jython:  
- *  no limitations
- *  <br><br>  
- *  LUA:  
- *  no limitations
- * @author Wagyourtail
- * @since 1.2.5, re-named from `consumer` in 1.3.2
- */
-declare namespace JavaWrapper {
-
-    /**
-     * @return a new {@link MethodWrapper}
-     * @since 1.4.0
-     */
-    function methodToJava<A, B, R>(c: (arg0: A, arg1: B) => R | void): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<A, B, R, any>;
-
-    /**
-     * @return a new {@link MethodWrapper}
-     * @since 1.4.0
-     */
-    function methodToJavaAsync<A, B, R>(c: (arg0: A, arg1: B) => R | void): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<A, B, R, any>;
-
-    /**
-     * JS/JEP ONLY
-     *  allows you to set the position of the thread in the queue. you can use this for return value one's too...
-     * @since 1.8.0
-     */
-    function methodToJavaAsync<A, B, R>(priority: int, c: (arg0: A, arg1: B) => R | void): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<A, B, R, any>;
-
-    /**
-     * JS/JEP only, puts current task at end of queue.  
-     *  use with caution, don't accidentally cause circular waiting.
-     * @throws InterruptedException
-     * @since 1.4.0 [citation needed]
-     */
-    function deferCurrentTask(): void;
-
-    /**
-     * JS/JEP only, puts current task at end of queue.  
-     *  use with caution, don't accidentally cause circular waiting.
-     * @param priorityAdjust the amount to adjust the priority by
-     * @throws InterruptedException
-     * @since 1.8.0
-     */
-    function deferCurrentTask(priorityAdjust: int): void;
-
-    /**
-     * JS/JEP only, get priority of current task.
-     * @throws InterruptedException
-     * @since 1.8.0
-     */
-    function getCurrentPriority(): number;
-
-    /**
-     * Close the current context
-     * @since 1.2.2
-     */
-    function stop(): void;
-
-}
-
-/**
- * Better File-System functions.  
- *
- * @author Wagyourtail
- * @since 1.1.8
- */
-declare namespace FS {
-
-    /**
-     * List files in path.
-     * @param path relative to the script's folder.
-     * @return An array of file names as string.
-     * @since 1.1.8
-     */
-    function list(path: string): JavaArray<string> | null;
-
-    /**
-     * Check if a file exists.
-     * @param path relative to the script's folder.
-     * @since 1.1.8
-     */
-    function exists(path: string): boolean;
-
-    /**
-     * Check if a file is a directory.
-     * @param path relative to the script's folder.
-     * @since 1.1.8
-     */
-    function isDir(path: string): boolean;
-
-    /**
-     * @param path the path relative to the script's folder
-     * @return `true` if the path leads to a file, `false` otherwise.
-     * @since 1.8.4
-     */
-    function isFile(path: string): boolean;
-
-    /**
-     * Get the last part (name) of a file.
-     * @param path relative to the script's folder.
-     * @return a string of the file name.
-     * @since 1.1.8
-     */
-    function getName(path: string): string;
-
-    /**
-     * @param absolutePath the absolute path to the file
-     * @return a path relative to the script's folder to the given absolute path.
-     * @since 1.8.4
-     */
-    function toRelativePath(absolutePath: string): string;
-
-    /**
-     * Creates a new file in the specified path, relative to the script's folder. This will only
-     *  work if the parent directory already exists. See {@link createFile}(String, String, boolean)
-     *  to automatically create all parent directories.
-     * @param path the path relative to the script's folder
-     * @param name the name of the file
-     * @return `true` if the file was created successfully, `false` otherwise.
-     * @throws IOException if there occurs an error while creating the file.
-     * @since 1.8.4
-     */
-    function createFile(path: string, name: string): boolean;
-
-    /**
-     * Creates a new file in the specified path, relative to the script's folder. Optionally parent
-     *  directories can be created if they do not exist.
-     * @param path the path relative to the script's folder
-     * @param name the name of the file
-     * @param createDirs whether to create parent directories if they do not exist or not
-     * @return `true` if the file was created successfully, `false` otherwise.
-     * @throws IOException if there occurs an error while creating the file.
-     * @since 1.8.4
-     */
-    function createFile(path: string, name: string, createDirs: boolean): boolean;
-
-    /**
-     * Make a directory.
-     * @param path relative to the script's folder.
-     * @return a boolean for success.
-     * @since 1.1.8
-     */
-    function makeDir(path: string): boolean;
-
-    /**
-     * Move a file.
-     * @param from relative to the script's folder.
-     * @param to relative to the script's folder.
-     * @throws IOException
-     * @since 1.1.8
-     */
-    function move(from: string, to: string): void;
-
-    /**
-     * Copy a file.
-     * @param from relative to the script's folder.
-     * @param to relative to the script's folder.
-     * @throws IOException
-     * @since 1.1.8
-     */
-    function copy(from: string, to: string): void;
-
-    /**
-     * Delete a file.
-     * @param path relative to the script's folder.
-     * @return a boolean for success.
-     * @since 1.2.9
-     */
-    function unlink(path: string): boolean;
-
-    /**
-     * Combine 2 paths.
-     * @param patha path is relative to the script's folder.
-     * @return a string of the combined path.
-     * @throws IOException
-     * @since 1.1.8
-     */
-    function combine(patha: string, pathb: string): string;
-
-    /**
-     * Gets the directory part of a file path, or the parent directory of a folder.
-     * @param path relative to the script's folder.
-     * @return a string of the combined path.
-     * @throws IOException
-     * @since 1.1.8
-     */
-    function getDir(path: string): string;
-
-    /**
-     * Open a FileHandler for the file at the specified path.
-     * @param path relative to the script's folder.
-     * @return a {@link FileHandler} for the file path.
-     * @see FileHandler
-     * @since 1.1.8
-     */
-    function open(path: string): Packages.xyz.wagyourtail.jsmacros.core.library.impl.classes.FileHandler;
-
-    /**
-     * Open a FileHandler for the file at the specified path.
-     * @param path relative to the script's folder.
-     * @param charset the charset to use for reading/writing the file (default is UTF-8)
-     * @return a {@link FileHandler} for the file path.
-     * @see FileHandler
-     * @since 1.8.4
-     */
-    function open(path: string, charset: string): Packages.xyz.wagyourtail.jsmacros.core.library.impl.classes.FileHandler;
-
-    /**
-     * An advanced method to walk a directory tree and get some information about the files, as well
-     *  as their paths.
-     * @param path the relative path of the directory to walk through
-     * @param maxDepth the maximum depth to follow, can cause stack overflow if too high
-     * @param followLinks whether to follow symbolic links
-     * @param visitor the visitor that is called for each file with the path of the file and its
-     *                     attributes
-     * @throws IOException
-     * @since 1.8.4
-     */
-    function walkFiles(path: string, maxDepth: int, followLinks: boolean, visitor: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<string, Packages.java.nio.file.attribute.BasicFileAttributes, any, any>): void;
-
-    /**
-     * @param path the relative path to get the file object for
-     * @return the file object for the specified path.
-     * @since 1.8.4
-     */
-    function toRawFile(path: string): Packages.java.io.File;
-
-    /**
-     * @param path the relative path to get the path object for
-     * @return the path object for the specified path.
-     * @since 1.8.4
-     */
-    function toRawPath(path: string): Packages.java.nio.file.Path;
-
-    /**
-     * @param path the path relative to the script's folder
-     * @return the attributes of the file at the specified path.
-     * @throws IOException
-     * @since 1.8.4
-     */
-    function getRawAttributes(path: string): Packages.java.nio.file.attribute.BasicFileAttributes;
-
-}
-
-/**
- * "Global" variables for passing to other contexts.  
- *
- * @author Wagyourtail
- * @since 1.0.4
- */
-declare namespace GlobalVars {
-
-    /**
-     * Put an Integer into the global variable space.
-     * @since 1.0.4
-     */
-    function putInt(name: string, i: int): number;
-
-    /**
-     * put a String into the global variable space.
-     * @since 1.0.4
-     */
-    function putString(name: string, str: string): string;
-
-    /**
-     * put a Double into the global variable space.
-     * @since 1.0.8
-     */
-    function putDouble(name: string, d: double): number;
-
-    /**
-     * put a Boolean into the global variable space.
-     * @since 1.1.7
-     */
-    function putBoolean(name: string, b: boolean): boolean;
-
-    /**
-     * put anything else into the global variable space.
-     * @since 1.1.7
-     */
-    function putObject(name: string, o: any): any;
-
-    /**
-     * Returns the type of the defined item in the global variable space as a string.
-     * @since 1.0.4
-     */
-    function getType(name: string): string | null;
-
-    /**
-     * Gets an Integer from the global variable space.
-     * @since 1.0.4
-     */
-    function getInt(name: string): number | null;
-
-    /**
-     * Gets an Integer from the global variable space. and then increment it there.
-     * @since 1.6.5
-     */
-    function getAndIncrementInt(name: string): number | null;
-
-    /**
-     * Gets an integer from the global variable space. and then decrement it there.
-     * @since 1.6.5
-     */
-    function getAndDecrementInt(name: string): number | null;
-
-    /**
-     * increment an Integer in the global variable space. then return it.
-     * @since 1.6.5
-     */
-    function incrementAndGetInt(name: string): number | null;
-
-    /**
-     * decrement an Integer in the global variable space. then return it.
-     * @since 1.6.5
-     */
-    function decrementAndGetInt(name: string): number | null;
-
-    /**
-     * Gets a String from the global variable space
-     * @since 1.0.4
-     */
-    function getString(name: string): string | null;
-
-    /**
-     * Gets a Double from the global variable space.
-     * @since 1.0.8
-     */
-    function getDouble(name: string): number | null;
-
-    /**
-     * Gets a Boolean from the global variable space.
-     * @since 1.1.7
-     */
-    function getBoolean(name: string): boolean | null;
-
-    /**
-     * toggles a global boolean and returns its new value
-     * @since 1.6.5
-     */
-    function toggleBoolean(name: string): boolean | null;
-
-    /**
-     * Gets an Object from the global variable space.
-     * @since 1.1.7
-     */
-    function getObject(name: string): any;
-
-    /**
-     * removes a key from the global variable space.
-     * @since 1.2.0
-     */
-    function remove(key: string): void;
-    function getRaw(): JavaMap<string, any>;
-
-}
-
-/**
- * Functions that interact directly with JsMacros or Events.  
- *
- * @author Wagyourtail
- */
-declare namespace JsMacros {
-
-    /**
-     * @return the JsMacros profile class.
-     */
-    function getProfile(): Packages.xyz.wagyourtail.jsmacros.core.config.BaseProfile;
-
-    /**
-     * @return the JsMacros config management class.
-     */
-    function getConfig(): Packages.xyz.wagyourtail.jsmacros.core.config.ConfigManager;
-
-    /**
-     * services are background scripts designed to run full time and are mainly noticed by their side effects.
-     * @return for managing services.
-     * @since 1.6.3
-     */
-    function getServiceManager(): Packages.xyz.wagyourtail.jsmacros.core.service.ServiceManager;
-
-    /**
-     * @return list of non-garbage-collected ScriptContext's
-     * @since 1.4.0
-     */
-    function getOpenContexts(): JavaList<Packages.xyz.wagyourtail.jsmacros.core.language.BaseScriptContext<any>>;
-
-    /**
-     * @see JsMacros.runScript(String, String, MethodWrapper)
-     * @since 1.1.5
-     */
-    function runScript(file: string): Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>;
-
-    /**
-     * @param fakeEvent you probably actually want to pass an instance created by {@link createCustomEvent}(String)
-     * @since 1.6.3
-     */
-    function runScript(file: string, fakeEvent: Events.BaseEvent | null): Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>;
-
-    /**
-     * runs a script with a eventCustom to be able to pass args
-     * @return container the script is running on.
-     * @since 1.6.3 (1.1.5 - 1.6.3 didn't have fakeEvent)
-     */
-    function runScript(file: string, fakeEvent: Events.BaseEvent | null, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.java.lang.Throwable, any, any, any> | null): Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>;
-
-    /**
-     * @see JsMacros.runScript(String, String, MethodWrapper)
-     * @since 1.2.4
-     */
-    function runScript(language: string, script: string): Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>;
-
-    /**
-     * Runs a string as a script.
-     * @param callback calls your method as a {@link Packages.java.util.function.Consumer}<{@link String}>
-     * @return the {@link EventContainer} the script is running on.
-     * @since 1.2.4
-     */
-    function runScript(language: string, script: string, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.java.lang.Throwable, any, any, any> | null): Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>;
-    /** @since 1.6.0 */
-    function runScript(language: string, script: string, file: string | null, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.java.lang.Throwable, any, any, any> | null): Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>;
-    /** @since 1.7.0 */
-    function runScript(language: string, script: string, file: string | null, event: Events.BaseEvent | null, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.java.lang.Throwable, any, any, any> | null): Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<any>;
-    /** @since 1.7.0 */
-    function wrapScriptRun<T, U, R>(file: string): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<T, U, R, any>;
-    /** @since 1.7.0 */
-    function wrapScriptRun<T, U, R>(language: string, script: string): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<T, U, R, any>;
-    /** @since 1.7.0 */
-    function wrapScriptRun<T, U, R>(language: string, script: string, file: string | null): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<T, U, R, any>;
-    /** @since 1.7.0 */
-    function wrapScriptRunAsync<T, U, R>(file: string): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<T, U, R, any>;
-    /** @since 1.7.0 */
-    function wrapScriptRunAsync<T, U, R>(language: string, script: string): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<T, U, R, any>;
-    /** @since 1.7.0 */
-    function wrapScriptRunAsync<T, U, R>(language: string, script: string, file: string | null): Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<T, U, R, any>;
-
-    /**
-     * Opens a file with the default system program.
-     * @param path relative to the script's folder.
-     * @since 1.1.8
-     * @deprecated use the Utils library instead.
-     */
-    function open(path: string): void;
-
-    /**
-     * @throws MalformedURLException
-     * @since 1.6.0
-     * @deprecated use the Utils library instead.
-     */
-    function openUrl(url: string): void;
-
-    /**
-     * Creates a listener for an event, this function can be more efficient that running a script file when used properly.
-     * @param callback calls your method as a {@link Packages.java.util.function.BiConsumer}<{@link BaseEvent}, {@link EventContainer}>
-     * @see IEventListener
-     * @since 1.2.7
-     */
-    function on<E extends keyof Events>(event: E, callback: MethodWrapper<Events[E], EventContainer>): Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener;
-
-    /**
-     * Creates a listener for an event, this function can be more efficient that running a script file when used properly.
-     * @param callback calls your method as a {@link Packages.java.util.function.BiConsumer}<{@link BaseEvent}, {@link EventContainer}>
-     * @see IEventListener
-     * @since 1.9.0
-     */
-    function on<E extends keyof Events>(event: E, joined: boolean, callback: MethodWrapper<Events[E], EventContainer>): Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener;
-
-    /**
-     * Creates a single-run listener for an event, this function can be more efficient that running a script file when used properly.
-     * @param callback calls your method as a {@link Packages.java.util.function.BiConsumer}<{@link BaseEvent}, {@link EventContainer}>
-     * @return the listener.
-     * @see IEventListener
-     * @since 1.2.7
-     */
-    function once<E extends keyof Events>(event: E, callback: MethodWrapper<Events[E], EventContainer>): Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener;
-
-    /**
-     * Creates a single-run listener for an event, this function can be more efficient that running a script file when used properly.
-     * @param callback calls your method as a {@link Packages.java.util.function.BiConsumer}<{@link BaseEvent}, {@link EventContainer}>
-     * @return the listener.
-     * @see IEventListener
-     * @since 1.9.0
-     */
-    function once<E extends keyof Events>(event: E, joined: boolean, callback: MethodWrapper<Events[E], EventContainer>): Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener;
-
-    /**
-     * @see JsMacros.off(String, IEventListener)
-     * @since 1.2.3
-     */
-    function off(listener: Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener): boolean;
-
-    /**
-     * Removes a {@link IEventListener} from an event.
-     * @see IEventListener
-     * @since 1.2.3
-     */
-    function off<E extends keyof Events>(event: E, listener: IEventListener): boolean;
-
-    /**
-     * Will also disable all listeners for the given event, including JsMacros own event listeners.
-     * @param event the event to remove all listeners from
-     * @since 1.8.4
-     */
-    function disableAllListeners(event: keyof Events): void;
-
-    /**
-     * Will also disable all listeners, including JsMacros own event listeners.
-     * @since 1.8.4
-     */
-    function disableAllListeners(): void;
-
-    /**
-     * Will only disable user created event listeners for the given event. This includes listeners
-     *  created from {@link on}(String, MethodWrapper), {@link once}(String, MethodWrapper),  
-     *  {@link waitForEvent}(String), {@link waitForEvent}(String, MethodWrapper) and
-     *  {@link waitForEvent}(String, MethodWrapper, MethodWrapper).
-     * @param event the event to remove all listeners from
-     * @since 1.8.4
-     */
-    function disableScriptListeners(event: keyof Events): void;
-
-    /**
-     * Will only disable user created event listeners.  This includes listeners created from
-     *  {@link on}(String, MethodWrapper), {@link once}(String, MethodWrapper),  
-     *  {@link waitForEvent}(String), {@link waitForEvent}(String, MethodWrapper) and
-     *  {@link waitForEvent}(String, MethodWrapper, MethodWrapper).
-     * @since 1.8.4
-     */
-    function disableScriptListeners(): void;
-
-    /**
-     * @param event event to wait for
-     * @return a event and a new context if the event you're waiting for was joined, to leave it early.
-     * @throws InterruptedException
-     * @since 1.5.0
-     */
-    function waitForEvent<E extends keyof Events>(event: E): FJsMacros$EventAndContext<Events[E]>;
-
-    /**
-     * @param event event to wait for
-     * @return a event and a new context if the event you're waiting for was joined, to leave it early.
-     * @throws InterruptedException
-     * @since 1.9.0
-     */
-    function waitForEvent<E extends keyof Events>(event: E, join: boolean): FJsMacros$EventAndContext<Events[E]>;
-
-    /**
-     * @throws InterruptedException
-     * @since 1.5.0 [citation needed]
-     */
-    function waitForEvent<E extends keyof Events>(event: E, filter: MethodWrapper<Events[E], undefined, boolean>): FJsMacros$EventAndContext<Events[E]>;
-
-    /**
-     * @throws InterruptedException
-     * @since 1.9.0
-     */
-    function waitForEvent<E extends keyof Events>(event: E, join: boolean, filter: MethodWrapper<Events[E], undefined, boolean>): FJsMacros$EventAndContext<Events[E]>;
-
-    /**
-     * waits for an event. if this thread is bound to an event already, this will release current lock.
-     * @param event event to wait for
-     * @param filter filter the event until it has the proper values or whatever.
-     * @param runBeforeWaiting runs as a {@link Runnable}, run before waiting, this is a thread-safety thing to prevent "interrupts" from going in between this and things like deferCurrentTask
-     * @return a event and a new context if the event you're waiting for was joined, to leave it early.
-     * @throws InterruptedException
-     * @since 1.5.0
-     */
-    function waitForEvent<E extends keyof Events>(event: E, filter: MethodWrapper<Events[E], undefined, boolean>, runBeforeWaiting: MethodWrapper<JavaObject, JavaObject, JavaObject>): FJsMacros$EventAndContext<Events[E]>;
-
-    /**
-     * waits for an event. if this thread is bound to an event already, this will release current lock.
-     * @param event event to wait for
-     * @param filter filter the event until it has the proper values or whatever.
-     * @param runBeforeWaiting runs as a {@link Runnable}, run before waiting, this is a thread-safety thing to prevent "interrupts" from going in between this and things like deferCurrentTask
-     * @return a event and a new context if the event you're waiting for was joined, to leave it early.
-     * @throws InterruptedException
-     * @since 1.9.0
-     */
-    function waitForEvent<E extends keyof Events>(event: E, join: boolean, filter: MethodWrapper<Events[E], undefined, boolean>, runBeforeWaiting: MethodWrapper<JavaObject, JavaObject, JavaObject>): FJsMacros$EventAndContext<Events[E]>;
-
-    /**
-     * @return a list of script-added listeners.
-     * @since 1.2.3
-     */
-    function listeners(event: keyof Events): JavaList<Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener>;
-
-    /**
-     * create a custom event object that can trigger a event. It's recommended to use
-     *  {@link EventCustom.registerEvent}() to set up the event to be visible in the GUI.
-     * @param eventName name of the event. please don't use an existing one... your scripts might not like that.
-     * @see BaseEventRegistry.addEvent(String)
-     * @since 1.2.8
-     */
-    function createCustomEvent(eventName: string): Packages.xyz.wagyourtail.jsmacros.core.event.impl.EventCustom;
-
-    /**
-     * asserts if `event` is the correct type of event<br>  
-     *  and convert `event` type to target type in ts<br>  
-     *  example:  
-     *  ```  
-     *  JsMacros.assertEvent(event, 'Service')
-     *  ```
-     * @param event the event to assert
-     * @param type string of the event type
-     * @since 1.9.0
-     */
-    function assertEvent<E extends keyof Events>(event: Events.BaseEvent, type: E): asserts event is Events[E];
-
-}
-
-/**
  * Functions for getting and using raw java classes, methods and functions.  
  *
  * @author Wagyourtail
@@ -3226,6 +2722,511 @@ declare namespace Time {
      * @throws InterruptedException
      */
     function sleep(millis: long): void;
+
+}
+
+/**
+ * @author Etheradon
+ * @since 1.8.4
+ */
+declare namespace Utils {
+
+    /**
+     * @param url the url to open
+     * @since 1.8.4
+     */
+    function openUrl(url: string): void;
+
+    /**
+     * @param path the path top open, relative the config folder
+     * @since 1.8.4
+     */
+    function openFile(path: string): void;
+
+    /**
+     * Copies the text to the clipboard.
+     * @param text the text to copy
+     * @since 1.8.4
+     */
+    function copyToClipboard(text: string): void;
+
+    /**
+     * @return the text from the clipboard.
+     * @since 1.8.4
+     */
+    function getClipboard(): string;
+
+    /**
+     * Tries to guess the name of the sender of a given message. This is not guaranteed to work and
+     *  for specific servers it may be better to use regex instead.
+     * @param text the text to check
+     * @return the name of the sender or `null` if it couldn't be guessed.
+     * @since 1.8.4
+     */
+    function guessName(text: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper): string;
+
+    /**
+     * Tries to guess the name of the sender of a given message. This is not guaranteed to work and
+     *  for specific servers it may be better to use regex instead.
+     * @param text the text to check
+     * @return the name of the sender or `null` if it couldn't be guessed.
+     * @since 1.8.4
+     */
+    function guessName(text: string): string;
+
+    /**
+     * Tries to guess the name, as well as the titles and roles of the sender of the given message.  
+     *  This is not guaranteed to work and for specific servers it may be better to use regex
+     *  instead.
+     * @param text the text to check
+     * @return a list of names, titles and roles of the sender or an empty list if it couldn't be
+     *  guessed.
+     * @since 1.8.4
+     */
+    function guessNameAndRoles(text: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper): JavaList<string>;
+
+    /**
+     * Tries to guess the name, as well as the titles and roles of the sender of the given message.  
+     *  This is not guaranteed to work and for specific servers it may be better to use regex
+     *  instead.
+     * @param text the text to check
+     * @return a list of names, titles and roles of the sender or an empty list if it couldn't be
+     *  guessed.
+     * @since 1.8.4
+     */
+    function guessNameAndRoles(text: string): JavaList<string>;
+
+    /**
+     * Hashes the given string with sha-256.
+     * @param message the message to hash
+     * @return the hashed message.
+     * @since 1.8.4
+     */
+    function hashString(message: string | null): string;
+
+    /**
+     * Hashes the given string with sha-256 the selected algorithm.
+     * @param message the message to hash
+     * @param algorithm sha1 | sha256 | sha384 | sha512 | md2 | md5
+     * @return the hashed message.
+     * @since 1.8.4
+     */
+    function hashString(message: string | null, algorithm: string): string | null;
+
+    /**
+     * Encodes the given string with Base64.
+     * @param message the message to encode
+     * @return the encoded message.
+     * @since 1.8.4
+     */
+    function encode(message: string): string;
+
+    /**
+     * Decodes the given string with Base64.
+     * @param message the message to decode
+     * @return the decoded message.
+     * @since 1.8.4
+     */
+    function decode(message: string): string;
+
+}
+
+/**
+ * Functions for getting and using world data.  
+ *
+ * @author Wagyourtail
+ */
+declare namespace World {
+
+    /**
+     * returns whether a world is currently loaded
+     * @since 1.3.0
+     */
+    function isWorldLoaded(): boolean;
+
+    /**
+     * @return players within render distance.
+     */
+    function getLoadedPlayers(): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.PlayerEntityHelper</* net.minecraft.entity.player.PlayerEntity */ any>> | null;
+
+    /**
+     * @return players on the tablist.
+     */
+    function getPlayers(): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.PlayerListEntryHelper> | null;
+
+    /**
+     * @param name the name of the player to get the entry for
+     * @return player entry for the given player's name or `null` if not found.
+     * @since 1.8.4
+     */
+    function getPlayerEntry(name: string): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.PlayerListEntryHelper | null;
+
+    /**
+     * @return The block at that position.
+     */
+    function getBlock(x: int, y: int, z: int): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper | null;
+    function getBlock(pos: Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper | null;
+    function getBlock(pos: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper | null;
+
+    /**
+     * The x and z position of the chunk can be calculated by the following formula: xChunk =
+     *  x >> 4; zChunk = z >> 4;
+     * @param x the x coordinate of the chunk, not the absolute position
+     * @param z the z coordinate of the chunk, not the absolute position
+     * @return ChunkHelper for the chunk coordinates {@link ChunkHelper}.
+     * @since 1.8.4
+     */
+    function getChunk(x: int, z: int): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.ChunkHelper | null;
+
+    /**
+     * Usage: <br>  
+     *  This will return all blocks that are facing south, don't require a tool to break,  
+     *  have a hardness of 10 or less and whose name contains either chest or barrel.  
+     *  ```  
+     *  World.getWorldScanner()
+     *      .withBlockFilter("getHardness").is("<=", 10)
+     *      .andStringBlockFilter().contains("chest", "barrel")
+     *      .withStringStateFilter().contains("facing=south")
+     *      .andStateFilter("isToolRequired").is(false)
+     *      .build()
+     *  ```
+     * @return a builder to create a WorldScanner.
+     * @since 1.6.5
+     */
+    function getWorldScanner(): TypedWorldScannerBuilder.Initial;
+
+    /**
+     * @return a scanner for the current world.
+     * @since 1.6.5
+     */
+    function getWorldScanner(blockFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockHelper, any, boolean, any> | null, stateFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper, any, boolean, any> | null): Packages.xyz.wagyourtail.jsmacros.client.api.classes.worldscanner.WorldScanner | null;
+    /** @since 1.6.4 */
+    function findBlocksMatching(centerX: int, centerZ: int, id: CanOmitNamespace<BlockId>, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
+    /** @since 1.6.4 */
+    function findBlocksMatching(id: CanOmitNamespace<BlockId>, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
+    /** @since 1.6.4 */
+    function findBlocksMatching(ids: CanOmitNamespace<BlockId>[], chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
+    /** @since 1.6.4 */
+    function findBlocksMatching(centerX: int, centerZ: int, ids: CanOmitNamespace<BlockId>[], chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
+    /** @since 1.6.4 */
+    function findBlocksMatching(blockFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockHelper, any, boolean, any>, stateFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper, any, boolean, any> | null, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
+    /** @since 1.6.4 */
+    function findBlocksMatching(chunkX: int, chunkZ: int, blockFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockHelper, any, boolean, any>, stateFilter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper, any, boolean, any> | null, chunkrange: int): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D> | null;
+
+    /**
+     * By default, air blocks are ignored and the callback is only called for real blocks.
+     * @param pos the center position
+     * @param radius the radius to scan
+     * @param callback the callback to call for each block
+     * @since 1.8.4
+     */
+    function iterateSphere(pos: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, radius: int, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper, any, any, any>): void;
+
+    /**
+     * @param pos the center position
+     * @param radius the radius to scan
+     * @param ignoreAir whether to ignore air blocks
+     * @param callback the callback to call for each block
+     * @since 1.8.4
+     */
+    function iterateSphere(pos: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, radius: int, ignoreAir: boolean, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper, any, any, any>): void;
+
+    /**
+     * @param pos1 the first position
+     * @param pos2 the second position
+     * @param callback the callback to call for each block
+     * @since 1.8.4
+     */
+    function iterateBox(pos1: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, pos2: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper, any, any, any>): void;
+
+    /**
+     * @param pos1 the first position
+     * @param pos2 the second position
+     * @param callback the callback to call for each block
+     * @param ignoreAir whether to ignore air blocks
+     * @since 1.8.4
+     */
+    function iterateBox(pos1: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, pos2: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, ignoreAir: boolean, callback: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper, any, any, any>): void;
+
+    /**
+     * @return a helper for the scoreboards provided to the client.
+     * @since 1.2.9
+     */
+    function getScoreboards(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.ScoreboardsHelper | null;
+
+    /**
+     * @return all entities in the render distance.
+     */
+    function getEntities(): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>> | null;
+
+    /**
+     * @param types the entity types to consider
+     * @return all entities in the render distance, that match the specified entity type.
+     * @since 1.8.4
+     */
+    function getEntities<E extends CanOmitNamespace<EntityId>>(...types: E[]): JavaList<EntityTypeFromId<E>> | null;
+
+    /**
+     * @param distance the maximum distance to search for entities
+     * @return a list of entities within the specified distance to the player.
+     * @since 1.8.4
+     */
+    function getEntities(distance: double): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>> | null;
+
+    /**
+     * @param distance the maximum distance to search for entities
+     * @param types the entity types to consider
+     * @return a list of entities within the specified distance to the player, that match the specified entity type.
+     * @since 1.8.4
+     */
+    function getEntities<E extends CanOmitNamespace<EntityId>>(distance: double, ...types: E[]): JavaList<EntityTypeFromId<E>> | null;
+
+    /**
+     * @param filter the entity filter
+     * @return a list of entities that match the specified filter.
+     * @since 1.8.4
+     */
+    function getEntities(filter: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>, any, any, any>): JavaList<Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>> | null;
+
+    /**
+     * raytrace between two points returning the first block hit.
+     * @since 1.6.5
+     */
+    function rayTraceBlock(x1: double, y1: double, z1: double, x2: double, y2: double, z2: double, fluid: boolean): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper | null;
+
+    /**
+     * raytrace between two points returning the first entity hit.
+     * @since 1.8.3
+     */
+    function rayTraceEntity(x1: double, y1: double, z1: double, x2: double, y2: double, z2: double): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any> | null;
+
+    /**
+     * note that some server might utilize dimension identifiers for mods to distinguish between worlds.
+     * @return the current dimension.
+     * @since 1.1.2
+     */
+    function getDimension(): Dimension | null;
+
+    /**
+     * @return the current biome.
+     * @since 1.1.5
+     */
+    function getBiome(): Biome | null;
+
+    /**
+     * ticks processed since world was started.
+     * @return the current world time. `-1` if world is not loaded.
+     * @since 1.1.5
+     */
+    function getTime(): number;
+
+    /**
+     * ticks passed since world was started INCLUDING those skipped when nights were cut short with sleeping.
+     * @return the current world time of day. `-1` if world is not loaded.
+     * @since 1.1.5
+     */
+    function getTimeOfDay(): number;
+
+    /**
+     * @return `true` if it is daytime, `false` otherwise.
+     * @since 1.8.4
+     */
+    function isDay(): boolean;
+
+    /**
+     * @return `true` if it is nighttime, `false` otherwise.
+     * @since 1.8.4
+     */
+    function isNight(): boolean;
+
+    /**
+     * @return `true` if it is raining, `false` otherwise.
+     * @since 1.8.4
+     */
+    function isRaining(): boolean;
+
+    /**
+     * @return `true` if it is thundering, `false` otherwise.
+     * @since 1.8.4
+     */
+    function isThundering(): boolean;
+
+    /**
+     * @return an identifier for the loaded world that is based on the world's name or server ip and
+     *  thus most likely unique enough to identify a specific world, or
+     *  `"UNKNOWN_NAME"` if no world was found.
+     * @since 1.8.4
+     */
+    function getWorldIdentifier(): string;
+
+    /**
+     * @return respawn position.
+     * @since 1.2.6
+     */
+    function getRespawnPos(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper | null;
+
+    /**
+     * @return world difficulty as an int. `-1` if world is not loaded.
+     * @since 1.2.6
+     */
+    function getDifficulty(): number;
+
+    /**
+     * @return moon phase as an int. `-1` if world is not loaded.
+     * @since 1.2.6
+     */
+    function getMoonPhase(): number;
+
+    /**
+     * @return sky light as an int. `-1` if world is not loaded.
+     * @since 1.1.2
+     */
+    function getSkyLight(x: int, y: int, z: int): number;
+
+    /**
+     * @return block light as an int. `-1` if world is not loaded.
+     * @since 1.1.2
+     */
+    function getBlockLight(x: int, y: int, z: int): number;
+
+    /**
+     * plays a sound file using javax's sound stuff.
+     * @throws LineUnavailableException
+     * @throws IOException
+     * @throws UnsupportedAudioFileException
+     * @since 1.1.7
+     */
+    function playSoundFile(file: string, volume: double): Packages.javax.sound.sampled.Clip;
+
+    /**
+     * @see World.playSound(String, double, double, double, double, double)
+     * @since 1.1.7
+     */
+    function playSound(id: SoundId): void;
+
+    /**
+     * @see World.playSound(String, double, double, double, double, double)
+     * @since 1.1.7
+     */
+    function playSound(id: SoundId, volume: double): void;
+
+    /**
+     * @see World.playSound(String, double, double, double, double, double)
+     * @since 1.1.7
+     */
+    function playSound(id: CanOmitNamespace<SoundId>, volume: double, pitch: double): void;
+
+    /**
+     * plays a minecraft sound using the internal system.
+     * @since 1.1.7
+     */
+    function playSound(id: CanOmitNamespace<SoundId>, volume: double, pitch: double, x: double, y: double, z: double): void;
+
+    /**
+     * @return a map of boss bars by the boss bar's UUID.
+     * @since 1.2.1
+     */
+    function getBossBars(): JavaMap<string, Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.BossBarHelper>;
+
+    /**
+     * Check whether a chunk is within the render distance and loaded.
+     * @since 1.2.2
+     */
+    function isChunkLoaded(chunkX: int, chunkZ: int): boolean;
+
+    /**
+     * @return the current server address as a string (`server.address/server.ip:port`).
+     * @since 1.2.2
+     */
+    function getCurrentServerAddress(): string | null;
+
+    /**
+     * @return biome at specified location, only works if the block/chunk is loaded.
+     * @since 1.2.2 [Citation Needed]
+     */
+    function getBiomeAt(x: int, z: int): Biome | null;
+
+    /**
+     * @return biome at specified location, only works if the block/chunk is loaded.
+     * @since 1.8.4
+     */
+    function getBiomeAt(x: int, y: int, z: int): Biome | null;
+
+    /**
+     * @return best attempt to measure and give the server tps with various timings.
+     * @since 1.2.7
+     */
+    function getServerTPS(): `${number}, 1M: ${number}, 5M: ${number}, 15M: ${number}`;
+
+    /**
+     * @return text helper for the top part of the tab list (above the players)
+     * @since 1.3.1
+     */
+    function getTabListHeader(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper | null;
+
+    /**
+     * @return text helper for the bottom part of the tab list (below the players)
+     * @since 1.3.1
+     */
+    function getTabListFooter(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper | null;
+
+    /**
+     * Summons the amount of particles at the desired position.
+     * @param id the particle id
+     * @param x the x position to spawn the particle
+     * @param y the y position to spawn the particle
+     * @param z the z position to spawn the particle
+     * @param count the amount of particles to spawn
+     * @since 1.8.4
+     */
+    function spawnParticle(id: ParticleId, x: double, y: double, z: double, count: int): void;
+
+    /**
+     * Summons the amount of particles at the desired position with some variation of delta and the
+     *  given speed.
+     * @param id the particle id
+     * @param x the x position to spawn the particle
+     * @param y the y position to spawn the particle
+     * @param z the z position to spawn the particle
+     * @param deltaX the x variation of the particle
+     * @param deltaY the y variation of the particle
+     * @param deltaZ the z variation of the particle
+     * @param speed the speed of the particle
+     * @param count the amount of particles to spawn
+     * @param force whether to show the particle if it's more than 32 blocks away
+     * @since 1.8.4
+     */
+    function spawnParticle(id: CanOmitNamespace<ParticleId>, x: double, y: double, z: double, deltaX: double, deltaY: double, deltaZ: double, speed: double, count: int, force: boolean): void;
+
+    /**
+     * @return the raw minecraft world.
+     * @since 1.9.1
+     */
+    function getRaw(): /* net.minecraft.client.world.ClientWorld */ any | null;
+
+    /**
+     * @return best attempt to measure and give the server tps.
+     * @since 1.2.7
+     */
+    function getServerInstantTPS(): number;
+
+    /**
+     * @return best attempt to measure and give the server tps over the previous 1 minute average.
+     * @since 1.2.7
+     */
+    function getServer1MAverageTPS(): number;
+
+    /**
+     * @return best attempt to measure and give the server tps over the previous 5 minute average.
+     * @since 1.2.7
+     */
+    function getServer5MAverageTPS(): number;
+
+    /**
+     * @return best attempt to measure and give the server tps over the previous 15 minute average.
+     * @since 1.2.7
+     */
+    function getServer15MAverageTPS(): number;
 
 }
 
@@ -3741,7 +3742,7 @@ declare namespace Packages {
                         executes(arg0: com.mojang.brigadier.Command<S>): T;
                         getCommand(): com.mojang.brigadier.Command<S>;
                         requires(arg0: MethodWrapper<S, any, boolean>): T;
-                        getRequirement(): MethodWrapper<S, any, boolean>;
+                        getRequirement(): java.util.function.Predicate<S>;
                         redirect(arg0: com.mojang.brigadier.tree.CommandNode<S>): T;
                         redirect(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: com.mojang.brigadier.SingleRedirectModifier<S>): T;
                         fork(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: com.mojang.brigadier.RedirectModifier<S>): T;
@@ -4080,7 +4081,7 @@ declare namespace Packages {
                         canUse(arg0: S): boolean;
                         addChild(arg0: CommandNode<S>): void;
                         findAmbiguities(arg0: com.mojang.brigadier.AmbiguityConsumer<S>): void;
-                        getRequirement(): MethodWrapper<S, any, boolean>;
+                        getRequirement(): java.util.function.Predicate<S>;
                         getName(): string;
                         getUsageText(): string;
                         parse(arg0: com.mojang.brigadier.StringReader, arg1: com.mojang.brigadier.context.CommandContextBuilder<S>): void;
@@ -4569,9 +4570,9 @@ declare namespace Packages {
                 /** @deprecated */
                 compare(arg0: int, arg1: int): number;
                 thenComparing(arg0: IntComparator): IntComparator;
-                thenComparing(arg0: MethodWrapper<int, int, int>): MethodWrapper<number, number, int>;
-                thenComparing<U>(arg0: MethodWrapper<T, any, U>, arg1: MethodWrapper<U, U, int>): MethodWrapper<T, T, int>;
-                thenComparing<U extends java.lang.Comparable<U>>(arg0: MethodWrapper<T, any, U>): MethodWrapper<T, T, int>;
+                thenComparing(arg0: MethodWrapper<int, int, int>): java.util.Comparator<number>;
+                thenComparing<U>(arg0: MethodWrapper<T, any, U>, arg1: MethodWrapper<U, U, int>): java.util.Comparator<T>;
+                thenComparing<U extends java.lang.Comparable<U>>(arg0: MethodWrapper<T, any, U>): java.util.Comparator<T>;
 
             }
 
@@ -4587,7 +4588,7 @@ declare namespace Packages {
                 andThen(arg0: java.util.function.IntConsumer): IntConsumer;
                 andThen(arg0: IntConsumer): IntConsumer;
                 /** @deprecated */
-                andThen(arg0: MethodWrapper<int>): MethodWrapper<number>;
+                andThen(arg0: MethodWrapper<int>): java.util.function.Consumer<number>;
 
             }
 
@@ -4729,12 +4730,12 @@ declare namespace Packages {
                 and(arg0: java.util.function.IntPredicate): IntPredicate;
                 and(arg0: IntPredicate): IntPredicate;
                 /** @deprecated */
-                and(arg0: MethodWrapper<int, any, boolean>): MethodWrapper<number, any, boolean>;
+                and(arg0: MethodWrapper<int, any, boolean>): java.util.function.Predicate<number>;
                 negate(): IntPredicate;
                 or(arg0: java.util.function.IntPredicate): IntPredicate;
                 or(arg0: IntPredicate): IntPredicate;
                 /** @deprecated */
-                or(arg0: MethodWrapper<int, any, boolean>): MethodWrapper<number, any, boolean>;
+                or(arg0: MethodWrapper<int, any, boolean>): java.util.function.Predicate<number>;
 
             }
 
@@ -10664,7 +10665,7 @@ declare namespace Packages {
                 static readonly class: JavaClass<String>;
                 /** @deprecated */ static prototype: undefined;
 
-                static readonly CASE_INSENSITIVE_ORDER: MethodWrapper<string, string, int>;
+                static readonly CASE_INSENSITIVE_ORDER: java.util.Comparator<string>;
 
                 static join(arg0: CharSequence, ...arg1: JavaVarArgs<CharSequence>): string;
                 static join(arg0: CharSequence, arg1: java.lang.Iterable<CharSequence>): string;
@@ -15081,7 +15082,7 @@ declare namespace Packages {
                 static readonly MIN: OffsetDateTime;
                 static readonly MAX: OffsetDateTime;
 
-                static timeLineOrder(): MethodWrapper<OffsetDateTime, OffsetDateTime, int>;
+                static timeLineOrder(): java.util.Comparator<OffsetDateTime>;
                 static now(): OffsetDateTime;
                 static now(arg0: ZoneId): OffsetDateTime;
                 static now(arg0: Clock): OffsetDateTime;
@@ -15438,7 +15439,7 @@ declare namespace Packages {
                     static readonly class: JavaClass<ChronoLocalDate>;
                     /** @deprecated */ static prototype: undefined;
 
-                    static timeLineOrder(): MethodWrapper<ChronoLocalDate, ChronoLocalDate, int>;
+                    static timeLineOrder(): java.util.Comparator<ChronoLocalDate>;
                     static from(arg0: java.time.temporal.TemporalAccessor): ChronoLocalDate;
 
                 }
@@ -15475,7 +15476,7 @@ declare namespace Packages {
                     static readonly class: JavaClass<ChronoLocalDateTime<any>>;
                     /** @deprecated */ static prototype: undefined;
 
-                    static timeLineOrder(): MethodWrapper<ChronoLocalDateTime<any>, ChronoLocalDateTime<any>, int>;
+                    static timeLineOrder(): java.util.Comparator<ChronoLocalDateTime<any>>;
                     static from(arg0: java.time.temporal.TemporalAccessor): ChronoLocalDateTime<any>;
 
                 }
@@ -15573,7 +15574,7 @@ declare namespace Packages {
                     static readonly class: JavaClass<ChronoZonedDateTime<any>>;
                     /** @deprecated */ static prototype: undefined;
 
-                    static timeLineOrder(): MethodWrapper<ChronoZonedDateTime<any>, ChronoZonedDateTime<any>, int>;
+                    static timeLineOrder(): java.util.Comparator<ChronoZonedDateTime<any>>;
                     static from(arg0: java.time.temporal.TemporalAccessor): ChronoZonedDateTime<any>;
 
                 }
@@ -16316,27 +16317,27 @@ declare namespace Packages {
                 static readonly class: JavaClass<Comparator<any>>;
                 /** @deprecated */ static prototype: undefined;
 
-                static reverseOrder<T extends java.lang.Comparable<T>>(): MethodWrapper<T, T, int>;
-                static naturalOrder<T extends java.lang.Comparable<T>>(): MethodWrapper<T, T, int>;
-                static nullsFirst<T>(arg0: MethodWrapper<T, T, int>): MethodWrapper<T, T, int>;
-                static nullsLast<T>(arg0: MethodWrapper<T, T, int>): MethodWrapper<T, T, int>;
-                static comparing<T, U>(arg0: MethodWrapper<T, any, U>, arg1: MethodWrapper<U, U, int>): MethodWrapper<T, T, int>;
-                static comparing<T, U extends java.lang.Comparable<U>>(arg0: MethodWrapper<T, any, U>): MethodWrapper<T, T, int>;
-                static comparingInt<T>(arg0: java.util.function.ToIntFunction<T>): MethodWrapper<T, T, int>;
-                static comparingLong<T>(arg0: java.util.function.ToLongFunction<T>): MethodWrapper<T, T, int>;
-                static comparingDouble<T>(arg0: java.util.function.ToDoubleFunction<T>): MethodWrapper<T, T, int>;
+                static reverseOrder<T extends java.lang.Comparable<T>>(): Comparator<T>;
+                static naturalOrder<T extends java.lang.Comparable<T>>(): Comparator<T>;
+                static nullsFirst<T>(arg0: MethodWrapper<T, T, int>): Comparator<T>;
+                static nullsLast<T>(arg0: MethodWrapper<T, T, int>): Comparator<T>;
+                static comparing<T, U>(arg0: MethodWrapper<T, any, U>, arg1: MethodWrapper<U, U, int>): Comparator<T>;
+                static comparing<T, U extends java.lang.Comparable<U>>(arg0: MethodWrapper<T, any, U>): Comparator<T>;
+                static comparingInt<T>(arg0: java.util.function.ToIntFunction<T>): Comparator<T>;
+                static comparingLong<T>(arg0: java.util.function.ToLongFunction<T>): Comparator<T>;
+                static comparingDouble<T>(arg0: java.util.function.ToDoubleFunction<T>): Comparator<T>;
 
             }
             interface Comparator<T> {
 
                 compare(arg0: T, arg1: T): number;
-                reversed(): MethodWrapper<T, T, int>;
-                thenComparing(arg0: MethodWrapper<T, T, int>): MethodWrapper<T, T, int>;
-                thenComparing<U>(arg0: MethodWrapper<T, any, U>, arg1: MethodWrapper<U, U, int>): MethodWrapper<T, T, int>;
-                thenComparing<U extends java.lang.Comparable<U>>(arg0: MethodWrapper<T, any, U>): MethodWrapper<T, T, int>;
-                thenComparingInt(arg0: java.util.function.ToIntFunction<T>): MethodWrapper<T, T, int>;
-                thenComparingLong(arg0: java.util.function.ToLongFunction<T>): MethodWrapper<T, T, int>;
-                thenComparingDouble(arg0: java.util.function.ToDoubleFunction<T>): MethodWrapper<T, T, int>;
+                reversed(): Comparator<T>;
+                thenComparing(arg0: MethodWrapper<T, T, int>): Comparator<T>;
+                thenComparing<U>(arg0: MethodWrapper<T, any, U>, arg1: MethodWrapper<U, U, int>): Comparator<T>;
+                thenComparing<U extends java.lang.Comparable<U>>(arg0: MethodWrapper<T, any, U>): Comparator<T>;
+                thenComparingInt(arg0: java.util.function.ToIntFunction<T>): Comparator<T>;
+                thenComparingLong(arg0: java.util.function.ToLongFunction<T>): Comparator<T>;
+                thenComparingDouble(arg0: java.util.function.ToDoubleFunction<T>): Comparator<T>;
 
             }
 
@@ -16778,10 +16779,10 @@ declare namespace Packages {
                 static readonly class: JavaClass<Map$Entry<any, any>>;
                 /** @deprecated */ static prototype: undefined;
 
-                static comparingByKey<K extends java.lang.Comparable<K>, V>(): MethodWrapper<Map$Entry<K, V>, Map$Entry<K, V>, int>;
-                static comparingByValue<K, V extends java.lang.Comparable<V>>(): MethodWrapper<Map$Entry<K, V>, Map$Entry<K, V>, int>;
-                static comparingByKey<K, V>(arg0: MethodWrapper<K, K, int>): MethodWrapper<Map$Entry<K, V>, Map$Entry<K, V>, int>;
-                static comparingByValue<K, V>(arg0: MethodWrapper<V, V, int>): MethodWrapper<Map$Entry<K, V>, Map$Entry<K, V>, int>;
+                static comparingByKey<K extends java.lang.Comparable<K>, V>(): Comparator<Map$Entry<K, V>>;
+                static comparingByValue<K, V extends java.lang.Comparable<V>>(): Comparator<Map$Entry<K, V>>;
+                static comparingByKey<K, V>(arg0: MethodWrapper<K, K, int>): Comparator<Map$Entry<K, V>>;
+                static comparingByValue<K, V>(arg0: MethodWrapper<V, V, int>): Comparator<Map$Entry<K, V>>;
                 static copyOf<K, V>(arg0: Map$Entry<K, V>): Map$Entry<K, V>;
 
             }
@@ -17087,7 +17088,7 @@ declare namespace Packages {
             }
             interface SortedMap<K, V> extends java.util.Map<K, V> {
 
-                comparator(): MethodWrapper<K, K, int>;
+                comparator(): Comparator<K>;
                 subMap(arg0: K, arg1: K): SortedMap<K, V>;
                 headMap(arg0: K): SortedMap<K, V>;
                 tailMap(arg0: K): SortedMap<K, V>;
@@ -17121,7 +17122,7 @@ declare namespace Packages {
                 getExactSizeIfKnown(): number;
                 characteristics(): number;
                 hasCharacteristics(arg0: int): boolean;
-                getComparator(): MethodWrapper<T, T, int>;
+                getComparator(): Comparator<T>;
 
             }
 
@@ -17308,7 +17309,7 @@ declare namespace Packages {
                 interface BiConsumer<T, U> {
 
                     accept(arg0: T, arg1: U): void;
-                    andThen(arg0: MethodWrapper<T, U>): MethodWrapper<T, U>;
+                    andThen(arg0: MethodWrapper<T, U>): BiConsumer<T, U>;
 
                 }
 
@@ -17319,7 +17320,7 @@ declare namespace Packages {
                 interface BiFunction<T, U, R> {
 
                     apply(arg0: T, arg1: U): R;
-                    andThen<V>(arg0: MethodWrapper<R, any, V>): MethodWrapper<T, U, V>;
+                    andThen<V>(arg0: MethodWrapper<R, any, V>): BiFunction<T, U, V>;
 
                 }
 
@@ -17340,9 +17341,9 @@ declare namespace Packages {
                 interface BiPredicate<T, U> {
 
                     test(arg0: T, arg1: U): boolean;
-                    and(arg0: MethodWrapper<T, U, boolean>): MethodWrapper<T, U, boolean>;
-                    negate(): MethodWrapper<T, U, boolean>;
-                    or(arg0: MethodWrapper<T, U, boolean>): MethodWrapper<T, U, boolean>;
+                    and(arg0: MethodWrapper<T, U, boolean>): BiPredicate<T, U>;
+                    negate(): BiPredicate<T, U>;
+                    or(arg0: MethodWrapper<T, U, boolean>): BiPredicate<T, U>;
 
                 }
 
@@ -17353,7 +17354,7 @@ declare namespace Packages {
                 interface Consumer<T> {
 
                     accept(arg0: T): void;
-                    andThen(arg0: MethodWrapper<T>): MethodWrapper<T>;
+                    andThen(arg0: MethodWrapper<T>): Consumer<T>;
 
                 }
 
@@ -17450,14 +17451,14 @@ declare namespace Packages {
                     static readonly class: JavaClass<Function<any, any>>;
                     /** @deprecated */ static prototype: undefined;
 
-                    static identity<T>(): MethodWrapper<T, any, T>;
+                    static identity<T>(): Function<T, T>;
 
                 }
                 interface Function<T, R> {
 
                     apply(arg0: T): R;
-                    compose<V>(arg0: MethodWrapper<V, any, T>): MethodWrapper<V, any, R>;
-                    andThen<V>(arg0: MethodWrapper<R, any, V>): MethodWrapper<T, any, V>;
+                    compose<V>(arg0: MethodWrapper<V, any, T>): Function<V, R>;
+                    andThen<V>(arg0: MethodWrapper<R, any, V>): Function<T, V>;
 
                 }
 
@@ -17673,16 +17674,16 @@ declare namespace Packages {
                     static readonly class: JavaClass<Predicate<any>>;
                     /** @deprecated */ static prototype: undefined;
 
-                    static isEqual<T>(arg0: any): MethodWrapper<T, any, boolean>;
-                    static not<T>(arg0: MethodWrapper<T, any, boolean>): MethodWrapper<T, any, boolean>;
+                    static isEqual<T>(arg0: any): Predicate<T>;
+                    static not<T>(arg0: MethodWrapper<T, any, boolean>): Predicate<T>;
 
                 }
                 interface Predicate<T> {
 
                     test(arg0: T): boolean;
-                    and(arg0: MethodWrapper<T, any, boolean>): MethodWrapper<T, any, boolean>;
-                    negate(): MethodWrapper<T, any, boolean>;
-                    or(arg0: MethodWrapper<T, any, boolean>): MethodWrapper<T, any, boolean>;
+                    and(arg0: MethodWrapper<T, any, boolean>): Predicate<T>;
+                    negate(): Predicate<T>;
+                    or(arg0: MethodWrapper<T, any, boolean>): Predicate<T>;
 
                 }
 
@@ -18002,7 +18003,7 @@ declare namespace Packages {
                 interface ExecutorService extends Executor {
 
                     shutdown(): void;
-                    shutdownNow(): JavaList<MethodWrapper>;
+                    shutdownNow(): JavaList<java.lang.Runnable>;
                     isShutdown(): boolean;
                     isTerminated(): boolean;
                     awaitTermination(arg0: long, arg1: TimeUnit): boolean;
@@ -18251,8 +18252,8 @@ declare namespace Packages {
                     flags(): number;
                     split(arg0: java.lang.CharSequence, arg1: int): JavaArray<string>;
                     split(arg0: java.lang.CharSequence): JavaArray<string>;
-                    asPredicate(): MethodWrapper<string, any, boolean>;
-                    asMatchPredicate(): MethodWrapper<string, any, boolean>;
+                    asPredicate(): java.util.function.Predicate<string>;
+                    asMatchPredicate(): java.util.function.Predicate<string>;
                     splitAsStream(arg0: java.lang.CharSequence): java.util.stream.Stream<string>;
 
                 }
@@ -18290,10 +18291,10 @@ declare namespace Packages {
                 }
                 interface Collector<T, A, R> {
 
-                    supplier(): MethodWrapper<any, any, A>;
-                    accumulator(): MethodWrapper<A, T>;
+                    supplier(): java.util.function.Supplier<A>;
+                    accumulator(): java.util.function.BiConsumer<A, T>;
                     combiner(): java.util.function.BinaryOperator<A>;
-                    finisher(): MethodWrapper<A, any, R>;
+                    finisher(): java.util.function.Function<A, R>;
                     characteristics(): JavaSet<Collector$Characteristics>;
 
                 }
@@ -22456,6 +22457,22 @@ declare namespace Packages {
 
                             constructor (reason: string | null, pos: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper | null);
 
+                            /**
+                             * Can be one of the following reason:<br>  
+                             *  * `SUCCESS` - the block has been destroyed on client side, no promise that the server will accept it.<br>  
+                             *       for example if the block is in protected area, or the server is lagging very hard, then the break will get ignored.<br>  
+                             *  * `CANCELLED` - if {@link xyz.wagyourtail.jsmacros.client.api.helpers.InteractionManagerHelper.cancelBreakBlock}() was called.<br>  
+                             *  * `INTERRUPTED` - if block breaking was interrupted by attack key. (left mouse by default)<br>  
+                             *  * `NOT_BREAKING` - if the block breaking was invalid for some reason.<br>  
+                             *  * `RESET` - if interaction proxy has been reset or not in a world.<br>  
+                             *  * `NO_OVERRIDE` - if block breaking override was false but there's remaining callback for some reason.<br>  
+                             *  * `IS_AIR` - if the targeted block was air.<br>  
+                             *  * `NO_TARGET` - if there's no targeted block.<br>  
+                             *  * `TARGET_LOST` - if there's no longer a targeted block.<br>  
+                             *  * `TARGET_CHANGE` - if the targeted block has changed.<br>  
+                             *  * `UNAVAILABLE` - if InteractionManager was unavailable. (mc.interactionManager is null)<br>  
+                             *  * null - unknown. (proxy method has been called outside the api)<br>
+                             */
                             readonly reason: BreakBlockResult$Reason | null;
                             readonly pos: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper | null;
                         }
@@ -24983,22 +25000,22 @@ declare namespace Packages {
                                  * @see IDraw2D.addItem(int, int, String)
                                  * @since 1.0.5
                                  */
-                                addItem(x: int, y: int, id: string): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
-                                addItem(x: int, y: int, zIndex: int, id: string): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, id: ItemId): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, zIndex: int, id: ItemId): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
 
                                 /**
                                  * @see IDraw2D.addItem(int, int, String, boolean)
                                  * @since 1.2.0
                                  */
-                                addItem(x: int, y: int, id: string, overlay: boolean): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
-                                addItem(x: int, y: int, zIndex: int, id: string, overlay: boolean): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, id: ItemId, overlay: boolean): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, zIndex: int, id: ItemId, overlay: boolean): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
 
                                 /**
                                  * @see IDraw2D.addItem(int, int, String, boolean, double, double)
                                  * @since 1.2.0
                                  */
-                                addItem(x: int, y: int, id: string, overlay: boolean, scale: double, rotation: double): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
-                                addItem(x: int, y: int, zIndex: int, id: string, overlay: boolean, scale: double, rotation: double): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, id: ItemId, overlay: boolean, scale: double, rotation: double): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, zIndex: int, id: ItemId, overlay: boolean, scale: double, rotation: double): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
 
                                 /**
                                  * @see IDraw2D.addItem(int, int, ItemStackHelper)
@@ -32725,7 +32742,7 @@ declare namespace Packages {
                             /**
                              * Don't touch this here!
                              */
-                            static readonly BUFFER_TO_PACKET: JavaMap<JavaClass</* net.minecraft.network.packet.Packet<any> */ any>, MethodWrapper</* net.minecraft.network.PacketByteBuf */ any, any, /* net.minecraft.network.packet.Packet<any> */ any>>;
+                            static readonly BUFFER_TO_PACKET: JavaMap<JavaClass</* net.minecraft.network.packet.Packet<any> */ any>, java.util.function.Function</* net.minecraft.network.PacketByteBuf */ any, /* net.minecraft.network.packet.Packet<any> */ any>>;
 
                             static getPacketName(packet: /* net.minecraft.network.packet.Packet<any> */ any): string;
                             static init(): void;
@@ -34090,7 +34107,7 @@ declare namespace Packages {
                             obfuscated(): boolean;
                             getClickAction(): TextClickAction | 'custom' | null;
                             getClickValue(): string | null;
-                            getCustomClickValue(): MethodWrapper | null;
+                            getCustomClickValue(): java.lang.Runnable | null;
                             getHoverAction(): TextHoverAction | null;
                             getHoverValue(): any | null;
                             getInsertion(): string;
@@ -41536,7 +41553,7 @@ declare namespace Packages {
 
                             constructor (start: string, cursor: SelectCursor);
 
-                            onChange: MethodWrapper<string>;
+                            onChange: java.util.function.Consumer<string>;
                             current: string;
 
                             /**
@@ -41577,7 +41594,7 @@ declare namespace Packages {
 
                             constructor (defaultStyle: /* net.minecraft.text.Style */ any);
 
-                            onChange: MethodWrapper<SelectCursor>;
+                            onChange: java.util.function.Consumer<SelectCursor>;
                             defaultStyle: /* net.minecraft.text.Style */ any;
                             startLine: number;
                             endLine: number;
@@ -41610,7 +41627,7 @@ declare namespace Packages {
                                 constructor (language: string, screen: xyz.wagyourtail.jsmacros.client.gui.screens.EditorScreen);
 
                                 recompileRenderedText(text: string): void;
-                                getRightClickOptions(index: int): JavaMap<string, MethodWrapper>;
+                                getRightClickOptions(index: int): JavaMap<string, java.lang.Runnable>;
                                 getRenderedText(): JavaArray</* net.minecraft.text.Text */ any>;
                                 getSuggestions(): JavaList<AutoCompleteSuggestion>;
 
@@ -41766,8 +41783,8 @@ declare namespace Packages {
                      * @param after put a {@link MethodWrapper} here when using in scripts.
                      */
                     andThen<V>(after: MethodWrapper<R, any, V>): MethodWrapper<T, U, V, C>;
-                    andThen(arg0: MethodWrapper<T>): MethodWrapper<T>;
-                    andThen(arg0: MethodWrapper<T, U>): MethodWrapper<T, U>;
+                    andThen(arg0: MethodWrapper<T>): java.util.function.Consumer<T>;
+                    andThen(arg0: MethodWrapper<T, U>): java.util.function.BiConsumer<T, U>;
 
                     /**
                      * Makes {@link Predicate} and {@link BiPredicate} work together
@@ -41850,7 +41867,7 @@ declare namespace Packages {
                         constructor (name: string, sig: MethodWrapper<any, any, string>);
 
                         readonly name: string;
-                        readonly sig: MethodWrapper<any, any, string>;
+                        readonly sig: java.util.function.Supplier<string>;
                     }
 
 
@@ -42316,7 +42333,7 @@ declare namespace Packages {
                         constructor <U, T extends BaseScriptContext<U>>(extension: xyz.wagyourtail.jsmacros.core.extensions.Extension, runner: xyz.wagyourtail.jsmacros.core.Core<any, any>);
 
                         readonly extension: xyz.wagyourtail.jsmacros.core.extensions.Extension;
-                        preThread: MethodWrapper;
+                        preThread: java.lang.Runnable;
 
                         trigger(macro: xyz.wagyourtail.jsmacros.core.config.ScriptTrigger, event: Events.BaseEvent, then: MethodWrapper, catcher: MethodWrapper<java.lang.Throwable>): EventContainer<T>;
                         trigger(lang: string, script: string, fakeFile: java.io.File, event: Events.BaseEvent, then: MethodWrapper, catcher: MethodWrapper<java.lang.Throwable>): EventContainer<T>;
@@ -43106,7 +43123,7 @@ declare namespace Packages {
                                 /**
                                  * "super" value, but that's also a keyword so...
                                  */
-                                readonly parent: MethodWrapper<JavaArray<any>, any, any>;
+                                readonly parent: java.util.function.Function<JavaArray<any>, any>;
                             }
 
 
@@ -44009,7 +44026,7 @@ type AttackIndicatorType = 'off' | 'crosshair' | 'hotbar';
 type BlockUpdateType = 'STATE' | 'ENTITY';
 type BossBarUpdateType = 'ADD' | 'REMOVE' | 'UPDATE_PERCENT'
 | 'UPDATE_NAME' | 'UPDATE_STYLE' | 'UPDATE_PROPERTIES'
-type BreakBlockResult$Reason = 'SUCCESS' | 'CANCELLED' | 'INTERRUPTED' | 'NOT_BREAKING' | 'RESET' | 'NO_OVERRIDE' | 'IS_AIR' | 'NO_SHAPE' | 'NO_TARGET' | 'TARGET_LOST' | 'TARGET_CHANGE' | 'UNAVAILABLE';
+type BreakBlockResult$Reason = 'SUCCESS' | 'CANCELLED' | 'INTERRUPTED' | 'NOT_BREAKING' | 'RESET' | 'NO_OVERRIDE' | 'IS_AIR' | 'NO_TARGET' | 'TARGET_LOST' | 'TARGET_CHANGE' | 'UNAVAILABLE';
 type ChatVisibility = 'FULL' | 'SYSTEM' | 'HIDDEN';
 type ChunkBuilderMode = 'none' | 'nearby' | 'player_affected';
 type CloudsMode = 'off' | 'fast' | 'fancy';
