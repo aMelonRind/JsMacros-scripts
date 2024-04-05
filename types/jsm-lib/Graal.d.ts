@@ -294,10 +294,13 @@ declare namespace Packages {
                 equals(obj: Object | null): boolean;
                 getClass(): Class<any>;
                 hashCode(): number;
-                notify(): void;
-                notifyAll(): void;
                 toString(): string;
-                wait(timeoutMillis?: long, nanos?: int): void;
+                // these're actual methods, but i barely use them so it's commented out
+                // notify(): void;
+                // notifyAll(): void;
+                // wait(): void;
+                // wait(timeoutMillis: long): void;
+                // wait(timeoutMillis: long, nanos: int): void;
 
             }
 

@@ -434,6 +434,12 @@ declare namespace Events {
         readonly deltaY: number;
     }
 
+    interface NameChange extends BaseEvent, Cancellable {
+        readonly entity: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
+        readonly oldName: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper | null;
+        newName: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper | null;
+    }
+
     interface OpenContainer extends BaseEvent, Cancellable {
         readonly inventory: Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<any>;
         readonly screen: Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.IScreen;
@@ -687,6 +693,14 @@ declare namespace Events {
 
 }
 
+interface EventFilterers {
+
+    BlockUpdate: FiltererBlockUpdate;
+    RecvPacket: FiltererRecvPacket;
+    SendPacket: FiltererSendPacket;
+
+}
+
 interface Events {
 
     AirChange: Events.AirChange;
@@ -725,6 +739,7 @@ interface Events {
     Key: Events.Key;
     LaunchGame: Events.LaunchGame;
     MouseScroll: Events.MouseScroll;
+    NameChange: Events.NameChange;
     OpenContainer: Events.OpenContainer;
     OpenScreen: Events.OpenScreen;
     PlayerJoin: Events.PlayerJoin;
@@ -1904,6 +1919,22 @@ declare namespace JsMacros {
     function on<E extends keyof Events>(event: E, joined: boolean, callback: MethodWrapper<Events[E], EventContainer>): Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener;
 
     /**
+     * Creates a listener for an event, this function can be more efficient that running a script file when used properly.
+     * @param callback calls your method as a {@link Packages.java.util.function.BiConsumer}<{@link BaseEvent}, {@link EventContainer}>
+     * @see IEventListener
+     * @since 1.9.1
+     */
+    function on<E extends keyof Events>(event: E, filterer: EventFilterers[E], callback: MethodWrapper<Events[E], EventContainer>): Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener;
+
+    /**
+     * Creates a listener for an event, this function can be more efficient that running a script file when used properly.
+     * @param callback calls your method as a {@link Packages.java.util.function.BiConsumer}<{@link BaseEvent}, {@link EventContainer}>
+     * @see IEventListener
+     * @since 1.9.1
+     */
+    function on<E extends keyof Events>(event: E, filterer: EventFilterers[E], joined: boolean, callback: MethodWrapper<Events[E], EventContainer>): Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener;
+
+    /**
      * Creates a single-run listener for an event, this function can be more efficient that running a script file when used properly.
      * @param callback calls your method as a {@link Packages.java.util.function.BiConsumer}<{@link BaseEvent}, {@link EventContainer}>
      * @return the listener.
@@ -2023,6 +2054,35 @@ declare namespace JsMacros {
     function listeners(event: keyof Events): JavaList<Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener>;
 
     /**
+     * create an event filterer.<br>  
+     *  this exists to reduce lag when listening to frequently triggered events.
+     * @since 1.9.1
+     */
+    function createEventFilterer<E extends keyof EventFilterers>(event: E): EventFilterers[E];
+
+    /**
+     * create a composed event filterer.<br>  
+     *  this filterer combines multiple filterers together with and/or logic.
+     * @since 1.9.1
+     */
+    function createComposedEventFilterer(initial: Packages.xyz.wagyourtail.jsmacros.core.event.EventFilterer): Packages.xyz.wagyourtail.jsmacros.core.event.impl.FiltererComposed;
+
+    /**
+     * create a modulus event filterer.<br>  
+     *  this filterer only let every nth event pass through.
+     * @since 1.9.1
+     */
+    function createModulusEventFilterer(quotient: int): Packages.xyz.wagyourtail.jsmacros.core.event.impl.FiltererModulus;
+
+    /**
+     * inverts the base filterer's result.<br>  
+     *  this checks if the base is already inverted.<br>  
+     *  e.g. `filterer == invert(invert(filterer))` would be `true`.
+     * @since 1.9.1
+     */
+    function invertEventFilterer(base: Packages.xyz.wagyourtail.jsmacros.core.event.EventFilterer): Packages.xyz.wagyourtail.jsmacros.core.event.EventFilterer;
+
+    /**
      * create a custom event object that can trigger a event. It's recommended to use
      *  {@link EventCustom.registerEvent}() to set up the event to be visible in the GUI.
      * @param eventName name of the event. please don't use an existing one... your scripts might not like that.
@@ -2138,7 +2198,7 @@ declare namespace Player {
      * @see ClientPlayerEntityHelper
      * @since 1.0.3
      */
-    function getPlayer(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.ClientPlayerEntityHelper</* net.minecraft.client.network.ClientPlayerEntity */ any>;
+    function getPlayer(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.ClientPlayerEntityHelper</* net.minecraft.client.network.ClientPlayerEntity */ any> | null;
     /** @since 1.9.0 */
     function getInteractionManager(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.InteractionManagerHelper | null;
 
@@ -2166,6 +2226,12 @@ declare namespace Player {
      * @since 1.0.5
      */
     function rayTraceBlock(distance: double, fluid: boolean): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper | null;
+
+    /**
+     * @return the raycast result.
+     * @since 1.9.1
+     */
+    function detailedRayTraceBlock(distance: double, fluid: boolean): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.HitResultHelper$Block;
 
     /**
      * @return the entity the camera is currently looking at. can be affected by {@link InteractionManagerHelper.setTarget}(EntityHelper)
@@ -2805,13 +2871,23 @@ declare namespace Utils {
     function hashString(message: string | null): string;
 
     /**
-     * Hashes the given string with sha-256 the selected algorithm.
+     * Hashes the given string with the selected algorithm.
      * @param message the message to hash
      * @param algorithm sha1 | sha256 | sha384 | sha512 | md2 | md5
-     * @return the hashed message.
+     * @return the hashed message (Hex)
      * @since 1.8.4
      */
     function hashString(message: string | null, algorithm: string): string | null;
+
+    /**
+     * Hashes the given string with the selected algorithm.
+     * @param message the message to hash
+     * @param algorithm sha1 | sha256 | sha384 | sha512 | md2 | md5
+     * @param base64 encode the result in base64
+     * @return the hashed message (Hex or Base64)
+     * @since 1.9.1
+     */
+    function hashString(message: string | null, algorithm: string, base64: boolean): string | null;
 
     /**
      * Encodes the given string with Base64.
@@ -24114,6 +24190,7 @@ declare namespace Packages {
 
                                 /**
                                  * swaps the items in two slots.
+                                 * @deprecated use {@link Inventory.swapHotbar}(int, int) or write it yourself instead. This method is not reliable on servers due to timing issues.
                                  */
                                 swap(slot1: int, slot2: int): Inventory<T>;
 
@@ -30208,6 +30285,130 @@ declare namespace Packages {
                                 scanChunkRange(centerX: int, centerZ: int, chunkrange: int): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
 
                                 /**
+                                 * scan area in blocks
+                                 * @since 1.9.1
+                                 */
+                                scanCubeArea(pos: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, range: int): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
+                                 * scan area in blocks
+                                 * @since 1.9.1
+                                 */
+                                scanCubeArea(x: int, y: int, z: int, range: int): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
+                                 * scan area in blocks
+                                 * @param pos1 first pos, inclusive
+                                 * @param pos2 second pos, exclusive
+                                 * @since 1.9.1
+                                 */
+                                scanCubeArea(pos1: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, pos2: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
+                                 * scan area in blocks
+                                 * @param x1 first x coordinate, inclusive
+                                 * @param y1 first y coordinate, inclusive
+                                 * @param z1 first z coordinate, inclusive
+                                 * @param x2 second x coordinate, exclusive
+                                 * @param y2 second y coordinate, exclusive
+                                 * @param z2 second z coordinate, exclusive
+                                 * @since 1.9.1
+                                 */
+                                scanCubeArea(x1: int, y1: int, z1: int, x2: int, y2: int, z2: int): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
+                                 * scan area in blocks
+                                 * @param pos1 first pos, inclusive
+                                 * @param pos2 second pos, inclusive
+                                 * @since 1.9.1
+                                 */
+                                scanCubeAreaInclusive(pos1: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, pos2: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
+                                 * scan area in blocks
+                                 * @param x1 first x coordinate, inclusive
+                                 * @param y1 first y coordinate, inclusive
+                                 * @param z1 first z coordinate, inclusive
+                                 * @param x2 second x coordinate, inclusive
+                                 * @param y2 second y coordinate, inclusive
+                                 * @param z2 second z coordinate, inclusive
+                                 * @since 1.9.1
+                                 */
+                                scanCubeAreaInclusive(x1: int, y1: int, z1: int, x2: int, y2: int, z2: int): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
+                                 * scan area in blocks
+                                 * @since 1.9.1
+                                 */
+                                scanSphereArea(pos: xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D, radius: double): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
+                                 * scan area in blocks
+                                 * @since 1.9.1
+                                 */
+                                scanSphereArea(x: double, y: double, z: double, radius: double): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
+                                 * scan around with player pos and player reach.<br>  
+                                 *  this doesn't filter out positions that has obstacle.
+                                 * @since 1.9.1
+                                 */
+                                scanReachable(): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
+                                 * scan around with player pos and player reach.<br>  
+                                 *  this doesn't filter out positions that has obstacle.
+                                 * @param strict if it should check for block outline instead of full cube, default is true
+                                 * @since 1.9.1
+                                 */
+                                scanReachable(strict: boolean): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
+                                 * scan around with the given pos and player reach.<br>  
+                                 *  this doesn't filter out positions that has obstacle.
+                                 * @since 1.9.1
+                                 */
+                                scanReachable(pos: xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
+                                 * scan around with the given pos and the given reach.<br>  
+                                 *  this doesn't filter out positions that has obstacle.
+                                 * @since 1.9.1
+                                 */
+                                scanReachable(pos: xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D, reach: double): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
+                                 * scan around with the given pos and the given reach.<br>  
+                                 *  this doesn't filter out positions that has obstacle.
+                                 * @param pos `Player.getPlayer().getEyePos()`
+                                 * @param reach `Player.getInteractionManager().getReach()`
+                                 * @param strict if it should check for block outline instead of full cube, default is true
+                                 * @since 1.9.1
+                                 */
+                                scanReachable(pos: xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D, reach: double, strict: boolean): JavaList<xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D>;
+
+                                /**
+                                 * scan around with player pos and player reach, and return the closest one.<br>  
+                                 *  this doesn't filter out positions that has obstacle.
+                                 * @since 1.9.1
+                                 */
+                                scanClosestReachable(): xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D | null;
+
+                                /**
+                                 * scan around with player pos and player reach, and return the closest one.<br>  
+                                 *  this doesn't filter out positions that has obstacle.
+                                 * @since 1.9.1
+                                 */
+                                scanClosestReachable(strict: boolean): xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D | null;
+
+                                /**
+                                 * scan around with player pos and player reach, and return the closest one.<br>  
+                                 *  this doesn't filter out positions that has obstacle.
+                                 * @since 1.9.1
+                                 */
+                                scanClosestReachable(pos: xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D, reach: double, strict: boolean): xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D | null;
+
+                                /**
                                  * Gets the amount of all blocks matching the criteria inside the chunk.
                                  * @param chunkX the x coordinate of the chunk to scan
                                  * @param chunkZ the z coordinate of the chunk to scan
@@ -30309,6 +30510,92 @@ declare namespace Packages {
                             export { WorldScanner, WorldScannerBuilder }
 
                         }
+
+                    }
+
+                    namespace event.filterer {
+
+
+                        /**
+                         * @author aMelonRind
+                         * @since 1.9.1
+                         */
+                        interface FiltererBlockUpdate extends xyz.wagyourtail.jsmacros.core.event.EventFilterer {}
+                        class FiltererBlockUpdate extends java.lang.Object {
+                            static readonly class: JavaClass<FiltererBlockUpdate>;
+                            /** @deprecated */ static prototype: undefined;
+
+                            constructor ();
+
+                            pos: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper | null;
+
+                            /**
+                             * if this and pos are not null, filters area<br>  
+                             *  this should always be larger or equal than pos
+                             */
+                            pos2: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper | null;
+                            blockId: BlockId | null;
+                            blockState: JavaMap<string, string> | null;
+                            updateType: BlockUpdateType | null;
+
+                            canFilter(event: string): boolean;
+                            test(baseEvent: Events.BaseEvent): boolean;
+                            setPos(x: int, y: int, z: int): FiltererBlockUpdate;
+                            setPos(pos: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper | null): FiltererBlockUpdate;
+                            setArea(x1: int, y1: int, z1: int, x2: int, y2: int, z2: int): FiltererBlockUpdate;
+                            setArea(pos1: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper, pos2: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper): FiltererBlockUpdate;
+                            setBlockId(id: BlockId): FiltererBlockUpdate;
+                            setUpdateType(type: BlockUpdateType): FiltererBlockUpdate;
+                            setBlockStates(states: JavaMap<string, string> | null): FiltererBlockUpdate;
+
+                            /**
+                             * @param value setting to null will make sure the block doesn't have this property
+                             */
+                            setBlockState(property: string, value: string | null): FiltererBlockUpdate;
+
+                        }
+
+
+                        /**
+                         * @author aMelonRind
+                         * @since 1.9.1
+                         */
+                        interface FiltererRecvPacket extends xyz.wagyourtail.jsmacros.core.event.EventFilterer {}
+                        class FiltererRecvPacket extends java.lang.Object {
+                            static readonly class: JavaClass<FiltererRecvPacket>;
+                            /** @deprecated */ static prototype: undefined;
+
+                            constructor ();
+
+                            type: PacketName | null;
+
+                            canFilter(event: string): boolean;
+                            test(event: Events.BaseEvent): boolean;
+                            setType(type: PacketName | null): FiltererRecvPacket;
+
+                        }
+
+
+                        /**
+                         * @author aMelonRind
+                         * @since 1.9.1
+                         */
+                        interface FiltererSendPacket extends xyz.wagyourtail.jsmacros.core.event.EventFilterer {}
+                        class FiltererSendPacket extends java.lang.Object {
+                            static readonly class: JavaClass<FiltererSendPacket>;
+                            /** @deprecated */ static prototype: undefined;
+
+                            constructor ();
+
+                            type: PacketName | null;
+
+                            canFilter(event: string): boolean;
+                            test(event: Events.BaseEvent): boolean;
+                            setType(type: PacketName | null): FiltererSendPacket;
+
+                        }
+
+                        export { FiltererBlockUpdate, FiltererRecvPacket, FiltererSendPacket }
 
                     }
 
@@ -30770,6 +31057,12 @@ declare namespace Packages {
                              * @since 1.9.0
                              */
                             setTarget(entity: xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>): this;
+
+                            /**
+                             * @return current hitResult
+                             * @since 1.9.1
+                             */
+                            getTarget(): xyz.wagyourtail.jsmacros.client.api.helpers.world.HitResultHelper<any> | null;
 
                             /**
                              * @return targeted block pos, null if not targeting block
@@ -33373,8 +33666,16 @@ declare namespace Packages {
                              * @param hitResult the hit result to store
                              * @return self for chaining.
                              * @since 1.8.4
+                             * @deprecated use {@link PacketByteBufferHelper.writeBlockHitResult}(HitResultHelper.Block hitResult) instead.
                              */
                             writeBlockHitResult(hitResult: /* net.minecraft.util.hit.BlockHitResult */ any): this;
+
+                            /**
+                             * @param hitResult the hit result to store
+                             * @return self for chaining.
+                             * @since 1.9.1
+                             */
+                            writeBlockHitResult(hitResult: xyz.wagyourtail.jsmacros.client.api.helpers.world.HitResultHelper$Block): this;
 
                             /**
                              * @param pos the position of the BlockHitResult
@@ -33390,14 +33691,22 @@ declare namespace Packages {
                             /**
                              * @return the read block hit result.
                              * @since 1.8.4
+                             * @deprecated use {@link PacketByteBufferHelper.readBlockHitResultHelper}() instead.
                              */
                             readBlockHitResult(): /* net.minecraft.util.hit.BlockHitResult */ any;
 
                             /**
                              * @return a map of the block hit result's data and their values.
                              * @since 1.8.4
+                             * @deprecated use {@link PacketByteBufferHelper.readBlockHitResultHelper}() instead.
                              */
                             readBlockHitResultMap(): JavaMap<string, any>;
+
+                            /**
+                             * @return the read block hit result as a helper.
+                             * @since 1.9.1
+                             */
+                            readBlockHitResultHelper(): xyz.wagyourtail.jsmacros.client.api.helpers.world.HitResultHelper$Block;
 
                             /**
                              * @param bitSet the bit set to store
@@ -37179,6 +37488,48 @@ declare namespace Packages {
 
 
                             /**
+                             * @author aMelonRind
+                             * @since 1.9.1
+                             */
+                            abstract class HitResultHelper<T = /* net.minecraft.util.hit.HitResult */ any> extends xyz.wagyourtail.jsmacros.core.helpers.BaseHelper<T> {
+                                static readonly class: JavaClass<HitResultHelper<any>>;
+                                /** @deprecated */ static prototype: undefined;
+
+                                static resolve(hr: /* net.minecraft.util.hit.HitResult */ any | null): HitResultHelper<any> | null;
+
+                                getPos(): xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D;
+                                asBlock(): HitResultHelper$Block | null;
+                                asEntity(): HitResultHelper$Entity | null;
+
+                            }
+
+                            class HitResultHelper$Block extends HitResultHelper</* net.minecraft.util.hit.BlockHitResult */ any> {
+                                static readonly class: JavaClass<HitResultHelper$Block>;
+                                /** @deprecated */ static prototype: undefined;
+
+                                constructor (base: /* net.minecraft.util.hit.BlockHitResult */ any);
+
+                                getSide(): DirectionHelper | null;
+                                getBlockPos(): BlockPosHelper | null;
+                                isMissed(): boolean;
+                                isInsideBlock(): boolean;
+                                asBlock(): HitResultHelper$Block;
+
+                            }
+
+                            class HitResultHelper$Entity extends HitResultHelper</* net.minecraft.util.hit.EntityHitResult */ any> {
+                                static readonly class: JavaClass<HitResultHelper$Entity>;
+                                /** @deprecated */ static prototype: undefined;
+
+                                constructor (base: /* net.minecraft.util.hit.EntityHitResult */ any);
+
+                                getEntity(): xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
+                                asEntity(): HitResultHelper$Entity;
+
+                            }
+
+
+                            /**
                              * @author Wagyourtail
                              * @since 1.0.2
                              */
@@ -37902,6 +38253,9 @@ declare namespace Packages {
                                 ChunkHelper,
                                 DirectionHelper,
                                 FluidStateHelper,
+                                HitResultHelper,
+                                HitResultHelper$Block,
+                                HitResultHelper$Entity,
                                 PlayerListEntryHelper,
                                 ScoreboardsHelper,
                                 ServerInfoHelper,
@@ -39415,6 +39769,154 @@ declare namespace Packages {
 
                                     }
 
+                                    namespace display {
+
+
+                                        /**
+                                         * @author aMelonRind
+                                         * @since 1.9.1
+                                         */
+                                        class BlockDisplayEntityHelper extends DisplayEntityHelper</* net.minecraft.entity.decoration.DisplayEntity$BlockDisplayEntity */ any> {
+                                            static readonly class: JavaClass<BlockDisplayEntityHelper>;
+                                            /** @deprecated */ static prototype: undefined;
+
+                                            constructor (base: /* net.minecraft.entity.decoration.DisplayEntity$BlockDisplayEntity */ any);
+
+                                            /** @since 1.9.1 */
+                                            getBlockState(): xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper | null;
+
+                                        }
+
+
+                                        /**
+                                         * @author aMelonRind
+                                         * @since 1.9.1
+                                         */
+                                        class DisplayEntityHelper<T = /* net.minecraft.entity.decoration.DisplayEntity */ any> extends xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<T> {
+                                            static readonly class: JavaClass<DisplayEntityHelper<any>>;
+                                            /** @deprecated */ static prototype: undefined;
+
+                                            constructor <T extends /* net.minecraft.entity.decoration.DisplayEntity */ any>(base: T);
+
+                                            /** @since 1.9.1 */
+                                            getLerpTargetX(): number;
+                                            /** @since 1.9.1 */
+                                            getLerpTargetY(): number;
+                                            /** @since 1.9.1 */
+                                            getLerpTargetZ(): number;
+                                            /** @since 1.9.1 */
+                                            getLerpTargetPitch(): number;
+                                            /** @since 1.9.1 */
+                                            getLerpTargetYaw(): number;
+                                            /** @since 1.9.1 */
+                                            getVisibilityBoundingBox(): xyz.wagyourtail.jsmacros.client.api.classes.math.Vec3D;
+
+                                            /**
+                                             * @return "fixed", "vertical", "horizontal" or "center"
+                                             * @since 1.9.1
+                                             */
+                                            getBillboardMode(): string;
+                                            /** @since 1.9.1 */
+                                            getBrightness(): number;
+                                            /** @since 1.9.1 */
+                                            getSkyBrightness(): number;
+                                            /** @since 1.9.1 */
+                                            getBlockBrightness(): number;
+                                            /** @since 1.9.1 */
+                                            getViewRange(): number;
+                                            /** @since 1.9.1 */
+                                            getShadowRadius(): number;
+                                            /** @since 1.9.1 */
+                                            getShadowStrength(): number;
+                                            /** @since 1.9.1 */
+                                            getDisplayWidth(): number;
+                                            /** @since 1.9.1 */
+                                            getGlowColorOverride(): number;
+                                            /** @since 1.9.1 */
+                                            getLerpProgress(delta: double): number;
+                                            /** @since 1.9.1 */
+                                            getDisplayHeight(): number;
+
+                                        }
+
+
+                                        /**
+                                         * @author aMelonRind
+                                         * @since 1.9.1
+                                         */
+                                        class ItemDisplayEntityHelper extends DisplayEntityHelper</* net.minecraft.entity.decoration.DisplayEntity$ItemDisplayEntity */ any> {
+                                            static readonly class: JavaClass<ItemDisplayEntityHelper>;
+                                            /** @deprecated */ static prototype: undefined;
+
+                                            constructor (base: /* net.minecraft.entity.decoration.DisplayEntity$ItemDisplayEntity */ any);
+
+                                            /** @since 1.9.1 */
+                                            getItem(): xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
+
+                                            /**
+                                             * @return "none", "thirdperson_lefthand", "thirdperson_righthand", "firstperson_lefthand",
+                                             *          "firstperson_righthand", "head", "gui", "ground" or "fixed"
+                                             * @since 1.9.1
+                                             */
+                                            getTransform(): string | null;
+
+                                        }
+
+
+                                        /**
+                                         * @author aMelonRind
+                                         * @since 1.9.1
+                                         */
+                                        class TextDisplayEntityHelper extends DisplayEntityHelper</* net.minecraft.entity.decoration.DisplayEntity$TextDisplayEntity */ any> {
+                                            static readonly class: JavaClass<TextDisplayEntityHelper>;
+                                            /** @deprecated */ static prototype: undefined;
+
+                                            constructor (base: /* net.minecraft.entity.decoration.DisplayEntity$TextDisplayEntity */ any);
+
+                                            /** @since 1.9.1 */
+                                            getData(): TextDisplayEntityHelper$TextDisplayDataHelper | null;
+
+                                        }
+
+                                        class TextDisplayEntityHelper$TextDisplayDataHelper extends xyz.wagyourtail.jsmacros.core.helpers.BaseHelper</* net.minecraft.entity.decoration.DisplayEntity$TextDisplayEntity$Data */ any> {
+                                            static readonly class: JavaClass<TextDisplayEntityHelper$TextDisplayDataHelper>;
+                                            /** @deprecated */ static prototype: undefined;
+
+                                            constructor (base: /* net.minecraft.entity.decoration.DisplayEntity$TextDisplayEntity$Data */ any);
+
+                                            /** @since 1.9.1 */
+                                            getText(): xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper;
+                                            /** @since 1.9.1 */
+                                            getLineWidth(): number;
+                                            /** @since 1.9.1 */
+                                            getTextOpacity(): number;
+                                            /** @since 1.9.1 */
+                                            getBackgroundColor(): number;
+                                            /** @since 1.9.1 */
+                                            hasShadowFlag(): boolean;
+                                            /** @since 1.9.1 */
+                                            hasSeeThroughFlag(): boolean;
+                                            /** @since 1.9.1 */
+                                            hasDefaultBackgroundFlag(): boolean;
+
+                                            /**
+                                             * @return "center", "left" or "right"
+                                             * @since 1.9.1
+                                             */
+                                            getAlignment(): string;
+
+                                        }
+
+                                        export {
+                                            BlockDisplayEntityHelper,
+                                            DisplayEntityHelper,
+                                            ItemDisplayEntityHelper,
+                                            TextDisplayEntityHelper,
+                                            TextDisplayEntityHelper$TextDisplayDataHelper
+                                        }
+
+                                    }
+
                                     namespace mob {
 
 
@@ -40079,6 +40581,32 @@ declare namespace Packages {
 
 
                                         /**
+                                         * @author aMelonRind
+                                         * @since 1.9.1
+                                         */
+                                        class InteractionEntityHelper extends xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper</* net.minecraft.entity.decoration.InteractionEntity */ any> {
+                                            static readonly class: JavaClass<InteractionEntityHelper>;
+                                            /** @deprecated */ static prototype: undefined;
+
+                                            constructor (base: /* net.minecraft.entity.decoration.InteractionEntity */ any);
+
+                                            /** @since 1.9.1 */
+                                            setCanHit(value: boolean): void;
+                                            /** @since 1.9.1 */
+                                            getLastAttacker(): xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any> | null;
+                                            /** @since 1.9.1 */
+                                            getLastInteracted(): xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any> | null;
+                                            /** @since 1.9.1 */
+                                            getWidth(): number;
+                                            /** @since 1.9.1 */
+                                            getHeight(): number;
+                                            /** @since 1.9.1 */
+                                            shouldRespond(): boolean;
+
+                                        }
+
+
+                                        /**
                                          * @author Etheradon
                                          * @since 1.8.4
                                          */
@@ -40099,6 +40627,7 @@ declare namespace Packages {
                                         export {
                                             AreaEffectCloudEntityHelper,
                                             FallingBlockEntityHelper,
+                                            InteractionEntityHelper,
                                             TntEntityHelper
                                         }
 
@@ -42044,6 +42573,7 @@ declare namespace Packages {
                         readonly events: JavaSet<string>;
                         readonly cancellableEvents: JavaSet<string>;
                         readonly joinableEvents: JavaSet<string>;
+                        readonly filterableEvents: JavaMap<string, JavaClass<EventFilterer>>;
 
                         clearMacros(): void;
                         /** @since 1.1.2 [citation needed] */
@@ -42078,6 +42608,32 @@ declare namespace Packages {
 
                     }
 
+
+                    /**
+                     * @author aMelonRind
+                     * @since 1.9.1
+                     */
+                    abstract class EventFilterer extends java.lang.Interface {
+                        static readonly class: JavaClass<EventFilterer>;
+                        /** @deprecated */ static prototype: undefined;
+                    }
+                    interface EventFilterer {
+
+                        canFilter(event: keyof Events): boolean;
+                        test(event: Events.BaseEvent): boolean;
+
+                    }
+
+                    abstract class EventFilterer$Compound extends java.lang.Interface {
+                        static readonly class: JavaClass<EventFilterer$Compound>;
+                        /** @deprecated */ static prototype: undefined;
+                    }
+                    interface EventFilterer$Compound extends EventFilterer {
+
+                        checkCyclicRef(base: EventFilterer$Compound): void;
+
+                    }
+
                     abstract class IEventListener extends java.lang.Interface {
                         static readonly class: JavaClass<IEventListener>;
                         /** @deprecated */ static prototype: undefined;
@@ -42097,7 +42653,12 @@ declare namespace Packages {
 
                     }
 
-                    export { BaseEventRegistry, IEventListener }
+                    export {
+                        BaseEventRegistry,
+                        EventFilterer,
+                        EventFilterer$Compound,
+                        IEventListener
+                    }
 
                 }
                 namespace event {
@@ -42220,7 +42781,58 @@ declare namespace Packages {
 
                         }
 
-                        export { EventCustom }
+
+                        /**
+                         * @author aMelonRind
+                         * @since 1.9.1
+                         */
+                        interface FiltererComposed extends xyz.wagyourtail.jsmacros.core.event.EventFilterer$Compound {}
+                        class FiltererComposed extends java.lang.Object {
+                            static readonly class: JavaClass<FiltererComposed>;
+                            /** @deprecated */ static prototype: undefined;
+
+                            constructor (initial: xyz.wagyourtail.jsmacros.core.event.EventFilterer);
+
+                            canFilter(event: string): boolean;
+                            test(event: Events.BaseEvent): boolean;
+
+                            /**
+                             * @param filterer the filterer to compose
+                             * @return self for chaining
+                             */
+                            and(filterer: xyz.wagyourtail.jsmacros.core.event.EventFilterer): this;
+
+                            /**
+                             * @param filterer the filterer to compose
+                             * @return self for chaining
+                             */
+                            or(filterer: xyz.wagyourtail.jsmacros.core.event.EventFilterer): this;
+                            checkCyclicRef(base: xyz.wagyourtail.jsmacros.core.event.EventFilterer$Compound): void;
+
+                        }
+
+
+                        /**
+                         * @author aMelonRind
+                         * @since 1.9.1
+                         */
+                        interface FiltererModulus extends xyz.wagyourtail.jsmacros.core.event.EventFilterer {}
+                        class FiltererModulus extends java.lang.Object {
+                            static readonly class: JavaClass<FiltererModulus>;
+                            /** @deprecated */ static prototype: undefined;
+
+                            constructor (quotient: int);
+
+                            quotient: number;
+                            count: number;
+
+                            canFilter(event: string): boolean;
+                            test(event: Events.BaseEvent): boolean;
+                            setQuotient(quotient: int): FiltererModulus;
+
+                        }
+
+                        export { EventCustom, FiltererComposed, FiltererModulus }
 
                     }
 
@@ -43765,6 +44377,7 @@ type BeaconInventory = Packages.xyz.wagyourtail.jsmacros.client.api.classes.inve
 type BeeEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.passive.BeeEntityHelper;
 type BlazeEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.mob.BlazeEntityHelper;
 type BlockDataHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockDataHelper;
+type BlockDisplayEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.display.BlockDisplayEntityHelper;
 type BlockHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockHelper;
 type BlockPosHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper;
 type BlockStateHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper;
@@ -43808,6 +44421,7 @@ type CustomImage = Packages.xyz.wagyourtail.jsmacros.client.api.classes.CustomIm
 type CyclingButtonWidgetHelper$CyclicButtonBuilder<T = any> = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.screen.CyclingButtonWidgetHelper$CyclicButtonBuilder<T>;
 type CyclingButtonWidgetHelper<T = any> = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.screen.CyclingButtonWidgetHelper<T>;
 type DirectionHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.DirectionHelper;
+type DisplayEntityHelper<T = /* net.minecraft.entity.decoration.DisplayEntity */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.display.DisplayEntityHelper<T>;
 type DolphinEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.passive.DolphinEntityHelper;
 type DonkeyEntityHelper<T = /* net.minecraft.entity.passive.AbstractDonkeyEntity */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.passive.DonkeyEntityHelper<T>;
 type Draw2D = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.Draw2D;
@@ -43827,6 +44441,8 @@ type EntityTraceLine = Packages.xyz.wagyourtail.jsmacros.client.api.classes.rend
 type EntityTraceLine$Builder = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components3d.EntityTraceLine$Builder;
 type EventContainer<T extends Packages.xyz.wagyourtail.jsmacros.core.language.BaseScriptContext<any> = any> = Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<T>;
 type EventCustom = Packages.xyz.wagyourtail.jsmacros.core.event.impl.EventCustom;
+type EventFilterer = Packages.xyz.wagyourtail.jsmacros.core.event.EventFilterer;
+type EventFilterer$Compound = Packages.xyz.wagyourtail.jsmacros.core.event.EventFilterer$Compound;
 type EventService = Packages.xyz.wagyourtail.jsmacros.core.service.EventService;
 type Extension = Packages.xyz.wagyourtail.jsmacros.core.extensions.Extension;
 type Extension$ExtMatch = Packages.xyz.wagyourtail.jsmacros.core.extensions.Extension$ExtMatch;
@@ -43835,6 +44451,11 @@ type FJsMacros$EventAndContext<E extends Events.BaseEvent = any> = Packages.xyz.
 type FallingBlockEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.other.FallingBlockEntityHelper;
 type FileHandler = Packages.xyz.wagyourtail.jsmacros.core.library.impl.classes.FileHandler;
 type FileHandler$FileLineIterator = Packages.xyz.wagyourtail.jsmacros.core.library.impl.classes.FileHandler$FileLineIterator;
+type FiltererBlockUpdate = Packages.xyz.wagyourtail.jsmacros.client.api.event.filterer.FiltererBlockUpdate;
+type FiltererComposed = Packages.xyz.wagyourtail.jsmacros.core.event.impl.FiltererComposed;
+type FiltererModulus = Packages.xyz.wagyourtail.jsmacros.core.event.impl.FiltererModulus;
+type FiltererRecvPacket = Packages.xyz.wagyourtail.jsmacros.client.api.event.filterer.FiltererRecvPacket;
+type FiltererSendPacket = Packages.xyz.wagyourtail.jsmacros.client.api.event.filterer.FiltererSendPacket;
 type FishEntityHelper<T = /* net.minecraft.entity.passive.FishEntity */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.passive.FishEntityHelper<T>;
 type FishingBobberEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.projectile.FishingBobberEntityHelper;
 type FluidStateHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.FluidStateHelper;
@@ -43851,6 +44472,9 @@ type GuardianEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers
 type HTTPRequest = Packages.xyz.wagyourtail.jsmacros.core.library.impl.classes.HTTPRequest;
 type HTTPRequest$Response = Packages.xyz.wagyourtail.jsmacros.core.library.impl.classes.HTTPRequest$Response;
 type History = Packages.xyz.wagyourtail.jsmacros.client.gui.editor.History;
+type HitResultHelper$Block = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.HitResultHelper$Block;
+type HitResultHelper$Entity = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.HitResultHelper$Entity;
+type HitResultHelper<T = /* net.minecraft.util.hit.HitResult */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.HitResultHelper<T>;
 type HorseEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.passive.HorseEntityHelper;
 type HorseInventory = Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.HorseInventory;
 type IContainerParent = Packages.xyz.wagyourtail.wagyourgui.containers.IContainerParent;
@@ -43861,12 +44485,14 @@ type IScreen = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.IScre
 type IllagerEntityHelper<T = /* net.minecraft.entity.mob.IllagerEntity */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.mob.IllagerEntityHelper<T>;
 type Image = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Image;
 type Image$Builder = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Image$Builder;
+type InteractionEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.other.InteractionEntityHelper;
 type InteractionManagerHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.InteractionManagerHelper;
 type InteractionProxy$Break$BreakBlockResult = Packages.xyz.wagyourtail.jsmacros.client.api.classes.InteractionProxy$Break$BreakBlockResult;
 type Inventory<T = /* net.minecraft.client.gui.screen.ingame.HandledScreen<any> */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.Inventory<T>;
 type IronGolemEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.passive.IronGolemEntityHelper;
 type Item = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
 type Item$Builder = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item$Builder;
+type ItemDisplayEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.display.ItemDisplayEntityHelper;
 type ItemEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.ItemEntityHelper;
 type ItemFrameEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.decoration.ItemFrameEntityHelper;
 type ItemHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemHelper;
@@ -43976,6 +44602,8 @@ type TeamHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.Tea
 type Text = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Text;
 type Text$Builder = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Text$Builder;
 type TextBuilder = Packages.xyz.wagyourtail.jsmacros.client.api.classes.TextBuilder;
+type TextDisplayEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.display.TextDisplayEntityHelper;
+type TextDisplayEntityHelper$TextDisplayDataHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.display.TextDisplayEntityHelper$TextDisplayDataHelper;
 type TextFieldWidgetHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.screen.TextFieldWidgetHelper;
 type TextFieldWidgetHelper$TextFieldBuilder = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.screen.TextFieldWidgetHelper$TextFieldBuilder;
 type TextHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper;
