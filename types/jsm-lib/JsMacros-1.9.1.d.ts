@@ -169,7 +169,7 @@ declare namespace Events {
          * @since 1.4.2
          */
         getArg(name: string): any;
-        getChild(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.CommandContextHelper;
+        getChild(): Events.CommandContext;
         getRange(): Packages.com.mojang.brigadier.context.StringRange;
         getInput(): string;
 
@@ -2089,7 +2089,7 @@ declare namespace JsMacros {
      * @see BaseEventRegistry.addEvent(String)
      * @since 1.2.8
      */
-    function createCustomEvent(eventName: string): Packages.xyz.wagyourtail.jsmacros.core.event.impl.EventCustom;
+    function createCustomEvent(eventName: string): Events.Custom;
 
     /**
      * asserts if `event` is the correct type of event<br>  
@@ -22043,7 +22043,6 @@ declare namespace Packages {
 
         }
 
-
         /**
          * Is this even faster than just iterating through a LinkedHashSet / HashSet at this point?
          *  also should the node-length just always be 1?
@@ -22116,7 +22115,6 @@ declare namespace Packages {
                 namespace api {
 
                     namespace classes {
-
 
                         /**
                          * @author Etheradon
@@ -22553,7 +22551,6 @@ declare namespace Packages {
                             readonly pos: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper | null;
                         }
 
-
                         /**
                          * An object, that combines all possible player inputs
                          * @author NotSomeBot
@@ -22689,7 +22686,6 @@ declare namespace Packages {
                             clone(): PlayerInput;
 
                         }
-
 
                         /**
                          * @author Etheradon
@@ -22957,7 +22953,6 @@ declare namespace Packages {
 
                         }
 
-
                         /**
                          * usage: `builder.append("hello,").withColor(0xc).append(" World!").withColor(0x6)`
                          * @author Wagyourtail
@@ -23063,7 +23058,6 @@ declare namespace Packages {
 
                         namespace inventory {
 
-
                             /**
                              * @author Etheradon
                              * @since 1.8.4
@@ -23145,7 +23139,6 @@ declare namespace Packages {
                                 applyEffects(): boolean;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -23264,7 +23257,6 @@ declare namespace Packages {
                                 getPotions(): JavaList<xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper>;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -23445,7 +23437,7 @@ declare namespace Packages {
                                  *
                                  *  make sure your callback returns a boolean success = true.
                                  */
-                                executes(callback: xyz.wagyourtail.jsmacros.core.MethodWrapper<xyz.wagyourtail.jsmacros.client.api.helpers.CommandContextHelper, any, any, any>): CommandBuilder;
+                                executes(callback: xyz.wagyourtail.jsmacros.core.MethodWrapper<Events.CommandContext, any, any, any>): CommandBuilder;
                                 /** @since 1.6.5 */
                                 suggestMatching(...suggestions: JavaVarArgs<string>): CommandBuilder;
 
@@ -23497,7 +23489,7 @@ declare namespace Packages {
                                  */
                                 suggestPositions(positions: JavaCollection<string>): this;
                                 /** @since 1.6.5 */
-                                suggest(callback: xyz.wagyourtail.jsmacros.core.MethodWrapper<xyz.wagyourtail.jsmacros.client.api.helpers.CommandContextHelper, xyz.wagyourtail.jsmacros.client.api.helpers.SuggestionsBuilderHelper, any, any>): CommandBuilder;
+                                suggest(callback: xyz.wagyourtail.jsmacros.core.MethodWrapper<Events.CommandContext, xyz.wagyourtail.jsmacros.client.api.helpers.SuggestionsBuilderHelper, any, any>): CommandBuilder;
                                 or(): CommandBuilder;
 
                                 /**
@@ -23555,7 +23547,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Etheradon
                              * @since 1.8.4
@@ -23573,7 +23564,6 @@ declare namespace Packages {
                                 findFreeContainerSlot(): number;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -23598,7 +23588,6 @@ declare namespace Packages {
                                 getInput(): JavaArray<JavaArray<xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper>>;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -23815,7 +23804,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Etheradon
                              * @since 1.8.4
@@ -23911,7 +23899,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Etheradon
                              * @since 1.8.4
@@ -23949,7 +23936,6 @@ declare namespace Packages {
                                 simulateXp(): number;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -24014,7 +24000,6 @@ declare namespace Packages {
                                 getHorse(): xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.passive.AbstractHorseEntityHelper<any>;
 
                             }
-
 
                             /**
                              * @author Wagyourtail
@@ -24284,7 +24269,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Etheradon
                              * @since 1.8.4
@@ -24346,7 +24330,6 @@ declare namespace Packages {
                                 getBoots(): xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -24438,7 +24421,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Etheradon
                              * @since 1.8.4
@@ -24468,7 +24450,6 @@ declare namespace Packages {
                                 getOutput(): xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -24577,7 +24558,6 @@ declare namespace Packages {
 
                         namespace math {
 
-
                             /**
                              * @author Wagyourtail
                              * @since 1.2.6 [citation needed]
@@ -24648,7 +24628,6 @@ declare namespace Packages {
                                 compareTo(o: Pos2D): number;
 
                             }
-
 
                             /**
                              * @author Wagyourtail
@@ -24775,7 +24754,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Wagyourtail
                              * @since 1.2.6 [citation needed]
@@ -24827,7 +24805,6 @@ declare namespace Packages {
                                 compareTo(other: Vec2D): number;
 
                             }
-
 
                             /**
                              * @author Wagyourtail
@@ -24892,7 +24869,6 @@ declare namespace Packages {
                         }
 
                         namespace render {
-
 
                             /**
                              * @author Wagyourtail
@@ -25157,7 +25133,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * {@link Draw2D} is cool
                              * @author Wagyourtail
@@ -25370,7 +25345,6 @@ declare namespace Packages {
                                 unregister(): this;
 
                             }
-
 
                             /**
                              * @author Wagyourtail
@@ -26033,7 +26007,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Wagyourtail
                              * @since 1.2.7
@@ -26424,7 +26397,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * just go look at {@link IScreen}
                              *  since all the methods are done through a mixin...
@@ -26470,7 +26442,6 @@ declare namespace Packages {
                         namespace render {
 
                             namespace components {
-
 
                                 /**
                                  * @template B the builder class
@@ -26690,7 +26661,6 @@ declare namespace Packages {
 
                                 }
 
-
                                 /**
                                  * @author Etheradon
                                  * @since 1.8.4
@@ -26845,7 +26815,6 @@ declare namespace Packages {
 
                                 }
 
-
                                 /**
                                  * @author Etheradon
                                  * @since 1.8.4
@@ -26985,7 +26954,6 @@ declare namespace Packages {
                                     moveTo(x: int, y: int): Draw2DElement$Builder;
 
                                 }
-
 
                                 /**
                                  * @author Wagyourtail
@@ -27148,7 +27116,6 @@ declare namespace Packages {
                                     moveTo(x: int, y: int): Image;
 
                                 }
-
 
                                 /**
                                  * @author Etheradon
@@ -27476,7 +27443,6 @@ declare namespace Packages {
 
                                 }
 
-
                                 /**
                                  * @author Wagyourtail
                                  * @since 1.0.5
@@ -27604,7 +27570,6 @@ declare namespace Packages {
                                     moveTo(x: int, y: int): Item;
 
                                 }
-
 
                                 /**
                                  * @author Etheradon
@@ -27767,7 +27732,6 @@ declare namespace Packages {
                                     moveTo(x: int, y: int): Item$Builder;
 
                                 }
-
 
                                 /**
                                  * @author Etheradon
@@ -27960,7 +27924,6 @@ declare namespace Packages {
                                     getScaledTop(): number;
 
                                 }
-
 
                                 /**
                                  * @author Etheradon
@@ -28166,7 +28129,6 @@ declare namespace Packages {
 
                                 }
 
-
                                 /**
                                  * @author Wagyourtail
                                  * @since 1.0.5
@@ -28350,7 +28312,6 @@ declare namespace Packages {
                                     moveTo(x: int, y: int): Rect;
 
                                 }
-
 
                                 /**
                                  * @author Etheradon
@@ -28580,7 +28541,6 @@ declare namespace Packages {
 
                                 }
 
-
                                 /**
                                  * @author Wagyourtail
                                  */
@@ -28595,7 +28555,6 @@ declare namespace Packages {
                                     getZIndex(): number;
 
                                 }
-
 
                                 /**
                                  * @template T the type of the render element for this builder
@@ -28620,7 +28579,6 @@ declare namespace Packages {
                                     buildAndAdd(): T;
 
                                 }
-
 
                                 /**
                                  * @author Wagyourtail
@@ -28766,7 +28724,6 @@ declare namespace Packages {
                                     moveTo(x: int, y: int): Text;
 
                                 }
-
 
                                 /**
                                  * @author Etheradon
@@ -28981,7 +28938,6 @@ declare namespace Packages {
 
                             namespace components3d {
 
-
                                 /**
                                  * @author Wagyourtail
                                  */
@@ -29042,7 +28998,6 @@ declare namespace Packages {
                                     compareToSame(other: Box): number;
 
                                 }
-
 
                                 /**
                                  * @author Etheradon
@@ -29305,7 +29260,6 @@ declare namespace Packages {
 
                                 }
 
-
                                 /**
                                  * @author aMelonRind
                                  * @since 1.9.0
@@ -29457,7 +29411,6 @@ declare namespace Packages {
 
                                 }
 
-
                                 /**
                                  * @author Wagyourtail
                                  */
@@ -29484,7 +29437,6 @@ declare namespace Packages {
                                     compareToSame(o: Line3D): number;
 
                                 }
-
 
                                 /**
                                  * @author Etheradon
@@ -29674,7 +29626,6 @@ declare namespace Packages {
 
                                 }
 
-
                                 /**
                                  * @author Wagyourtail
                                  * @since 1.6.5
@@ -29793,7 +29744,6 @@ declare namespace Packages {
                                     compareToSame(other: Surface): number;
 
                                 }
-
 
                                 /**
                                  * @author Etheradon
@@ -30049,7 +29999,6 @@ declare namespace Packages {
 
                                 }
 
-
                                 /**
                                  * @author aMelonRind
                                  * @since 1.9.0
@@ -30232,7 +30181,6 @@ declare namespace Packages {
                         }
 
                         namespace worldscanner {
-
 
                             /**
                              * A class to scan the world for certain blocks. The results of the filters are cached,  
@@ -30435,7 +30383,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * The builder can be used to create a world scanner with native java functions. This is especially useful for languages like javascript that
                              *  don't support multithreading, which causes streams to run sequential instead of parallel.  
@@ -30515,7 +30462,6 @@ declare namespace Packages {
 
                     namespace event.filterer {
 
-
                         /**
                          * @author aMelonRind
                          * @since 1.9.1
@@ -30555,7 +30501,6 @@ declare namespace Packages {
 
                         }
 
-
                         /**
                          * @author aMelonRind
                          * @since 1.9.1
@@ -30574,7 +30519,6 @@ declare namespace Packages {
                             setType(type: PacketName | null): FiltererRecvPacket;
 
                         }
-
 
                         /**
                          * @author aMelonRind
@@ -30600,7 +30544,6 @@ declare namespace Packages {
                     }
 
                     namespace helpers {
-
 
                         /**
                          * @author Etheradon
@@ -30673,7 +30616,6 @@ declare namespace Packages {
                             toJson(): string;
 
                         }
-
 
                         /**
                          * @author Etheradon
@@ -30749,7 +30691,6 @@ declare namespace Packages {
                             getAdvancementProgress(identifier: CanOmitNamespace<AdvancementId>): AdvancementProgressHelper;
 
                         }
-
 
                         /**
                          * @author Etheradon
@@ -30852,7 +30793,7 @@ declare namespace Packages {
                              * @since 1.4.2
                              */
                             getArg(name: string): any;
-                            getChild(): CommandContextHelper;
+                            getChild(): Events.CommandContext;
                             getRange(): com.mojang.brigadier.context.StringRange;
                             getInput(): string;
 
@@ -30866,7 +30807,6 @@ declare namespace Packages {
 
                             readonly fabric: com.mojang.brigadier.tree.CommandNode;
                         }
-
 
                         /**
                          * @author Etheradon
@@ -30909,7 +30849,6 @@ declare namespace Packages {
                             getSignColor(): number;
 
                         }
-
 
                         /**
                          * @author Etheradon
@@ -30959,7 +30898,6 @@ declare namespace Packages {
                             isModifier(): boolean;
 
                         }
-
 
                         /**
                          * Helper for ClientPlayerInteractionManager
@@ -31332,7 +31270,6 @@ declare namespace Packages {
 
                         }
 
-
                         /**
                          * @author Etheradon
                          * @since 1.8.4
@@ -31509,7 +31446,6 @@ declare namespace Packages {
                             asNumber(): number;
 
                         }
-
 
                         /**
                          * @author Etheradon
@@ -33023,7 +32959,6 @@ declare namespace Packages {
 
                         }
 
-
                         /**
                          * @author Etheradon
                          * @since 1.8.4
@@ -34282,7 +34217,6 @@ declare namespace Packages {
 
                         }
 
-
                         /**
                          * @author Wagyourtail
                          * @since 1.2.4
@@ -34364,7 +34298,6 @@ declare namespace Packages {
                             isHarmful(): boolean;
 
                         }
-
 
                         /**
                          * @author Wagyourtail
@@ -34501,7 +34434,6 @@ declare namespace Packages {
 
                         }
 
-
                         /**
                          * @author Wagyourtail
                          * @since 1.0.8
@@ -34611,7 +34543,6 @@ declare namespace Packages {
                     namespace helpers {
 
                         namespace inventory {
-
 
                             /**
                              * @author Etheradon
@@ -34772,7 +34703,6 @@ declare namespace Packages {
                                 hideDye(hide: boolean): this;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -34965,7 +34895,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Etheradon
                              * @since 1.8.4
@@ -35014,7 +34943,6 @@ declare namespace Packages {
                                 getStatusEffects(): JavaMap<xyz.wagyourtail.jsmacros.client.api.helpers.StatusEffectHelper, number>;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -35187,7 +35115,6 @@ declare namespace Packages {
                                 getStackWithNbt(nbt: string): ItemStackHelper;
 
                             }
-
 
                             /**
                              * @author Wagyourtail
@@ -35493,7 +35420,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Wagyourtail
                              * @since 1.3.1
@@ -35578,7 +35504,6 @@ declare namespace Packages {
                         }
 
                         namespace screen {
-
 
                             /**
                              * @author Etheradon
@@ -35746,7 +35671,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Etheradon
                              * @since 1.8.4
@@ -35759,7 +35683,6 @@ declare namespace Packages {
                                 constructor <T extends /* net.minecraft.client.gui.widget.ButtonWidget */ any>(btn: T, zIndex: int);
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -35801,7 +35724,6 @@ declare namespace Packages {
                                 createWidget(): ButtonWidgetHelper</* net.minecraft.client.gui.widget.ButtonWidget */ any>;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -35880,7 +35802,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Etheradon
                              * @since 1.8.4
@@ -35912,7 +35833,6 @@ declare namespace Packages {
                                 setChecked(checked: boolean): this;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -35952,7 +35872,6 @@ declare namespace Packages {
                                 createWidget(): CheckBoxWidgetHelper;
 
                             }
-
 
                             /**
                              * @author Wagyourtail
@@ -36089,7 +36008,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Etheradon
                              * @since 1.8.4
@@ -36140,7 +36058,6 @@ declare namespace Packages {
                                 backward(): CyclingButtonWidgetHelper<T>;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -36290,7 +36207,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Etheradon
                              * @since 1.8.4
@@ -36316,7 +36232,6 @@ declare namespace Packages {
                                 setLocked(locked: boolean): this;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -36357,7 +36272,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Wagyourtail
                              * @since 1.2.9
@@ -36392,7 +36306,6 @@ declare namespace Packages {
                                 getDisplayName(): xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -36432,7 +36345,6 @@ declare namespace Packages {
                                 setSteps(steps: int): this;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -36484,7 +36396,6 @@ declare namespace Packages {
                                 createWidget(): SliderWidgetHelper;
 
                             }
-
 
                             /**
                              * @author Wagyourtail
@@ -36620,7 +36531,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Etheradon
                              * @since 1.8.4
@@ -36683,7 +36593,6 @@ declare namespace Packages {
                         }
 
                         namespace world {
-
 
                             /**
                              * @author Wagyourtail
@@ -36754,7 +36663,6 @@ declare namespace Packages {
                                 getRawBlockEntity(): /* net.minecraft.block.entity.BlockEntity */ any;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -36840,7 +36748,6 @@ declare namespace Packages {
                                 getName(): xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper;
 
                             }
-
 
                             /**
                              * @author Wagyourtail
@@ -37023,7 +36930,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Etheradon
                              * @since 1.6.5
@@ -37174,7 +37080,6 @@ declare namespace Packages {
                                 getUniversal(): UniversalBlockStateHelper;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -37328,7 +37233,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Etheradon
                              * @since 1.8.4
@@ -37416,7 +37320,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Etheradon
                              * @since 1.8.4
@@ -37486,7 +37389,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author aMelonRind
                              * @since 1.9.1
@@ -37527,7 +37429,6 @@ declare namespace Packages {
                                 asEntity(): HitResultHelper$Entity;
 
                             }
-
 
                             /**
                              * @author Wagyourtail
@@ -37596,7 +37497,6 @@ declare namespace Packages {
                                 getTeam(): TeamHelper | null;
 
                             }
-
 
                             /**
                              * @author Wagyourtail
@@ -37715,7 +37615,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Etheradon
                              * @since 1.8.4
@@ -37734,7 +37633,6 @@ declare namespace Packages {
                                 with<T extends java.lang.Comparable<any>>(property: string, value: string): StateHelper<U>;
 
                             }
-
 
                             /**
                              * @author Wagyourtail
@@ -37804,7 +37702,6 @@ declare namespace Packages {
                                 deathMessageVisibility(): TeamVisibilityRule;
 
                             }
-
 
                             /**
                              * @author Etheradon
@@ -38269,7 +38166,6 @@ declare namespace Packages {
 
                             namespace entity {
 
-
                                 /**
                                  * @author Wagyourtail
                                  * @since 1.2.1
@@ -38323,7 +38219,6 @@ declare namespace Packages {
                                     getName(): xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper;
 
                                 }
-
 
                                 /**
                                  * @author Wagyourtail
@@ -38621,7 +38516,6 @@ declare namespace Packages {
                                     calculateMiningSpeed(usedItem: xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper, blockState: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper): number;
 
                                 }
-
 
                                 /**
                                  * @author Wagyourtail
@@ -39151,7 +39045,6 @@ declare namespace Packages {
 
                                 }
 
-
                                 /**
                                  * @author Etheradon
                                  * @since 1.8.4
@@ -39178,7 +39071,6 @@ declare namespace Packages {
                                     isAiDisabled(): boolean;
 
                                 }
-
 
                                 /**
                                  * @author Wagyourtail
@@ -39261,7 +39153,6 @@ declare namespace Packages {
                                     setWalkSpeed(speed: double): this;
 
                                 }
-
 
                                 /**
                                  * @author Wagyourtail
@@ -39494,7 +39385,6 @@ declare namespace Packages {
 
                                     namespace boss {
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -39540,7 +39430,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -39585,7 +39474,6 @@ declare namespace Packages {
                                     }
 
                                     namespace decoration {
-
 
                                         /**
                                          * @author Etheradon
@@ -39671,7 +39559,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -39697,7 +39584,6 @@ declare namespace Packages {
                                             getBeamTarget(): xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper | null;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -39728,7 +39614,6 @@ declare namespace Packages {
                                             getItem(): xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -39771,7 +39656,6 @@ declare namespace Packages {
 
                                     namespace display {
 
-
                                         /**
                                          * @author aMelonRind
                                          * @since 1.9.1
@@ -39786,7 +39670,6 @@ declare namespace Packages {
                                             getBlockState(): xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper | null;
 
                                         }
-
 
                                         /**
                                          * @author aMelonRind
@@ -39839,7 +39722,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author aMelonRind
                                          * @since 1.9.1
@@ -39861,7 +39743,6 @@ declare namespace Packages {
                                             getTransform(): string | null;
 
                                         }
-
 
                                         /**
                                          * @author aMelonRind
@@ -39919,7 +39800,6 @@ declare namespace Packages {
 
                                     namespace mob {
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -39939,7 +39819,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -39958,7 +39837,6 @@ declare namespace Packages {
                                             isOnFire(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -40011,7 +39889,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40035,7 +39912,6 @@ declare namespace Packages {
                                             hasNautilusShell(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -40073,7 +39949,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40092,7 +39967,6 @@ declare namespace Packages {
                                             isShooting(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -40130,7 +40004,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40145,7 +40018,6 @@ declare namespace Packages {
                                             getState(): string;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -40164,7 +40036,6 @@ declare namespace Packages {
                                             getSize(): number;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -40215,7 +40086,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40234,7 +40104,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40250,7 +40119,6 @@ declare namespace Packages {
                                             getColor(): xyz.wagyourtail.jsmacros.client.api.helpers.DyeColorHelper | null;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -40277,7 +40145,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40303,7 +40170,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40321,7 +40187,6 @@ declare namespace Packages {
                                             isClimbing(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -40342,7 +40207,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40360,7 +40224,6 @@ declare namespace Packages {
                                             isJohnny(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -40411,7 +40274,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40436,7 +40298,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40454,7 +40315,6 @@ declare namespace Packages {
                                             isConvertingToDrowned(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -40521,7 +40381,6 @@ declare namespace Packages {
 
                                     namespace other {
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40554,7 +40413,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40578,7 +40436,6 @@ declare namespace Packages {
                                             getBlockState(): xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper;
 
                                         }
-
 
                                         /**
                                          * @author aMelonRind
@@ -40604,7 +40461,6 @@ declare namespace Packages {
                                             shouldRespond(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -40634,7 +40490,6 @@ declare namespace Packages {
                                     }
 
                                     namespace passive {
-
 
                                         /**
                                          * @author Etheradon
@@ -40771,7 +40626,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40801,7 +40655,6 @@ declare namespace Packages {
                                             isHoldingItem(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -40839,7 +40692,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40876,7 +40728,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40894,7 +40745,6 @@ declare namespace Packages {
                                             isResting(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -40926,7 +40776,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -40956,7 +40805,6 @@ declare namespace Packages {
                                             getVariant(): string;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -40989,7 +40837,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -41008,7 +40855,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -41026,7 +40872,6 @@ declare namespace Packages {
                                             isFromBucket(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -41126,7 +40971,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -41156,7 +41000,6 @@ declare namespace Packages {
                                             isCroaking(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -41194,7 +41037,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -41213,7 +41055,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -41231,7 +41072,6 @@ declare namespace Packages {
                                             isPlayerCreated(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -41269,7 +41109,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -41300,7 +41139,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -41320,7 +41158,6 @@ declare namespace Packages {
                                             isTrusting(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -41443,7 +41280,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -41493,7 +41329,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -41512,7 +41347,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -41530,7 +41364,6 @@ declare namespace Packages {
                                             isAttacking(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -41551,7 +41384,6 @@ declare namespace Packages {
                                             getSize(): number;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -41576,7 +41408,6 @@ declare namespace Packages {
                                             isKillerBunny(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -41616,7 +41447,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -41641,7 +41471,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -41665,7 +41494,6 @@ declare namespace Packages {
                                             isShivering(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -41703,7 +41531,6 @@ declare namespace Packages {
                                             isOwner(owner: xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.LivingEntityHelper<any>): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -41746,7 +41573,6 @@ declare namespace Packages {
                                             getVarietyId(): number;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -41822,7 +41648,6 @@ declare namespace Packages {
 
                                     namespace projectile {
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -41861,7 +41686,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -41899,7 +41723,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -41923,7 +41746,6 @@ declare namespace Packages {
                                             isEnchanted(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -41953,7 +41775,6 @@ declare namespace Packages {
                                     }
 
                                     namespace vehicle {
-
 
                                         /**
                                          * @author Etheradon
@@ -42009,7 +41830,6 @@ declare namespace Packages {
 
                                         }
 
-
                                         /**
                                          * @author Etheradon
                                          * @since 1.8.4
@@ -42027,7 +41847,6 @@ declare namespace Packages {
                                             isPowered(): boolean;
 
                                         }
-
 
                                         /**
                                          * @author Etheradon
@@ -42274,7 +42093,6 @@ declare namespace Packages {
 
                 }
 
-
                 /**
                  * Wraps most of the important functional interfaces.
                  * @author Wagyourtail
@@ -42328,7 +42146,6 @@ declare namespace Packages {
             namespace core {
 
                 namespace classes {
-
 
                     /**
                      * @author Wagyourtail
@@ -42399,7 +42216,6 @@ declare namespace Packages {
                         readonly sig: java.util.function.Supplier<string>;
                     }
 
-
                     /**
                      * @template T the type of the wrapped class
                      * @since 1.6.5
@@ -42435,7 +42251,6 @@ declare namespace Packages {
                 }
 
                 namespace config {
-
 
                     /**
                      * @author Wagyourtail
@@ -42528,7 +42343,6 @@ declare namespace Packages {
 
                     }
 
-
                     /**
                      * @author Wagyourtail
                      * @since 1.0.0 [citation needed]
@@ -42557,7 +42371,6 @@ declare namespace Packages {
                 }
 
                 namespace event {
-
 
                     /**
                      * @author Wagyourtail
@@ -42607,7 +42420,6 @@ declare namespace Packages {
                         addEvent(clazz: JavaClassArg<Events.BaseEvent>): void;
 
                     }
-
 
                     /**
                      * @author aMelonRind
@@ -42665,123 +42477,6 @@ declare namespace Packages {
 
                     namespace impl {
 
-
-                        /**
-                         * Custom Events
-                         * @author Wagyourtail
-                         * @since 1.2.8
-                         */
-                        class EventCustom extends Events.BaseEvent {
-                            static readonly class: JavaClass<EventCustom>;
-                            /** @deprecated */ static prototype: undefined;
-
-                            /**
-                             * @param eventName name of the event. please don't use an existing one... your scripts might not like that.
-                             */
-                            constructor (eventName: string);
-
-                            eventName: string;
-                            joinable: boolean;
-                            cancelable: boolean;
-
-                            joinable(): boolean;
-                            cancellable(): boolean;
-
-                            /**
-                             * Triggers the event.  
-                             *  Try not to cause infinite looping by triggering the same {@link EventCustom} from its own listeners.
-                             * @since 1.2.8
-                             */
-                            trigger(): void;
-
-                            /**
-                             * trigger the event listeners, then run `callback` when they finish.
-                             * @param callback used as a {@link Runnable}, so no args, no return value.
-                             * @since 1.9.0
-                             */
-                            triggerAsync(callback: xyz.wagyourtail.jsmacros.core.MethodWrapper<any, any, any, any>): void;
-
-                            /**
-                             * Put an Integer into the event.
-                             * @since 1.2.8
-                             */
-                            putInt(name: string, i: int): number;
-
-                            /**
-                             * put a String into the event.
-                             * @since 1.2.8
-                             */
-                            putString(name: string, str: string): string;
-
-                            /**
-                             * put a Double into the event.
-                             * @since 1.2.8
-                             */
-                            putDouble(name: string, d: double): number;
-
-                            /**
-                             * put a Boolean into the event.
-                             * @since 1.2.8
-                             */
-                            putBoolean(name: string, b: boolean): boolean;
-
-                            /**
-                             * put anything else into the event.
-                             * @since 1.2.8
-                             */
-                            putObject(name: string, o: any): any;
-
-                            /**
-                             * Returns the type of the defined item in the event as a string.
-                             * @since 1.2.8
-                             */
-                            getType(name: string): 'Int' | 'String' | 'Double' | 'Boolean' | 'Object' | null;
-
-                            /**
-                             * Gets an Integer from the event.
-                             * @since 1.2.8
-                             */
-                            getInt(name: string): number | null;
-
-                            /**
-                             * Gets a String from the event
-                             * @since 1.2.8
-                             */
-                            getString(name: string): string | null;
-
-                            /**
-                             * Gets a Double from the event.
-                             * @since 1.2.8
-                             */
-                            getDouble(name: string): number | null;
-
-                            /**
-                             * Gets a Boolean from the event.
-                             * @since 1.2.8
-                             */
-                            getBoolean(name: string): boolean | null;
-
-                            /**
-                             * Gets an Object from the event.
-                             * @since 1.2.8
-                             */
-                            getObject(name: string): any | null;
-
-                            /**
-                             * @return map backing the event
-                             * @since 1.6.4
-                             */
-                            getUnderlyingMap(): JavaMap<string, any>;
-
-                            /**
-                             * registers event so you can see it in the gui
-                             * @since 1.3.0
-                             */
-                            registerEvent(): void;
-
-                        }
-
-
                         /**
                          * @author aMelonRind
                          * @since 1.9.1
@@ -42811,7 +42506,6 @@ declare namespace Packages {
 
                         }
 
-
                         /**
                          * @author aMelonRind
                          * @since 1.9.1
@@ -42832,7 +42526,7 @@ declare namespace Packages {
 
                         }
 
-                        export { EventCustom, FiltererComposed, FiltererModulus }
+                        export { FiltererComposed, FiltererModulus }
 
                     }
 
@@ -42932,7 +42626,6 @@ declare namespace Packages {
                 }
 
                 namespace language {
-
 
                     /**
                      * Language class for languages to be implemented on top of.
@@ -43088,7 +42781,6 @@ declare namespace Packages {
                         constructor ();
 
                     }
-
 
                     /**
                      * Base Function interface.
@@ -43409,7 +43101,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Wagyourtail
                              * @since 1.1.8
@@ -43497,7 +43188,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Wagyourtail
                              * @since 1.1.8
@@ -43566,7 +43256,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Wagyourtail
                              * @since 1.1.8
@@ -43597,7 +43286,6 @@ declare namespace Packages {
                                 byteArray(): JavaArray<number>;
 
                             }
-
 
                             /**
                              * @author Wagyourtail
@@ -43650,7 +43338,6 @@ declare namespace Packages {
                                 finishBuildAndFreeze(): JavaClass<xyz.wagyourtail.jsmacros.core.library.BaseLibrary>;
 
                             }
-
 
                             /**
                              * @author Wagyourtail
@@ -43738,7 +43425,6 @@ declare namespace Packages {
                                 readonly parent: java.util.function.Function<JavaArray<any>, any>;
                             }
 
-
                             /**
                              * @author Wagyourtail, R3alCl0ud
                              */
@@ -43803,7 +43489,6 @@ declare namespace Packages {
 
                             }
 
-
                             /**
                              * @author Perry "R3alCl0ud" Berman
                              */
@@ -43846,126 +43531,6 @@ declare namespace Packages {
                 }
 
                 namespace service {
-
-                    /** @since 1.6.4 */
-                    class EventService extends Events.BaseEvent {
-                        static readonly class: JavaClass<EventService>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        constructor (name: string);
-
-                        readonly serviceName: string;
-
-                        /**
-                         * when this service is stopped, this is run...
-                         */
-                        stopListener: xyz.wagyourtail.jsmacros.core.MethodWrapper<any, any, any, any> | null;
-
-                        /**
-                         * Put an Integer into the global variable space.
-                         * @since 1.6.5
-                         */
-                        putInt(name: string, i: int): number;
-
-                        /**
-                         * put a String into the global variable space.
-                         * @since 1.6.5
-                         */
-                        putString(name: string, str: string): string;
-
-                        /**
-                         * put a Double into the global variable space.
-                         * @since 1.6.5
-                         */
-                        putDouble(name: string, d: double): number;
-
-                        /**
-                         * put a Boolean into the global variable space.
-                         * @since 1.6.5
-                         */
-                        putBoolean(name: string, b: boolean): boolean;
-
-                        /**
-                         * put anything else into the global variable space.
-                         * @since 1.6.5
-                         */
-                        putObject(name: string, o: any): any;
-
-                        /**
-                         * Returns the type of the defined item in the global variable space as a string.
-                         * @since 1.6.5
-                         */
-                        getType(name: string): 'Int' | 'String' | 'Double' | 'Boolean' | 'Object' | null;
-
-                        /**
-                         * Gets an Integer from the global variable space.
-                         * @since 1.6.5
-                         */
-                        getInt(name: string): number | null;
-
-                        /**
-                         * Gets an Integer from the global variable space. and then increment it there.
-                         * @since 1.6.5
-                         */
-                        getAndIncrementInt(name: string): number | null;
-
-                        /**
-                         * Gets an integer from the global variable pace. and then decrement it there.
-                         * @since 1.6.5
-                         */
-                        getAndDecrementInt(name: string): number | null;
-
-                        /**
-                         * increment an Integer in the global variable space. then return it.
-                         * @since 1.6.5
-                         */
-                        incrementAndGetInt(name: string): number | null;
-
-                        /**
-                         * decrement an Integer in the global variable space. then return it.
-                         * @since 1.6.5
-                         */
-                        decrementAndGetInt(name: string): number | null;
-
-                        /**
-                         * Gets a String from the global variable space
-                         * @since 1.6.5
-                         */
-                        getString(name: string): string | null;
-
-                        /**
-                         * Gets a Double from the global variable space.
-                         * @since 1.6.5
-                         */
-                        getDouble(name: string): number | null;
-
-                        /**
-                         * Gets a Boolean from the global variable space.
-                         * @since 1.6.5
-                         */
-                        getBoolean(name: string): boolean | null;
-
-                        /**
-                         * toggles a global boolean and returns its new value
-                         * @since 1.6.5
-                         */
-                        toggleBoolean(name: string): boolean | null;
-
-                        /**
-                         * Gets an Object from the global variable space.
-                         * @since 1.6.5
-                         */
-                        getObject(name: string): any | null;
-
-                        /**
-                         * removes a key from the global variable space.
-                         * @since 1.6.5
-                         */
-                        remove(key: string): void;
-                        getRaw(): JavaMap<string, any>;
-
-                    }
-
 
                     /**
                      * @author Wagyourtail
@@ -44067,7 +43632,7 @@ declare namespace Packages {
                          * @return the event that is current for the service
                          * @since 1.6.5
                          */
-                        getServiceData(name: string): EventService;
+                        getServiceData(name: string): Events.Service;
                         /** @since 1.6.5 [named getServiceData previously] */
                         getTrigger(name: string): ServiceTrigger;
 
@@ -44146,12 +43711,7 @@ declare namespace Packages {
 
                     }
 
-                    export {
-                        EventService,
-                        ServiceManager,
-                        ServiceManager$ServiceStatus,
-                        ServiceTrigger
-                    }
+                    export { ServiceManager, ServiceManager$ServiceStatus, ServiceTrigger }
 
                 }
 
@@ -44266,7 +43826,6 @@ declare namespace Packages {
                     onChange(): void;
 
                 }
-
 
                 /**
                  * @author Etheradon
@@ -44407,7 +43966,7 @@ type ClassBuilder<T = any> = Packages.xyz.wagyourtail.jsmacros.core.library.impl
 type ClickableWidgetHelper<B extends Packages.xyz.wagyourtail.jsmacros.client.api.helpers.screen.ClickableWidgetHelper<B, T> = any, T = /* net.minecraft.client.gui.widget.ClickableWidget */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.screen.ClickableWidgetHelper<B, T>;
 type ClientPlayerEntityHelper<T = /* net.minecraft.client.network.ClientPlayerEntity */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.ClientPlayerEntityHelper<T>;
 type CommandBuilder = Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.CommandBuilder;
-type CommandContextHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.CommandContextHelper;
+type CommandContextHelper = Events.CommandContext;
 type CommandManager = Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.CommandManager;
 type CommandNodeHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.CommandNodeHelper;
 type ConfigManager = Packages.xyz.wagyourtail.jsmacros.core.config.ConfigManager;
@@ -44440,10 +43999,8 @@ type EntityHelper<T = /* net.minecraft.entity.Entity */ any> = Packages.xyz.wagy
 type EntityTraceLine = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components3d.EntityTraceLine;
 type EntityTraceLine$Builder = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components3d.EntityTraceLine$Builder;
 type EventContainer<T extends Packages.xyz.wagyourtail.jsmacros.core.language.BaseScriptContext<any> = any> = Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<T>;
-type EventCustom = Packages.xyz.wagyourtail.jsmacros.core.event.impl.EventCustom;
 type EventFilterer = Packages.xyz.wagyourtail.jsmacros.core.event.EventFilterer;
 type EventFilterer$Compound = Packages.xyz.wagyourtail.jsmacros.core.event.EventFilterer$Compound;
-type EventService = Packages.xyz.wagyourtail.jsmacros.core.service.EventService;
 type Extension = Packages.xyz.wagyourtail.jsmacros.core.extensions.Extension;
 type Extension$ExtMatch = Packages.xyz.wagyourtail.jsmacros.core.extensions.Extension$ExtMatch;
 type ExtensionLoader = Packages.xyz.wagyourtail.jsmacros.core.extensions.ExtensionLoader;
