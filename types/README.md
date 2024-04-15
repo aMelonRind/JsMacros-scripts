@@ -1,4 +1,4 @@
-[![Web Playground](https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open+Playground+in+vscode.dev&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://vscode.dev/github/aMelonRind/JsMacros-scripts/blob/main/types/playground.js)
+[![Web Playground](https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open+Playground+in+vscode.dev&labelColor=2c2c32&color=007acc&logoColor=007acc "vscode.dev might ask you to authorize github, for unlocking rate limit.")](https://vscode.dev/github/aMelonRind/JsMacros-scripts/blob/main/types/playground.js)
 
 If you want to write ts, you probably shouldn't follow the instructions here. Instead, go to [Wagyourtail's Discord Server](https://github.com/JsMacros/JsMacros?tab=readme-ov-file#jsmacros) then search `autocomplete` in #bot-commands.
 
