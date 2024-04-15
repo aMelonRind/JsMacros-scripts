@@ -14,6 +14,8 @@ if (1) throw 'This is playground, not a script.'
 // Some strings has defined set of contents based on their position.
 // Try delete the content of the string and press ctrl+space. It'll show you some suggestions.
 
+// You can view the definition by ctrl+left clicking the field/method.
+
 
 
 // This will error because the type of event is BaseEvent.
