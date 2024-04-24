@@ -1,3 +1,4 @@
+//@ts-check
 // removes mining cd for blocks that needs more than 1 tick to destroy
 // reduce use cd from 4 to 2 ticks
 // reduce jump cd from 10 to 5 ticks
@@ -8,7 +9,7 @@ if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 
 const mc = Client.getMinecraft()
 let im = Player.getInteractionManager()?.getRaw()
-let p = Player.getPlayer().getRaw()
+let p = Player.getPlayer()?.getRaw()
 
 const bcdf = Reflection.getDeclaredField(im.getClass(), 'field_3716')
 bcdf.setAccessible(true)
@@ -27,5 +28,5 @@ JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
 
 JsMacros.on('DimensionChange', JavaWrapper.methodToJava(() => {
   im = Player.getInteractionManager()?.getRaw() ?? im
-  p = Player.getPlayer().getRaw() ?? p
+  p = Player.getPlayer()?.getRaw() ?? p
 }))

@@ -116,7 +116,7 @@ class Threads {
   }
 
   /**
-   * @param {EventCustom} event
+   * @param {Events.Custom} event
    * @param {Record<string, object>} [variables] 
    */
   static toHeader(event, variables) {

@@ -846,7 +846,7 @@ class DataManager {
 
   clearCache() {
     this.chestChunks.clear()
-    this.itemStackCache.splice(0, Infinity)
+    this.itemStackCache.length = 0
   }
 
 }

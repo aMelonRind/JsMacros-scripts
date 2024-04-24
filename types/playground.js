@@ -50,6 +50,7 @@ JsMacros.on('RecvMessage', true, JavaWrapper.methodToJava((e, ctx) => {
     // You can either just cancel the event
     e.cancel()
     // ...or set the text to null, it also prevents other listener to get the text
+    // this allows other listener to re-assign value to receive another message, unlike `e.cancel()`.
     e.text = null
     // ...or replace the text, modifying the message
     e.text = Chat.createTextHelperFromString('[Suppressed Message]')

@@ -291,7 +291,7 @@ declare namespace Packages {
                 /** @deprecated */ static caller: undefined;
                 /** @deprecated */ static prototype: undefined;
 
-                equals(obj: Object | null): boolean;
+                equals(obj: Object | null | undefined): boolean;
                 getClass(): Class<any>;
                 hashCode(): number;
                 toString(): string;
