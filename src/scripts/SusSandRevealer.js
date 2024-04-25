@@ -6,6 +6,7 @@ module.exports = 0
 const { createTooltip } = require('../lib/TooltipElement')
 const ItemStack = Java.type('net.minecraft.class_1799')
 
+let im = Player.getInteractionManager()
 const d2d = Hud.createDraw2D().setVisible(false)
 
 const item = d2d.addItem(0, 0, 'minecraft:air')
@@ -27,26 +28,41 @@ d2d.register()
 let lastCheck = null
 
 JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
-  const target = Player.getInteractionManager()?.getTargetedBlock()
+  const target = (im ??= Player.getInteractionManager())?.getTargetedBlock()
   if (target?.equals(lastCheck)) return
   lastCheck = null
   d2d.setVisible(false)
-  if (!target) return
+  if (!target) {
+    cancelBrushing()
+    return
+  }
   const block = World.getBlock(target)
-  if (!block) return
+  if (!block) {
+    cancelBrushing()
+    return
+  }
   const id = block.getId()
   if (id !== 'minecraft:suspicious_sand' && id !== 'minecraft:suspicious_gravel') {
     lastCheck = target
+    cancelBrushing()
     return
   }
   let nbt = block.getNBT()?.get('item')
-  if (!nbt?.isCompound() || nbt.get('id')?.asString() === 'minecraft:air') return
+  if (!nbt?.isCompound() || nbt.get('id')?.asString() === 'minecraft:air') {
+    if (Player.getPlayer()?.getMainHand().getItemId() === 'minecraft:brush' && !im?.hasInteractOverride()) im?.holdInteract(true)
+    return
+  }
+  cancelBrushing()
   lastCheck = target
   const raw = ItemStack.method_7915(nbt.getRaw()) // .fromNbt()
   item.item = raw
   tt.raw.tooltipItem = raw
   d2d.setVisible(true)
 }))
+
+function cancelBrushing() {
+  if (Player.getPlayer()?.getMainHand().getItemId() === 'minecraft:brush') im?.holdInteract(false)
+}
 
 event.stopListener = JavaWrapper.methodToJava(() => {
   d2d.unregister()
