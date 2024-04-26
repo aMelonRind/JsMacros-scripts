@@ -1,5 +1,5 @@
 //@ts-check
-// reveals the content of a suspicious block.
+// reveals the content of a suspicious block. attempts to brush if the content is empty.
 JsMacros.assertEvent(event, 'Service')
 module.exports = 0
 
