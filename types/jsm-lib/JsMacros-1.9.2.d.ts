@@ -530,8 +530,30 @@ declare namespace Events {
 
         /**
          * when this service is stopped, this is run...
+         * @see EventService.unregisterOnStop(boolean, Registrable[])
          */
         stopListener: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<any, any, any, any> | null;
+
+        /**
+         * @see EventService.unregisterOnStop(boolean, Registrable[])
+         * @since 1.9.1
+         */
+        postStopListener: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<any, any, any, any> | null;
+
+        /**
+         * Setup unregister on stop. For example, `event.unregisterOnStop(false, d2d);` is
+         *  the equivalent of `event.stopListener = JavaWrapper.methodToJava(() => d2d.unregister());`.<br>  
+         *  <br>  
+         *  If this is called multiple times, the previous ones would be discarded.<br>  
+         *  <br>  
+         *  The order of execution is run stopListener -> off events -> unregister stuff -> run postStopListener.<br>  
+         *  <br>  
+         *  If anything was set to unregister, the service won't stop by itself even if it reaches the end.
+         * @param offEvents whether the service manager should clear event listeners that the callback doesn't belong to this context.
+         * @param list the list of registrable, such as Draw2D, Draw3D and CommandBuilder.
+         * @since 1.9.1
+         */
+        unregisterOnStop(offEvents: boolean, ...list: JavaVarArgs<Packages.xyz.wagyourtail.jsmacros.core.classes.Registrable<any>>): void;
 
         /**
          * Put an Integer into the global variable space.
@@ -1010,10 +1032,16 @@ declare namespace Client {
     function runOnMainThread(runnable: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<any, any, any, any>): void;
 
     /**
-     * @param watchdogMaxTime max time for the watchdog to wait before killing the script
+     * @throws InterruptedException
      * @since 1.6.5
      */
     function runOnMainThread(runnable: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<any, any, any, any>, watchdogMaxTime: long): void;
+
+    /**
+     * @param watchdogMaxTime max time for the watchdog to wait before killing the script
+     * @since 1.9.1
+     */
+    function runOnMainThread(runnable: Packages.xyz.wagyourtail.jsmacros.core.MethodWrapper<any, any, any, any>, await: boolean, watchdogMaxTime: long): void;
 
     /**
      * @return a helper which gives access to all game options and some other useful features.
@@ -2283,7 +2311,6 @@ declare namespace Player {
     /**
      * @return the current reach distance of the player.
      * @since 1.8.4
-     * @deprecated moved to `Player.getInteractionManager()`
      */
     function getReach(): number;
 
@@ -2905,6 +2932,27 @@ declare namespace Utils {
      */
     function decode(message: string): string;
 
+    /**
+     * Checks that the specified object reference is not `null`.
+     * @param obj the object reference to check for nullity
+     * @return `obj` if not `null`
+     * @throws NullPointerException if {@code obj} is {@code null}
+     * @since 1.9.1
+     */
+    function requireNonNull<T>(obj: T): T & {};
+
+    /**
+     * Checks that the specified object reference is not `null` and
+     *  throws a customized {@link NullPointerException} if it is.
+     * @param obj the object reference to check for nullity
+     * @param message detail message to be used in the event that a `
+     *                 NullPointerException` is thrown
+     * @return `obj` if not `null`
+     * @throws NullPointerException if {@code obj} is {@code null}
+     * @since 1.9.1
+     */
+    function requireNonNull<T>(obj: T, message: string): T & {};
+
 }
 
 /**
@@ -3310,902 +3358,734 @@ declare namespace Packages {
 
     namespace com {
 
-        namespace google {
+        namespace google.gson {
 
-            namespace common.collect {
+            interface JsonArray extends java.lang.Iterable<JsonElement> {}
+            class JsonArray extends JsonElement {
+                static readonly class: JavaClass<JsonArray>;
+                /** @deprecated */ static prototype: undefined;
 
-                interface ForwardingMultimap<K, V> extends Multimap<K, V> {}
-                abstract class ForwardingMultimap<K, V> extends ForwardingObject {
-                    static readonly class: JavaClass<ForwardingMultimap<any, any>>;
-                    /** @deprecated */ static prototype: undefined;
+                constructor ();
+                constructor (arg0: int);
 
-                    asMap(): JavaMap<K, JavaCollection<V>>;
-                    clear(): void;
-                    containsEntry(arg0: any, arg1: any): boolean;
-                    containsKey(arg0: any): boolean;
-                    containsValue(arg0: any): boolean;
-                    entries(): JavaCollection<java.util.Map$Entry<K, V>>;
-                    get(arg0: K): JavaCollection<V>;
-                    isEmpty(): boolean;
-                    keys(): Multiset<K>;
-                    keySet(): JavaSet<K>;
-                    put(arg0: K, arg1: V): boolean;
-                    putAll(arg0: K, arg1: java.lang.Iterable<V>): boolean;
-                    putAll(arg0: Multimap<K, V>): boolean;
-                    remove(arg0: any, arg1: any): boolean;
-                    removeAll(arg0: any): JavaCollection<V>;
-                    replaceValues(arg0: K, arg1: java.lang.Iterable<V>): JavaCollection<V>;
-                    size(): number;
-                    values(): JavaCollection<V>;
-
-                }
-
-                abstract class ForwardingObject extends java.lang.Object {
-                    static readonly class: JavaClass<ForwardingObject>;
-                    /** @deprecated */ static prototype: undefined;
-                }
-
-                abstract class Multimap<K, V> extends java.lang.Interface {
-                    static readonly class: JavaClass<Multimap<any, any>>;
-                    /** @deprecated */ static prototype: undefined;
-                }
-                interface Multimap<K, V> {
-
-                    size(): number;
-                    isEmpty(): boolean;
-                    containsKey(arg0: any): boolean;
-                    containsValue(arg0: any): boolean;
-                    containsEntry(arg0: any, arg1: any): boolean;
-                    put(arg0: K, arg1: V): boolean;
-                    remove(arg0: any, arg1: any): boolean;
-                    putAll(arg0: K, arg1: java.lang.Iterable<V>): boolean;
-                    putAll(arg0: Multimap<K, V>): boolean;
-                    replaceValues(arg0: K, arg1: java.lang.Iterable<V>): JavaCollection<V>;
-                    removeAll(arg0: any): JavaCollection<V>;
-                    clear(): void;
-                    get(arg0: K): JavaCollection<V>;
-                    keySet(): JavaSet<K>;
-                    keys(): Multiset<K>;
-                    values(): JavaCollection<V>;
-                    entries(): JavaCollection<java.util.Map$Entry<K, V>>;
-                    forEach(arg0: MethodWrapper<K, V>): void;
-                    asMap(): JavaMap<K, JavaCollection<V>>;
-
-                }
-
-                abstract class Multiset<E> extends java.lang.Interface {
-                    static readonly class: JavaClass<Multiset<any>>;
-                    /** @deprecated */ static prototype: undefined;
-                }
-                interface Multiset<E> extends java.util.Collection<E> {
-
-                    size(): number;
-                    count(arg0: any): number;
-                    add(arg0: E, arg1: int): number;
-                    add(arg0: E): boolean;
-                    remove(arg0: any, arg1: int): number;
-                    remove(arg0: any): boolean;
-                    setCount(arg0: E, arg1: int): number;
-                    setCount(arg0: E, arg1: int, arg2: int): boolean;
-                    elementSet(): JavaSet<E>;
-                    entrySet(): JavaSet<Multiset$Entry<E>>;
-                    forEachEntry(arg0: java.util.function.ObjIntConsumer<E>): void;
-                    iterator(): java.util.Iterator<E>;
-                    contains(arg0: any): boolean;
-                    containsAll(arg0: JavaCollection<any>): boolean;
-                    removeAll(arg0: JavaCollection<any>): boolean;
-                    retainAll(arg0: JavaCollection<any>): boolean;
-                    forEach(arg0: MethodWrapper<E>): void;
-                    spliterator(): java.util.Spliterator<E>;
-
-                }
-
-                abstract class Multiset$Entry<E> extends java.lang.Interface {
-                    static readonly class: JavaClass<Multiset$Entry<any>>;
-                    /** @deprecated */ static prototype: undefined;
-                }
-                interface Multiset$Entry<E> {
-
-                    getElement(): E;
-                    getCount(): number;
-
-                }
-
-                export {
-                    ForwardingMultimap,
-                    ForwardingObject,
-                    Multimap,
-                    Multiset,
-                    Multiset$Entry
-                }
+                deepCopy(): JsonArray;
+                add(arg0: boolean): void;
+                add(arg0: char): void;
+                add(arg0: number): void;
+                add(arg0: string): void;
+                add(arg0: JsonElement): void;
+                addAll(arg0: JsonArray): void;
+                set(arg0: int, arg1: JsonElement): JsonElement;
+                remove(arg0: JsonElement): boolean;
+                remove(arg0: int): JsonElement;
+                contains(arg0: JsonElement): boolean;
+                size(): number;
+                isEmpty(): boolean;
+                iterator(): java.util.Iterator<JsonElement>;
+                get(arg0: int): JsonElement;
+                getAsNumber(): number;
+                getAsString(): string;
+                getAsDouble(): number;
+                getAsBigDecimal(): java.math.BigDecimal;
+                getAsBigInteger(): java.math.BigInteger;
+                getAsFloat(): number;
+                getAsLong(): number;
+                getAsInt(): number;
+                getAsByte(): number;
+                /** @deprecated */
+                getAsCharacter(): number;
+                getAsShort(): number;
+                getAsBoolean(): boolean;
+                asList(): JavaList<JsonElement>;
 
             }
 
-            namespace gson {
+            class JsonElement extends java.lang.Object {
+                static readonly class: JavaClass<JsonElement>;
+                /** @deprecated */ static prototype: undefined;
 
-                interface JsonArray extends java.lang.Iterable<JsonElement> {}
-                class JsonArray extends JsonElement {
-                    static readonly class: JavaClass<JsonArray>;
-                    /** @deprecated */ static prototype: undefined;
+                /** @deprecated */
+                constructor ();
 
-                    constructor ();
-                    constructor (arg0: int);
-
-                    deepCopy(): JsonArray;
-                    add(arg0: boolean): void;
-                    add(arg0: char): void;
-                    add(arg0: number): void;
-                    add(arg0: string): void;
-                    add(arg0: JsonElement): void;
-                    addAll(arg0: JsonArray): void;
-                    set(arg0: int, arg1: JsonElement): JsonElement;
-                    remove(arg0: JsonElement): boolean;
-                    remove(arg0: int): JsonElement;
-                    contains(arg0: JsonElement): boolean;
-                    size(): number;
-                    isEmpty(): boolean;
-                    iterator(): java.util.Iterator<JsonElement>;
-                    get(arg0: int): JsonElement;
-                    getAsNumber(): number;
-                    getAsString(): string;
-                    getAsDouble(): number;
-                    getAsBigDecimal(): java.math.BigDecimal;
-                    getAsBigInteger(): java.math.BigInteger;
-                    getAsFloat(): number;
-                    getAsLong(): number;
-                    getAsInt(): number;
-                    getAsByte(): number;
-                    /** @deprecated */
-                    getAsCharacter(): number;
-                    getAsShort(): number;
-                    getAsBoolean(): boolean;
-                    asList(): JavaList<JsonElement>;
-
-                }
-
-                class JsonElement extends java.lang.Object {
-                    static readonly class: JavaClass<JsonElement>;
-                    /** @deprecated */ static prototype: undefined;
-
-                    /** @deprecated */
-                    constructor ();
-
-                    deepCopy(): JsonElement;
-                    isJsonArray(): boolean;
-                    isJsonObject(): boolean;
-                    isJsonPrimitive(): boolean;
-                    isJsonNull(): boolean;
-                    getAsJsonObject(): JsonObject;
-                    getAsJsonArray(): JsonArray;
-                    getAsJsonPrimitive(): JsonPrimitive;
-                    getAsJsonNull(): JsonNull;
-                    getAsBoolean(): boolean;
-                    getAsNumber(): number;
-                    getAsString(): string;
-                    getAsDouble(): number;
-                    getAsFloat(): number;
-                    getAsLong(): number;
-                    getAsInt(): number;
-                    getAsByte(): number;
-                    /** @deprecated */
-                    getAsCharacter(): number;
-                    getAsBigDecimal(): java.math.BigDecimal;
-                    getAsBigInteger(): java.math.BigInteger;
-                    getAsShort(): number;
-
-                }
-
-                class JsonNull extends JsonElement {
-                    static readonly class: JavaClass<JsonNull>;
-                    /** @deprecated */ static prototype: undefined;
-
-                    static readonly INSTANCE: JsonNull;
-
-                    /** @deprecated */
-                    constructor ();
-
-                    deepCopy(): JsonNull;
-
-                }
-
-                class JsonObject extends JsonElement {
-                    static readonly class: JavaClass<JsonObject>;
-                    /** @deprecated */ static prototype: undefined;
-
-                    constructor ();
-
-                    deepCopy(): JsonObject;
-                    add(arg0: string, arg1: JsonElement): void;
-                    remove(arg0: string): JsonElement;
-                    addProperty(arg0: string, arg1: string): void;
-                    addProperty(arg0: string, arg1: number): void;
-                    addProperty(arg0: string, arg1: boolean): void;
-                    addProperty(arg0: string, arg1: char): void;
-                    entrySet(): JavaSet<java.util.Map$Entry<string, JsonElement>>;
-                    keySet(): JavaSet<string>;
-                    size(): number;
-                    isEmpty(): boolean;
-                    has(arg0: string): boolean;
-                    get(arg0: string): JsonElement;
-                    getAsJsonPrimitive(arg0: string): JsonPrimitive;
-                    getAsJsonPrimitive(): JsonPrimitive;
-                    getAsJsonArray(arg0: string): JsonArray;
-                    getAsJsonArray(): JsonArray;
-                    getAsJsonObject(arg0: string): JsonObject;
-                    getAsJsonObject(): JsonObject;
-                    asMap(): JavaMap<string, JsonElement>;
-
-                }
-
-                class JsonPrimitive extends JsonElement {
-                    static readonly class: JavaClass<JsonPrimitive>;
-                    /** @deprecated */ static prototype: undefined;
-
-                    constructor (arg0: boolean);
-                    constructor (arg0: number);
-                    constructor (arg0: string);
-                    constructor (arg0: char);
-
-                    deepCopy(): JsonPrimitive;
-                    isBoolean(): boolean;
-                    getAsBoolean(): boolean;
-                    isNumber(): boolean;
-                    getAsNumber(): number;
-                    isString(): boolean;
-                    getAsString(): string;
-                    getAsDouble(): number;
-                    getAsBigDecimal(): java.math.BigDecimal;
-                    getAsBigInteger(): java.math.BigInteger;
-                    getAsFloat(): number;
-                    getAsLong(): number;
-                    getAsShort(): number;
-                    getAsInt(): number;
-                    getAsByte(): number;
-                    /** @deprecated */
-                    getAsCharacter(): number;
-
-                }
-
-                export { JsonArray, JsonElement, JsonNull, JsonObject, JsonPrimitive }
+                deepCopy(): JsonElement;
+                isJsonArray(): boolean;
+                isJsonObject(): boolean;
+                isJsonPrimitive(): boolean;
+                isJsonNull(): boolean;
+                getAsJsonObject(): JsonObject;
+                getAsJsonArray(): JsonArray;
+                getAsJsonPrimitive(): JsonPrimitive;
+                getAsJsonNull(): JsonNull;
+                getAsBoolean(): boolean;
+                getAsNumber(): number;
+                getAsString(): string;
+                getAsDouble(): number;
+                getAsFloat(): number;
+                getAsLong(): number;
+                getAsInt(): number;
+                getAsByte(): number;
+                /** @deprecated */
+                getAsCharacter(): number;
+                getAsBigDecimal(): java.math.BigDecimal;
+                getAsBigInteger(): java.math.BigInteger;
+                getAsShort(): number;
 
             }
+
+            class JsonNull extends JsonElement {
+                static readonly class: JavaClass<JsonNull>;
+                /** @deprecated */ static prototype: undefined;
+
+                static readonly INSTANCE: JsonNull;
+
+                /** @deprecated */
+                constructor ();
+
+                deepCopy(): JsonNull;
+
+            }
+
+            class JsonObject extends JsonElement {
+                static readonly class: JavaClass<JsonObject>;
+                /** @deprecated */ static prototype: undefined;
+
+                constructor ();
+
+                deepCopy(): JsonObject;
+                add(arg0: string, arg1: JsonElement): void;
+                remove(arg0: string): JsonElement;
+                addProperty(arg0: string, arg1: string): void;
+                addProperty(arg0: string, arg1: number): void;
+                addProperty(arg0: string, arg1: boolean): void;
+                addProperty(arg0: string, arg1: char): void;
+                entrySet(): JavaSet<java.util.Map$Entry<string, JsonElement>>;
+                keySet(): JavaSet<string>;
+                size(): number;
+                isEmpty(): boolean;
+                has(arg0: string): boolean;
+                get(arg0: string): JsonElement;
+                getAsJsonPrimitive(arg0: string): JsonPrimitive;
+                getAsJsonPrimitive(): JsonPrimitive;
+                getAsJsonArray(arg0: string): JsonArray;
+                getAsJsonArray(): JsonArray;
+                getAsJsonObject(arg0: string): JsonObject;
+                getAsJsonObject(): JsonObject;
+                asMap(): JavaMap<string, JsonElement>;
+
+            }
+
+            class JsonPrimitive extends JsonElement {
+                static readonly class: JavaClass<JsonPrimitive>;
+                /** @deprecated */ static prototype: undefined;
+
+                constructor (arg0: boolean);
+                constructor (arg0: number);
+                constructor (arg0: string);
+                constructor (arg0: char);
+
+                deepCopy(): JsonPrimitive;
+                isBoolean(): boolean;
+                getAsBoolean(): boolean;
+                isNumber(): boolean;
+                getAsNumber(): number;
+                isString(): boolean;
+                getAsString(): string;
+                getAsDouble(): number;
+                getAsBigDecimal(): java.math.BigDecimal;
+                getAsBigInteger(): java.math.BigInteger;
+                getAsFloat(): number;
+                getAsLong(): number;
+                getAsShort(): number;
+                getAsInt(): number;
+                getAsByte(): number;
+                /** @deprecated */
+                getAsCharacter(): number;
+
+            }
+
+            export { JsonArray, JsonElement, JsonNull, JsonObject, JsonPrimitive }
 
         }
 
-        namespace mojang {
+        namespace mojang.brigadier {
 
-            namespace authlib {
-
-                class GameProfile extends java.lang.Object {
-                    static readonly class: JavaClass<GameProfile>;
-                    /** @deprecated */ static prototype: undefined;
-
-                    constructor (arg0: java.util.UUID, arg1: string);
-
-                    getId(): java.util.UUID;
-                    getName(): string;
-                    getProperties(): com.mojang.authlib.properties.PropertyMap;
-
-                }
-
-                export { GameProfile }
-
+            abstract class AmbiguityConsumer<S> extends java.lang.Interface {
+                static readonly class: JavaClass<AmbiguityConsumer<any>>;
+                /** @deprecated */ static prototype: undefined;
             }
-            namespace authlib {
+            interface AmbiguityConsumer<S> {
 
-                namespace properties {
-
-                    class Property extends java.lang.Record {
-                        static readonly class: JavaClass<Property>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        constructor (arg0: string, arg1: string);
-                        constructor (arg0: string, arg1: string, arg2: string | null);
-
-                        hasSignature(): boolean;
-                        /** @deprecated */
-                        isSignatureValid(arg0: java.security.PublicKey): boolean;
-                        name(): string;
-                        value(): string;
-                        signature(): string | null;
-
-                    }
-
-                    class PropertyMap extends com.google.common.collect.ForwardingMultimap<java.lang.String, Property> {
-                        static readonly class: JavaClass<PropertyMap>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        constructor ();
-
-                    }
-
-                    export { Property, PropertyMap }
-
-                }
+                ambiguous(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: com.mojang.brigadier.tree.CommandNode<S>, arg2: com.mojang.brigadier.tree.CommandNode<S>, arg3: JavaCollection<string>): void;
 
             }
 
-            namespace brigadier {
+            abstract class Command<S> extends java.lang.Interface {
+                static readonly class: JavaClass<Command<any>>;
+                /** @deprecated */ static prototype: undefined;
 
-                abstract class AmbiguityConsumer<S> extends java.lang.Interface {
-                    static readonly class: JavaClass<AmbiguityConsumer<any>>;
+                static readonly SINGLE_SUCCESS: number;
+            }
+            interface Command<S> {
+
+                run(arg0: com.mojang.brigadier.context.CommandContext<S>): number;
+
+            }
+
+            class CommandDispatcher<S> extends java.lang.Object {
+                static readonly class: JavaClass<CommandDispatcher<any>>;
+                /** @deprecated */ static prototype: undefined;
+
+                static readonly ARGUMENT_SEPARATOR: string;
+                static readonly ARGUMENT_SEPARATOR_CHAR: number;
+
+                constructor <S>(arg0: com.mojang.brigadier.tree.RootCommandNode<S>);
+                constructor <S>();
+
+                register(arg0: com.mojang.brigadier.builder.LiteralArgumentBuilder<S>): com.mojang.brigadier.tree.LiteralCommandNode<S>;
+                setConsumer(arg0: ResultConsumer<S>): void;
+                execute(arg0: string, arg1: S): number;
+                execute(arg0: StringReader, arg1: S): number;
+                execute(arg0: ParseResults<S>): number;
+                parse(arg0: string, arg1: S): ParseResults<S>;
+                parse(arg0: StringReader, arg1: S): ParseResults<S>;
+                getAllUsage(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: S, arg2: boolean): JavaArray<string>;
+                getSmartUsage(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: S): JavaMap<com.mojang.brigadier.tree.CommandNode<S>, string>;
+                getCompletionSuggestions(arg0: ParseResults<S>): java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>;
+                getCompletionSuggestions(arg0: ParseResults<S>, arg1: int): java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>;
+                getRoot(): com.mojang.brigadier.tree.RootCommandNode<S>;
+                getPath(arg0: com.mojang.brigadier.tree.CommandNode<S>): JavaCollection<string>;
+                findNode(arg0: JavaCollection<string>): com.mojang.brigadier.tree.CommandNode<S>;
+                findAmbiguities(arg0: AmbiguityConsumer<S>): void;
+
+            }
+
+            abstract class ImmutableStringReader extends java.lang.Interface {
+                static readonly class: JavaClass<ImmutableStringReader>;
+                /** @deprecated */ static prototype: undefined;
+            }
+            interface ImmutableStringReader {
+
+                getString(): string;
+                getRemainingLength(): number;
+                getTotalLength(): number;
+                getCursor(): number;
+                getRead(): string;
+                getRemaining(): string;
+                canRead(arg0: int): boolean;
+                canRead(): boolean;
+                peek(): number;
+                peek(arg0: int): number;
+
+            }
+
+            abstract class Message extends java.lang.Interface {
+                static readonly class: JavaClass<Message>;
+                /** @deprecated */ static prototype: undefined;
+            }
+            interface Message {
+
+                getString(): string;
+
+            }
+
+            class ParseResults<S> extends java.lang.Object {
+                static readonly class: JavaClass<ParseResults<any>>;
+                /** @deprecated */ static prototype: undefined;
+
+                constructor <S>(arg0: com.mojang.brigadier.context.CommandContextBuilder<S>, arg1: ImmutableStringReader, arg2: JavaMap<com.mojang.brigadier.tree.CommandNode<S>, com.mojang.brigadier.exceptions.CommandSyntaxException>);
+                constructor <S>(arg0: com.mojang.brigadier.context.CommandContextBuilder<S>);
+
+                getContext(): com.mojang.brigadier.context.CommandContextBuilder<S>;
+                getReader(): ImmutableStringReader;
+                getExceptions(): JavaMap<com.mojang.brigadier.tree.CommandNode<S>, com.mojang.brigadier.exceptions.CommandSyntaxException>;
+
+            }
+
+            abstract class RedirectModifier<S> extends java.lang.Interface {
+                static readonly class: JavaClass<RedirectModifier<any>>;
+                /** @deprecated */ static prototype: undefined;
+            }
+            interface RedirectModifier<S> {
+
+                apply(arg0: com.mojang.brigadier.context.CommandContext<S>): JavaCollection<S>;
+
+            }
+
+            abstract class ResultConsumer<S> extends java.lang.Interface {
+                static readonly class: JavaClass<ResultConsumer<any>>;
+                /** @deprecated */ static prototype: undefined;
+            }
+            interface ResultConsumer<S> {
+
+                onCommandComplete(arg0: com.mojang.brigadier.context.CommandContext<S>, arg1: boolean, arg2: int): void;
+
+            }
+
+            abstract class SingleRedirectModifier<S> extends java.lang.Interface {
+                static readonly class: JavaClass<SingleRedirectModifier<any>>;
+                /** @deprecated */ static prototype: undefined;
+            }
+            interface SingleRedirectModifier<S> {
+
+                apply(arg0: com.mojang.brigadier.context.CommandContext<S>): S;
+
+            }
+
+            interface StringReader extends ImmutableStringReader {}
+            class StringReader extends java.lang.Object {
+                static readonly class: JavaClass<StringReader>;
+                /** @deprecated */ static prototype: undefined;
+
+                static isAllowedNumber(arg0: char): boolean;
+                static isQuotedStringStart(arg0: char): boolean;
+                static isAllowedInUnquotedString(arg0: char): boolean;
+
+                constructor (arg0: StringReader);
+                constructor (arg0: string);
+
+                getString(): string;
+                setCursor(arg0: int): void;
+                getRemainingLength(): number;
+                getTotalLength(): number;
+                getCursor(): number;
+                getRead(): string;
+                getRemaining(): string;
+                canRead(arg0: int): boolean;
+                canRead(): boolean;
+                peek(): number;
+                peek(arg0: int): number;
+                read(): number;
+                skip(): void;
+                skipWhitespace(): void;
+                readInt(): number;
+                readLong(): number;
+                readDouble(): number;
+                readFloat(): number;
+                readUnquotedString(): string;
+                readQuotedString(): string;
+                readStringUntil(arg0: char): string;
+                readString(): string;
+                readBoolean(): boolean;
+                expect(arg0: char): void;
+
+            }
+
+            export {
+                AmbiguityConsumer,
+                Command,
+                CommandDispatcher,
+                ImmutableStringReader,
+                Message,
+                ParseResults,
+                RedirectModifier,
+                ResultConsumer,
+                SingleRedirectModifier,
+                StringReader
+            }
+
+        }
+        namespace mojang.brigadier {
+
+            namespace builder {
+
+                class ArgumentBuilder<S, T extends ArgumentBuilder<S, T>> extends java.lang.Object {
+                    static readonly class: JavaClass<ArgumentBuilder<any, any>>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    constructor <S, T extends ArgumentBuilder<S, T>>();
+
+                    then(arg0: ArgumentBuilder<S, any>): T;
+                    then(arg0: com.mojang.brigadier.tree.CommandNode<S>): T;
+                    getArguments(): JavaCollection<com.mojang.brigadier.tree.CommandNode<S>>;
+                    executes(arg0: com.mojang.brigadier.Command<S>): T;
+                    getCommand(): com.mojang.brigadier.Command<S>;
+                    requires(arg0: MethodWrapper<S, any, boolean>): T;
+                    getRequirement(): java.util.function.Predicate<S>;
+                    redirect(arg0: com.mojang.brigadier.tree.CommandNode<S>): T;
+                    redirect(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: com.mojang.brigadier.SingleRedirectModifier<S>): T;
+                    fork(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: com.mojang.brigadier.RedirectModifier<S>): T;
+                    forward(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: com.mojang.brigadier.RedirectModifier<S>, arg2: boolean): T;
+                    getRedirect(): com.mojang.brigadier.tree.CommandNode<S>;
+                    getRedirectModifier(): com.mojang.brigadier.RedirectModifier<S>;
+                    isFork(): boolean;
+                    build(): com.mojang.brigadier.tree.CommandNode<S>;
+
+                }
+
+                abstract class LiteralArgumentBuilder<S> extends ArgumentBuilder<S, LiteralArgumentBuilder<S>> {
+                    static readonly class: JavaClass<LiteralArgumentBuilder<any>>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    static literal<S>(arg0: string): LiteralArgumentBuilder<S>;
+
+                    getLiteral(): string;
+                    build(): com.mojang.brigadier.tree.LiteralCommandNode<S>;
+
+                }
+
+                export { ArgumentBuilder, LiteralArgumentBuilder }
+
+            }
+
+            namespace context {
+
+                class CommandContext<S> extends java.lang.Object {
+                    static readonly class: JavaClass<CommandContext<any>>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    constructor <S>(arg0: S, arg1: string, arg2: JavaMap<string, ParsedArgument<S, any>>, arg3: com.mojang.brigadier.Command<S>, arg4: com.mojang.brigadier.tree.CommandNode<S>, arg5: JavaList<ParsedCommandNode<S>>, arg6: StringRange, arg7: CommandContext<S>, arg8: com.mojang.brigadier.RedirectModifier<S>, arg9: boolean);
+
+                    copyFor(arg0: S): CommandContext<S>;
+                    getChild(): CommandContext<S>;
+                    getLastChild(): CommandContext<S>;
+                    getCommand(): com.mojang.brigadier.Command<S>;
+                    getSource(): S;
+                    getArgument<V>(arg0: string, arg1: JavaClassArg<V>): V;
+                    getRedirectModifier(): com.mojang.brigadier.RedirectModifier<S>;
+                    getRange(): StringRange;
+                    getInput(): string;
+                    getRootNode(): com.mojang.brigadier.tree.CommandNode<S>;
+                    getNodes(): JavaList<ParsedCommandNode<S>>;
+                    hasNodes(): boolean;
+                    isForked(): boolean;
+
+                }
+
+                class CommandContextBuilder<S> extends java.lang.Object {
+                    static readonly class: JavaClass<CommandContextBuilder<any>>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    constructor <S>(arg0: com.mojang.brigadier.CommandDispatcher<S>, arg1: S, arg2: com.mojang.brigadier.tree.CommandNode<S>, arg3: int);
+
+                    withSource(arg0: S): CommandContextBuilder<S>;
+                    getSource(): S;
+                    getRootNode(): com.mojang.brigadier.tree.CommandNode<S>;
+                    withArgument(arg0: string, arg1: ParsedArgument<S, any>): CommandContextBuilder<S>;
+                    getArguments(): JavaMap<string, ParsedArgument<S, any>>;
+                    withCommand(arg0: com.mojang.brigadier.Command<S>): CommandContextBuilder<S>;
+                    withNode(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: StringRange): CommandContextBuilder<S>;
+                    copy(): CommandContextBuilder<S>;
+                    withChild(arg0: CommandContextBuilder<S>): CommandContextBuilder<S>;
+                    getChild(): CommandContextBuilder<S>;
+                    getLastChild(): CommandContextBuilder<S>;
+                    getCommand(): com.mojang.brigadier.Command<S>;
+                    getNodes(): JavaList<ParsedCommandNode<S>>;
+                    build(arg0: string): CommandContext<S>;
+                    getDispatcher(): com.mojang.brigadier.CommandDispatcher<S>;
+                    getRange(): StringRange;
+                    findSuggestionContext(arg0: int): SuggestionContext<S>;
+
+                }
+
+                class ParsedArgument<S, T> extends java.lang.Object {
+                    static readonly class: JavaClass<ParsedArgument<any, any>>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    constructor <S, T>(arg0: int, arg1: int, arg2: T);
+
+                    getRange(): StringRange;
+                    getResult(): T;
+
+                }
+
+                class ParsedCommandNode<S> extends java.lang.Object {
+                    static readonly class: JavaClass<ParsedCommandNode<any>>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    constructor <S>(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: StringRange);
+
+                    getNode(): com.mojang.brigadier.tree.CommandNode<S>;
+                    getRange(): StringRange;
+
+                }
+
+                class StringRange extends java.lang.Object {
+                    static readonly class: JavaClass<StringRange>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    static at(arg0: int): StringRange;
+                    static between(arg0: int, arg1: int): StringRange;
+                    static encompassing(arg0: StringRange, arg1: StringRange): StringRange;
+
+                    constructor (arg0: int, arg1: int);
+
+                    getStart(): number;
+                    getEnd(): number;
+                    get(arg0: com.mojang.brigadier.ImmutableStringReader): string;
+                    get(arg0: string): string;
+                    isEmpty(): boolean;
+                    getLength(): number;
+
+                }
+
+                class SuggestionContext<S> extends java.lang.Object {
+                    static readonly class: JavaClass<SuggestionContext<any>>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    constructor <S>(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: int);
+
+                    readonly parent: com.mojang.brigadier.tree.CommandNode<S>;
+                    readonly startPos: number;
+                }
+
+                export {
+                    CommandContext,
+                    CommandContextBuilder,
+                    ParsedArgument,
+                    ParsedCommandNode,
+                    StringRange,
+                    SuggestionContext
+                }
+
+            }
+
+            namespace exceptions {
+
+                abstract class BuiltInExceptionProvider extends java.lang.Interface {
+                    static readonly class: JavaClass<BuiltInExceptionProvider>;
                     /** @deprecated */ static prototype: undefined;
                 }
-                interface AmbiguityConsumer<S> {
+                interface BuiltInExceptionProvider {
 
-                    ambiguous(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: com.mojang.brigadier.tree.CommandNode<S>, arg2: com.mojang.brigadier.tree.CommandNode<S>, arg3: JavaCollection<string>): void;
-
-                }
-
-                abstract class Command<S> extends java.lang.Interface {
-                    static readonly class: JavaClass<Command<any>>;
-                    /** @deprecated */ static prototype: undefined;
-
-                    static readonly SINGLE_SUCCESS: number;
-                }
-                interface Command<S> {
-
-                    run(arg0: com.mojang.brigadier.context.CommandContext<S>): number;
-
-                }
-
-                class CommandDispatcher<S> extends java.lang.Object {
-                    static readonly class: JavaClass<CommandDispatcher<any>>;
-                    /** @deprecated */ static prototype: undefined;
-
-                    static readonly ARGUMENT_SEPARATOR: string;
-                    static readonly ARGUMENT_SEPARATOR_CHAR: number;
-
-                    constructor <S>(arg0: com.mojang.brigadier.tree.RootCommandNode<S>);
-                    constructor <S>();
-
-                    register(arg0: com.mojang.brigadier.builder.LiteralArgumentBuilder<S>): com.mojang.brigadier.tree.LiteralCommandNode<S>;
-                    setConsumer(arg0: ResultConsumer<S>): void;
-                    execute(arg0: string, arg1: S): number;
-                    execute(arg0: StringReader, arg1: S): number;
-                    execute(arg0: ParseResults<S>): number;
-                    parse(arg0: string, arg1: S): ParseResults<S>;
-                    parse(arg0: StringReader, arg1: S): ParseResults<S>;
-                    getAllUsage(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: S, arg2: boolean): JavaArray<string>;
-                    getSmartUsage(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: S): JavaMap<com.mojang.brigadier.tree.CommandNode<S>, string>;
-                    getCompletionSuggestions(arg0: ParseResults<S>): java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>;
-                    getCompletionSuggestions(arg0: ParseResults<S>, arg1: int): java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>;
-                    getRoot(): com.mojang.brigadier.tree.RootCommandNode<S>;
-                    getPath(arg0: com.mojang.brigadier.tree.CommandNode<S>): JavaCollection<string>;
-                    findNode(arg0: JavaCollection<string>): com.mojang.brigadier.tree.CommandNode<S>;
-                    findAmbiguities(arg0: AmbiguityConsumer<S>): void;
+                    doubleTooLow(): Dynamic2CommandExceptionType;
+                    doubleTooHigh(): Dynamic2CommandExceptionType;
+                    floatTooLow(): Dynamic2CommandExceptionType;
+                    floatTooHigh(): Dynamic2CommandExceptionType;
+                    integerTooLow(): Dynamic2CommandExceptionType;
+                    integerTooHigh(): Dynamic2CommandExceptionType;
+                    longTooLow(): Dynamic2CommandExceptionType;
+                    longTooHigh(): Dynamic2CommandExceptionType;
+                    literalIncorrect(): DynamicCommandExceptionType;
+                    readerExpectedStartOfQuote(): SimpleCommandExceptionType;
+                    readerExpectedEndOfQuote(): SimpleCommandExceptionType;
+                    readerInvalidEscape(): DynamicCommandExceptionType;
+                    readerInvalidBool(): DynamicCommandExceptionType;
+                    readerInvalidInt(): DynamicCommandExceptionType;
+                    readerExpectedInt(): SimpleCommandExceptionType;
+                    readerInvalidLong(): DynamicCommandExceptionType;
+                    readerExpectedLong(): SimpleCommandExceptionType;
+                    readerInvalidDouble(): DynamicCommandExceptionType;
+                    readerExpectedDouble(): SimpleCommandExceptionType;
+                    readerInvalidFloat(): DynamicCommandExceptionType;
+                    readerExpectedFloat(): SimpleCommandExceptionType;
+                    readerExpectedBool(): SimpleCommandExceptionType;
+                    readerExpectedSymbol(): DynamicCommandExceptionType;
+                    dispatcherUnknownCommand(): SimpleCommandExceptionType;
+                    dispatcherUnknownArgument(): SimpleCommandExceptionType;
+                    dispatcherExpectedArgumentSeparator(): SimpleCommandExceptionType;
+                    dispatcherParseException(): DynamicCommandExceptionType;
 
                 }
 
-                abstract class ImmutableStringReader extends java.lang.Interface {
-                    static readonly class: JavaClass<ImmutableStringReader>;
+                abstract class CommandExceptionType extends java.lang.Interface {
+                    static readonly class: JavaClass<CommandExceptionType>;
                     /** @deprecated */ static prototype: undefined;
                 }
-                interface ImmutableStringReader {
+                interface CommandExceptionType {}
 
-                    getString(): string;
-                    getRemainingLength(): number;
-                    getTotalLength(): number;
+                class CommandSyntaxException extends java.lang.Exception {
+                    static readonly class: JavaClass<CommandSyntaxException>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    static readonly CONTEXT_AMOUNT: number;
+                    static ENABLE_COMMAND_STACK_TRACES: boolean;
+                    static BUILT_IN_EXCEPTIONS: BuiltInExceptionProvider;
+
+                    constructor (arg0: CommandExceptionType, arg1: com.mojang.brigadier.Message);
+                    constructor (arg0: CommandExceptionType, arg1: com.mojang.brigadier.Message, arg2: string, arg3: int);
+
+                    getMessage(): string;
+                    getRawMessage(): com.mojang.brigadier.Message;
+                    getContext(): string;
+                    getType(): CommandExceptionType;
+                    getInput(): string;
                     getCursor(): number;
-                    getRead(): string;
-                    getRemaining(): string;
-                    canRead(arg0: int): boolean;
-                    canRead(): boolean;
-                    peek(): number;
-                    peek(arg0: int): number;
 
                 }
 
-                abstract class Message extends java.lang.Interface {
-                    static readonly class: JavaClass<Message>;
-                    /** @deprecated */ static prototype: undefined;
-                }
-                interface Message {
-
-                    getString(): string;
-
-                }
-
-                class ParseResults<S> extends java.lang.Object {
-                    static readonly class: JavaClass<ParseResults<any>>;
+                interface Dynamic2CommandExceptionType extends CommandExceptionType {}
+                class Dynamic2CommandExceptionType extends java.lang.Object {
+                    static readonly class: JavaClass<Dynamic2CommandExceptionType>;
                     /** @deprecated */ static prototype: undefined;
 
-                    constructor <S>(arg0: com.mojang.brigadier.context.CommandContextBuilder<S>, arg1: ImmutableStringReader, arg2: JavaMap<com.mojang.brigadier.tree.CommandNode<S>, com.mojang.brigadier.exceptions.CommandSyntaxException>);
-                    constructor <S>(arg0: com.mojang.brigadier.context.CommandContextBuilder<S>);
+                    constructor (arg0: Dynamic2CommandExceptionType$Function);
 
-                    getContext(): com.mojang.brigadier.context.CommandContextBuilder<S>;
-                    getReader(): ImmutableStringReader;
-                    getExceptions(): JavaMap<com.mojang.brigadier.tree.CommandNode<S>, com.mojang.brigadier.exceptions.CommandSyntaxException>;
+                    create(arg0: any, arg1: any): CommandSyntaxException;
+                    createWithContext(arg0: com.mojang.brigadier.ImmutableStringReader, arg1: any, arg2: any): CommandSyntaxException;
 
                 }
 
-                abstract class RedirectModifier<S> extends java.lang.Interface {
-                    static readonly class: JavaClass<RedirectModifier<any>>;
+                abstract class Dynamic2CommandExceptionType$Function extends java.lang.Interface {
+                    static readonly class: JavaClass<Dynamic2CommandExceptionType$Function>;
                     /** @deprecated */ static prototype: undefined;
                 }
-                interface RedirectModifier<S> {
+                interface Dynamic2CommandExceptionType$Function {
 
-                    apply(arg0: com.mojang.brigadier.context.CommandContext<S>): JavaCollection<S>;
-
-                }
-
-                abstract class ResultConsumer<S> extends java.lang.Interface {
-                    static readonly class: JavaClass<ResultConsumer<any>>;
-                    /** @deprecated */ static prototype: undefined;
-                }
-                interface ResultConsumer<S> {
-
-                    onCommandComplete(arg0: com.mojang.brigadier.context.CommandContext<S>, arg1: boolean, arg2: int): void;
+                    apply(arg0: any, arg1: any): com.mojang.brigadier.Message;
 
                 }
 
-                abstract class SingleRedirectModifier<S> extends java.lang.Interface {
-                    static readonly class: JavaClass<SingleRedirectModifier<any>>;
-                    /** @deprecated */ static prototype: undefined;
-                }
-                interface SingleRedirectModifier<S> {
-
-                    apply(arg0: com.mojang.brigadier.context.CommandContext<S>): S;
-
-                }
-
-                interface StringReader extends ImmutableStringReader {}
-                class StringReader extends java.lang.Object {
-                    static readonly class: JavaClass<StringReader>;
+                interface DynamicCommandExceptionType extends CommandExceptionType {}
+                class DynamicCommandExceptionType extends java.lang.Object {
+                    static readonly class: JavaClass<DynamicCommandExceptionType>;
                     /** @deprecated */ static prototype: undefined;
 
-                    static isAllowedNumber(arg0: char): boolean;
-                    static isQuotedStringStart(arg0: char): boolean;
-                    static isAllowedInUnquotedString(arg0: char): boolean;
+                    constructor (arg0: MethodWrapper<any, any, com.mojang.brigadier.Message>);
 
-                    constructor (arg0: StringReader);
-                    constructor (arg0: string);
+                    create(arg0: any): CommandSyntaxException;
+                    createWithContext(arg0: com.mojang.brigadier.ImmutableStringReader, arg1: any): CommandSyntaxException;
 
-                    getString(): string;
-                    setCursor(arg0: int): void;
-                    getRemainingLength(): number;
-                    getTotalLength(): number;
-                    getCursor(): number;
-                    getRead(): string;
-                    getRemaining(): string;
-                    canRead(arg0: int): boolean;
-                    canRead(): boolean;
-                    peek(): number;
-                    peek(arg0: int): number;
-                    read(): number;
-                    skip(): void;
-                    skipWhitespace(): void;
-                    readInt(): number;
-                    readLong(): number;
-                    readDouble(): number;
-                    readFloat(): number;
-                    readUnquotedString(): string;
-                    readQuotedString(): string;
-                    readStringUntil(arg0: char): string;
-                    readString(): string;
-                    readBoolean(): boolean;
-                    expect(arg0: char): void;
+                }
+
+                interface SimpleCommandExceptionType extends CommandExceptionType {}
+                class SimpleCommandExceptionType extends java.lang.Object {
+                    static readonly class: JavaClass<SimpleCommandExceptionType>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    constructor (arg0: com.mojang.brigadier.Message);
+
+                    create(): CommandSyntaxException;
+                    createWithContext(arg0: com.mojang.brigadier.ImmutableStringReader): CommandSyntaxException;
 
                 }
 
                 export {
-                    AmbiguityConsumer,
-                    Command,
-                    CommandDispatcher,
-                    ImmutableStringReader,
-                    Message,
-                    ParseResults,
-                    RedirectModifier,
-                    ResultConsumer,
-                    SingleRedirectModifier,
-                    StringReader
+                    BuiltInExceptionProvider,
+                    CommandExceptionType,
+                    CommandSyntaxException,
+                    Dynamic2CommandExceptionType,
+                    Dynamic2CommandExceptionType$Function,
+                    DynamicCommandExceptionType,
+                    SimpleCommandExceptionType
                 }
 
             }
-            namespace brigadier {
 
-                namespace builder {
+            namespace suggestion {
 
-                    class ArgumentBuilder<S, T extends ArgumentBuilder<S, T>> extends java.lang.Object {
-                        static readonly class: JavaClass<ArgumentBuilder<any, any>>;
-                        /** @deprecated */ static prototype: undefined;
+                interface Suggestion extends java.lang.Comparable<Suggestion> {}
+                class Suggestion extends java.lang.Object {
+                    static readonly class: JavaClass<Suggestion>;
+                    /** @deprecated */ static prototype: undefined;
 
-                        constructor <S, T extends ArgumentBuilder<S, T>>();
+                    constructor (arg0: com.mojang.brigadier.context.StringRange, arg1: string);
+                    constructor (arg0: com.mojang.brigadier.context.StringRange, arg1: string, arg2: com.mojang.brigadier.Message);
 
-                        then(arg0: ArgumentBuilder<S, any>): T;
-                        then(arg0: com.mojang.brigadier.tree.CommandNode<S>): T;
-                        getArguments(): JavaCollection<com.mojang.brigadier.tree.CommandNode<S>>;
-                        executes(arg0: com.mojang.brigadier.Command<S>): T;
-                        getCommand(): com.mojang.brigadier.Command<S>;
-                        requires(arg0: MethodWrapper<S, any, boolean>): T;
-                        getRequirement(): java.util.function.Predicate<S>;
-                        redirect(arg0: com.mojang.brigadier.tree.CommandNode<S>): T;
-                        redirect(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: com.mojang.brigadier.SingleRedirectModifier<S>): T;
-                        fork(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: com.mojang.brigadier.RedirectModifier<S>): T;
-                        forward(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: com.mojang.brigadier.RedirectModifier<S>, arg2: boolean): T;
-                        getRedirect(): com.mojang.brigadier.tree.CommandNode<S>;
-                        getRedirectModifier(): com.mojang.brigadier.RedirectModifier<S>;
-                        isFork(): boolean;
-                        build(): com.mojang.brigadier.tree.CommandNode<S>;
-
-                    }
-
-                    abstract class LiteralArgumentBuilder<S> extends ArgumentBuilder<S, LiteralArgumentBuilder<S>> {
-                        static readonly class: JavaClass<LiteralArgumentBuilder<any>>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        static literal<S>(arg0: string): LiteralArgumentBuilder<S>;
-
-                        getLiteral(): string;
-                        build(): com.mojang.brigadier.tree.LiteralCommandNode<S>;
-
-                    }
-
-                    export { ArgumentBuilder, LiteralArgumentBuilder }
+                    getRange(): com.mojang.brigadier.context.StringRange;
+                    getText(): string;
+                    getTooltip(): com.mojang.brigadier.Message;
+                    apply(arg0: string): string;
+                    compareTo(arg0: Suggestion): number;
+                    compareToIgnoreCase(arg0: Suggestion): number;
+                    expand(arg0: string, arg1: com.mojang.brigadier.context.StringRange): Suggestion;
 
                 }
 
-                namespace context {
+                class Suggestions extends java.lang.Object {
+                    static readonly class: JavaClass<Suggestions>;
+                    /** @deprecated */ static prototype: undefined;
 
-                    class CommandContext<S> extends java.lang.Object {
-                        static readonly class: JavaClass<CommandContext<any>>;
-                        /** @deprecated */ static prototype: undefined;
+                    static empty(): java.util.concurrent.CompletableFuture<Suggestions>;
+                    static merge(arg0: string, arg1: JavaCollection<Suggestions>): Suggestions;
+                    static create(arg0: string, arg1: JavaCollection<Suggestion>): Suggestions;
 
-                        constructor <S>(arg0: S, arg1: string, arg2: JavaMap<string, ParsedArgument<S, any>>, arg3: com.mojang.brigadier.Command<S>, arg4: com.mojang.brigadier.tree.CommandNode<S>, arg5: JavaList<ParsedCommandNode<S>>, arg6: StringRange, arg7: CommandContext<S>, arg8: com.mojang.brigadier.RedirectModifier<S>, arg9: boolean);
+                    constructor (arg0: com.mojang.brigadier.context.StringRange, arg1: JavaList<Suggestion>);
 
-                        copyFor(arg0: S): CommandContext<S>;
-                        getChild(): CommandContext<S>;
-                        getLastChild(): CommandContext<S>;
-                        getCommand(): com.mojang.brigadier.Command<S>;
-                        getSource(): S;
-                        getArgument<V>(arg0: string, arg1: JavaClassArg<V>): V;
-                        getRedirectModifier(): com.mojang.brigadier.RedirectModifier<S>;
-                        getRange(): StringRange;
-                        getInput(): string;
-                        getRootNode(): com.mojang.brigadier.tree.CommandNode<S>;
-                        getNodes(): JavaList<ParsedCommandNode<S>>;
-                        hasNodes(): boolean;
-                        isForked(): boolean;
-
-                    }
-
-                    class CommandContextBuilder<S> extends java.lang.Object {
-                        static readonly class: JavaClass<CommandContextBuilder<any>>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        constructor <S>(arg0: com.mojang.brigadier.CommandDispatcher<S>, arg1: S, arg2: com.mojang.brigadier.tree.CommandNode<S>, arg3: int);
-
-                        withSource(arg0: S): CommandContextBuilder<S>;
-                        getSource(): S;
-                        getRootNode(): com.mojang.brigadier.tree.CommandNode<S>;
-                        withArgument(arg0: string, arg1: ParsedArgument<S, any>): CommandContextBuilder<S>;
-                        getArguments(): JavaMap<string, ParsedArgument<S, any>>;
-                        withCommand(arg0: com.mojang.brigadier.Command<S>): CommandContextBuilder<S>;
-                        withNode(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: StringRange): CommandContextBuilder<S>;
-                        copy(): CommandContextBuilder<S>;
-                        withChild(arg0: CommandContextBuilder<S>): CommandContextBuilder<S>;
-                        getChild(): CommandContextBuilder<S>;
-                        getLastChild(): CommandContextBuilder<S>;
-                        getCommand(): com.mojang.brigadier.Command<S>;
-                        getNodes(): JavaList<ParsedCommandNode<S>>;
-                        build(arg0: string): CommandContext<S>;
-                        getDispatcher(): com.mojang.brigadier.CommandDispatcher<S>;
-                        getRange(): StringRange;
-                        findSuggestionContext(arg0: int): SuggestionContext<S>;
-
-                    }
-
-                    class ParsedArgument<S, T> extends java.lang.Object {
-                        static readonly class: JavaClass<ParsedArgument<any, any>>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        constructor <S, T>(arg0: int, arg1: int, arg2: T);
-
-                        getRange(): StringRange;
-                        getResult(): T;
-
-                    }
-
-                    class ParsedCommandNode<S> extends java.lang.Object {
-                        static readonly class: JavaClass<ParsedCommandNode<any>>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        constructor <S>(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: StringRange);
-
-                        getNode(): com.mojang.brigadier.tree.CommandNode<S>;
-                        getRange(): StringRange;
-
-                    }
-
-                    class StringRange extends java.lang.Object {
-                        static readonly class: JavaClass<StringRange>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        static at(arg0: int): StringRange;
-                        static between(arg0: int, arg1: int): StringRange;
-                        static encompassing(arg0: StringRange, arg1: StringRange): StringRange;
-
-                        constructor (arg0: int, arg1: int);
-
-                        getStart(): number;
-                        getEnd(): number;
-                        get(arg0: com.mojang.brigadier.ImmutableStringReader): string;
-                        get(arg0: string): string;
-                        isEmpty(): boolean;
-                        getLength(): number;
-
-                    }
-
-                    class SuggestionContext<S> extends java.lang.Object {
-                        static readonly class: JavaClass<SuggestionContext<any>>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        constructor <S>(arg0: com.mojang.brigadier.tree.CommandNode<S>, arg1: int);
-
-                        readonly parent: com.mojang.brigadier.tree.CommandNode<S>;
-                        readonly startPos: number;
-                    }
-
-                    export {
-                        CommandContext,
-                        CommandContextBuilder,
-                        ParsedArgument,
-                        ParsedCommandNode,
-                        StringRange,
-                        SuggestionContext
-                    }
+                    getRange(): com.mojang.brigadier.context.StringRange;
+                    getList(): JavaList<Suggestion>;
+                    isEmpty(): boolean;
 
                 }
 
-                namespace exceptions {
+                class SuggestionsBuilder extends java.lang.Object {
+                    static readonly class: JavaClass<SuggestionsBuilder>;
+                    /** @deprecated */ static prototype: undefined;
 
-                    abstract class BuiltInExceptionProvider extends java.lang.Interface {
-                        static readonly class: JavaClass<BuiltInExceptionProvider>;
-                        /** @deprecated */ static prototype: undefined;
-                    }
-                    interface BuiltInExceptionProvider {
+                    constructor (arg0: string, arg1: string, arg2: int);
+                    constructor (arg0: string, arg1: int);
 
-                        doubleTooLow(): Dynamic2CommandExceptionType;
-                        doubleTooHigh(): Dynamic2CommandExceptionType;
-                        floatTooLow(): Dynamic2CommandExceptionType;
-                        floatTooHigh(): Dynamic2CommandExceptionType;
-                        integerTooLow(): Dynamic2CommandExceptionType;
-                        integerTooHigh(): Dynamic2CommandExceptionType;
-                        longTooLow(): Dynamic2CommandExceptionType;
-                        longTooHigh(): Dynamic2CommandExceptionType;
-                        literalIncorrect(): DynamicCommandExceptionType;
-                        readerExpectedStartOfQuote(): SimpleCommandExceptionType;
-                        readerExpectedEndOfQuote(): SimpleCommandExceptionType;
-                        readerInvalidEscape(): DynamicCommandExceptionType;
-                        readerInvalidBool(): DynamicCommandExceptionType;
-                        readerInvalidInt(): DynamicCommandExceptionType;
-                        readerExpectedInt(): SimpleCommandExceptionType;
-                        readerInvalidLong(): DynamicCommandExceptionType;
-                        readerExpectedLong(): SimpleCommandExceptionType;
-                        readerInvalidDouble(): DynamicCommandExceptionType;
-                        readerExpectedDouble(): SimpleCommandExceptionType;
-                        readerInvalidFloat(): DynamicCommandExceptionType;
-                        readerExpectedFloat(): SimpleCommandExceptionType;
-                        readerExpectedBool(): SimpleCommandExceptionType;
-                        readerExpectedSymbol(): DynamicCommandExceptionType;
-                        dispatcherUnknownCommand(): SimpleCommandExceptionType;
-                        dispatcherUnknownArgument(): SimpleCommandExceptionType;
-                        dispatcherExpectedArgumentSeparator(): SimpleCommandExceptionType;
-                        dispatcherParseException(): DynamicCommandExceptionType;
-
-                    }
-
-                    abstract class CommandExceptionType extends java.lang.Interface {
-                        static readonly class: JavaClass<CommandExceptionType>;
-                        /** @deprecated */ static prototype: undefined;
-                    }
-                    interface CommandExceptionType {}
-
-                    class CommandSyntaxException extends java.lang.Exception {
-                        static readonly class: JavaClass<CommandSyntaxException>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        static readonly CONTEXT_AMOUNT: number;
-                        static ENABLE_COMMAND_STACK_TRACES: boolean;
-                        static BUILT_IN_EXCEPTIONS: BuiltInExceptionProvider;
-
-                        constructor (arg0: CommandExceptionType, arg1: com.mojang.brigadier.Message);
-                        constructor (arg0: CommandExceptionType, arg1: com.mojang.brigadier.Message, arg2: string, arg3: int);
-
-                        getMessage(): string;
-                        getRawMessage(): com.mojang.brigadier.Message;
-                        getContext(): string;
-                        getType(): CommandExceptionType;
-                        getInput(): string;
-                        getCursor(): number;
-
-                    }
-
-                    interface Dynamic2CommandExceptionType extends CommandExceptionType {}
-                    class Dynamic2CommandExceptionType extends java.lang.Object {
-                        static readonly class: JavaClass<Dynamic2CommandExceptionType>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        constructor (arg0: Dynamic2CommandExceptionType$Function);
-
-                        create(arg0: any, arg1: any): CommandSyntaxException;
-                        createWithContext(arg0: com.mojang.brigadier.ImmutableStringReader, arg1: any, arg2: any): CommandSyntaxException;
-
-                    }
-
-                    abstract class Dynamic2CommandExceptionType$Function extends java.lang.Interface {
-                        static readonly class: JavaClass<Dynamic2CommandExceptionType$Function>;
-                        /** @deprecated */ static prototype: undefined;
-                    }
-                    interface Dynamic2CommandExceptionType$Function {
-
-                        apply(arg0: any, arg1: any): com.mojang.brigadier.Message;
-
-                    }
-
-                    interface DynamicCommandExceptionType extends CommandExceptionType {}
-                    class DynamicCommandExceptionType extends java.lang.Object {
-                        static readonly class: JavaClass<DynamicCommandExceptionType>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        constructor (arg0: MethodWrapper<any, any, com.mojang.brigadier.Message>);
-
-                        create(arg0: any): CommandSyntaxException;
-                        createWithContext(arg0: com.mojang.brigadier.ImmutableStringReader, arg1: any): CommandSyntaxException;
-
-                    }
-
-                    interface SimpleCommandExceptionType extends CommandExceptionType {}
-                    class SimpleCommandExceptionType extends java.lang.Object {
-                        static readonly class: JavaClass<SimpleCommandExceptionType>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        constructor (arg0: com.mojang.brigadier.Message);
-
-                        create(): CommandSyntaxException;
-                        createWithContext(arg0: com.mojang.brigadier.ImmutableStringReader): CommandSyntaxException;
-
-                    }
-
-                    export {
-                        BuiltInExceptionProvider,
-                        CommandExceptionType,
-                        CommandSyntaxException,
-                        Dynamic2CommandExceptionType,
-                        Dynamic2CommandExceptionType$Function,
-                        DynamicCommandExceptionType,
-                        SimpleCommandExceptionType
-                    }
+                    getInput(): string;
+                    getStart(): number;
+                    getRemaining(): string;
+                    getRemainingLowerCase(): string;
+                    build(): Suggestions;
+                    buildFuture(): java.util.concurrent.CompletableFuture<Suggestions>;
+                    suggest(arg0: string): SuggestionsBuilder;
+                    suggest(arg0: string, arg1: com.mojang.brigadier.Message): SuggestionsBuilder;
+                    suggest(arg0: int): SuggestionsBuilder;
+                    suggest(arg0: int, arg1: com.mojang.brigadier.Message): SuggestionsBuilder;
+                    add(arg0: SuggestionsBuilder): SuggestionsBuilder;
+                    createOffset(arg0: int): SuggestionsBuilder;
+                    restart(): SuggestionsBuilder;
 
                 }
 
-                namespace suggestion {
+                export { Suggestion, Suggestions, SuggestionsBuilder }
 
-                    interface Suggestion extends java.lang.Comparable<Suggestion> {}
-                    class Suggestion extends java.lang.Object {
-                        static readonly class: JavaClass<Suggestion>;
-                        /** @deprecated */ static prototype: undefined;
+            }
 
-                        constructor (arg0: com.mojang.brigadier.context.StringRange, arg1: string);
-                        constructor (arg0: com.mojang.brigadier.context.StringRange, arg1: string, arg2: com.mojang.brigadier.Message);
+            namespace tree {
 
-                        getRange(): com.mojang.brigadier.context.StringRange;
-                        getText(): string;
-                        getTooltip(): com.mojang.brigadier.Message;
-                        apply(arg0: string): string;
-                        compareTo(arg0: Suggestion): number;
-                        compareToIgnoreCase(arg0: Suggestion): number;
-                        expand(arg0: string, arg1: com.mojang.brigadier.context.StringRange): Suggestion;
+                interface CommandNode<S> extends java.lang.Comparable<CommandNode<S>> {}
+                abstract class CommandNode<S> extends java.lang.Object {
+                    static readonly class: JavaClass<CommandNode<any>>;
+                    /** @deprecated */ static prototype: undefined;
 
-                    }
-
-                    class Suggestions extends java.lang.Object {
-                        static readonly class: JavaClass<Suggestions>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        static empty(): java.util.concurrent.CompletableFuture<Suggestions>;
-                        static merge(arg0: string, arg1: JavaCollection<Suggestions>): Suggestions;
-                        static create(arg0: string, arg1: JavaCollection<Suggestion>): Suggestions;
-
-                        constructor (arg0: com.mojang.brigadier.context.StringRange, arg1: JavaList<Suggestion>);
-
-                        getRange(): com.mojang.brigadier.context.StringRange;
-                        getList(): JavaList<Suggestion>;
-                        isEmpty(): boolean;
-
-                    }
-
-                    class SuggestionsBuilder extends java.lang.Object {
-                        static readonly class: JavaClass<SuggestionsBuilder>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        constructor (arg0: string, arg1: string, arg2: int);
-                        constructor (arg0: string, arg1: int);
-
-                        getInput(): string;
-                        getStart(): number;
-                        getRemaining(): string;
-                        getRemainingLowerCase(): string;
-                        build(): Suggestions;
-                        buildFuture(): java.util.concurrent.CompletableFuture<Suggestions>;
-                        suggest(arg0: string): SuggestionsBuilder;
-                        suggest(arg0: string, arg1: com.mojang.brigadier.Message): SuggestionsBuilder;
-                        suggest(arg0: int): SuggestionsBuilder;
-                        suggest(arg0: int, arg1: com.mojang.brigadier.Message): SuggestionsBuilder;
-                        add(arg0: SuggestionsBuilder): SuggestionsBuilder;
-                        createOffset(arg0: int): SuggestionsBuilder;
-                        restart(): SuggestionsBuilder;
-
-                    }
-
-                    export { Suggestion, Suggestions, SuggestionsBuilder }
+                    getCommand(): com.mojang.brigadier.Command<S>;
+                    getChildren(): JavaCollection<CommandNode<S>>;
+                    getChild(arg0: string): CommandNode<S>;
+                    getRedirect(): CommandNode<S>;
+                    getRedirectModifier(): com.mojang.brigadier.RedirectModifier<S>;
+                    canUse(arg0: S): boolean;
+                    addChild(arg0: CommandNode<S>): void;
+                    findAmbiguities(arg0: com.mojang.brigadier.AmbiguityConsumer<S>): void;
+                    getRequirement(): java.util.function.Predicate<S>;
+                    getName(): string;
+                    getUsageText(): string;
+                    parse(arg0: com.mojang.brigadier.StringReader, arg1: com.mojang.brigadier.context.CommandContextBuilder<S>): void;
+                    listSuggestions(arg0: com.mojang.brigadier.context.CommandContext<S>, arg1: com.mojang.brigadier.suggestion.SuggestionsBuilder): java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>;
+                    createBuilder(): com.mojang.brigadier.builder.ArgumentBuilder<S, any>;
+                    getRelevantNodes(arg0: com.mojang.brigadier.StringReader): JavaCollection<CommandNode<S>>;
+                    compareTo(arg0: CommandNode<S>): number;
+                    isFork(): boolean;
+                    getExamples(): JavaCollection<string>;
 
                 }
 
-                namespace tree {
+                class LiteralCommandNode<S> extends CommandNode<S> {
+                    static readonly class: JavaClass<LiteralCommandNode<any>>;
+                    /** @deprecated */ static prototype: undefined;
 
-                    interface CommandNode<S> extends java.lang.Comparable<CommandNode<S>> {}
-                    abstract class CommandNode<S> extends java.lang.Object {
-                        static readonly class: JavaClass<CommandNode<any>>;
-                        /** @deprecated */ static prototype: undefined;
+                    constructor <S>(arg0: string, arg1: com.mojang.brigadier.Command<S>, arg2: MethodWrapper<S, any, boolean>, arg3: CommandNode<S>, arg4: com.mojang.brigadier.RedirectModifier<S>, arg5: boolean);
 
-                        getCommand(): com.mojang.brigadier.Command<S>;
-                        getChildren(): JavaCollection<CommandNode<S>>;
-                        getChild(arg0: string): CommandNode<S>;
-                        getRedirect(): CommandNode<S>;
-                        getRedirectModifier(): com.mojang.brigadier.RedirectModifier<S>;
-                        canUse(arg0: S): boolean;
-                        addChild(arg0: CommandNode<S>): void;
-                        findAmbiguities(arg0: com.mojang.brigadier.AmbiguityConsumer<S>): void;
-                        getRequirement(): java.util.function.Predicate<S>;
-                        getName(): string;
-                        getUsageText(): string;
-                        parse(arg0: com.mojang.brigadier.StringReader, arg1: com.mojang.brigadier.context.CommandContextBuilder<S>): void;
-                        listSuggestions(arg0: com.mojang.brigadier.context.CommandContext<S>, arg1: com.mojang.brigadier.suggestion.SuggestionsBuilder): java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>;
-                        createBuilder(): com.mojang.brigadier.builder.ArgumentBuilder<S, any>;
-                        getRelevantNodes(arg0: com.mojang.brigadier.StringReader): JavaCollection<CommandNode<S>>;
-                        compareTo(arg0: CommandNode<S>): number;
-                        isFork(): boolean;
-                        getExamples(): JavaCollection<string>;
-
-                    }
-
-                    class LiteralCommandNode<S> extends CommandNode<S> {
-                        static readonly class: JavaClass<LiteralCommandNode<any>>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        constructor <S>(arg0: string, arg1: com.mojang.brigadier.Command<S>, arg2: MethodWrapper<S, any, boolean>, arg3: CommandNode<S>, arg4: com.mojang.brigadier.RedirectModifier<S>, arg5: boolean);
-
-                        getLiteral(): string;
-                        getName(): string;
-                        parse(arg0: com.mojang.brigadier.StringReader, arg1: com.mojang.brigadier.context.CommandContextBuilder<S>): void;
-                        listSuggestions(arg0: com.mojang.brigadier.context.CommandContext<S>, arg1: com.mojang.brigadier.suggestion.SuggestionsBuilder): java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>;
-                        isValidInput(arg0: string): boolean;
-                        getUsageText(): string;
-                        createBuilder(): com.mojang.brigadier.builder.LiteralArgumentBuilder<S>;
-                        getExamples(): JavaCollection<string>;
-
-                    }
-
-                    class RootCommandNode<S> extends CommandNode<S> {
-                        static readonly class: JavaClass<RootCommandNode<any>>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        constructor <S>();
-
-                        getName(): string;
-                        getUsageText(): string;
-                        parse(arg0: com.mojang.brigadier.StringReader, arg1: com.mojang.brigadier.context.CommandContextBuilder<S>): void;
-                        listSuggestions(arg0: com.mojang.brigadier.context.CommandContext<S>, arg1: com.mojang.brigadier.suggestion.SuggestionsBuilder): java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>;
-                        isValidInput(arg0: string): boolean;
-                        createBuilder(): com.mojang.brigadier.builder.ArgumentBuilder<S, any>;
-                        getExamples(): JavaCollection<string>;
-
-                    }
-
-                    export { CommandNode, LiteralCommandNode, RootCommandNode }
+                    getLiteral(): string;
+                    getName(): string;
+                    parse(arg0: com.mojang.brigadier.StringReader, arg1: com.mojang.brigadier.context.CommandContextBuilder<S>): void;
+                    listSuggestions(arg0: com.mojang.brigadier.context.CommandContext<S>, arg1: com.mojang.brigadier.suggestion.SuggestionsBuilder): java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>;
+                    isValidInput(arg0: string): boolean;
+                    getUsageText(): string;
+                    createBuilder(): com.mojang.brigadier.builder.LiteralArgumentBuilder<S>;
+                    getExamples(): JavaCollection<string>;
 
                 }
+
+                class RootCommandNode<S> extends CommandNode<S> {
+                    static readonly class: JavaClass<RootCommandNode<any>>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    constructor <S>();
+
+                    getName(): string;
+                    getUsageText(): string;
+                    parse(arg0: com.mojang.brigadier.StringReader, arg1: com.mojang.brigadier.context.CommandContextBuilder<S>): void;
+                    listSuggestions(arg0: com.mojang.brigadier.context.CommandContext<S>, arg1: com.mojang.brigadier.suggestion.SuggestionsBuilder): java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>;
+                    isValidInput(arg0: string): boolean;
+                    createBuilder(): com.mojang.brigadier.builder.ArgumentBuilder<S, any>;
+                    getExamples(): JavaCollection<string>;
+
+                }
+
+                export { CommandNode, LiteralCommandNode, RootCommandNode }
 
             }
 
@@ -9068,8 +8948,6 @@ declare namespace Packages {
                     createCompatibleWritableRaster(arg0: int, arg1: int): WritableRaster;
                     createCompatibleSampleModel(arg0: int, arg1: int): SampleModel;
                     isCompatibleSampleModel(arg0: SampleModel): boolean;
-                    /** @deprecated */
-                    finalize(): void;
                     getAlphaRaster(arg0: WritableRaster): WritableRaster;
 
                 }
@@ -9214,8 +9092,6 @@ declare namespace Packages {
                     isValid(arg0: int): boolean;
                     isValid(): boolean;
                     getValidPixels(): java.math.BigInteger;
-                    /** @deprecated */
-                    finalize(): void;
 
                 }
 
@@ -9558,6 +9434,7 @@ declare namespace Packages {
                 reset(): void;
                 markSupported(): boolean;
                 close(): void;
+                transferTo(arg0: OutputStream): number;
 
             }
 
@@ -9849,6 +9726,7 @@ declare namespace Packages {
                 append(arg0: java.lang.CharSequence): PrintStream;
                 append(arg0: java.lang.CharSequence, arg1: int, arg2: int): PrintStream;
                 append(arg0: char): PrintStream;
+                charset(): java.nio.charset.Charset;
 
             }
 
@@ -10027,6 +9905,8 @@ declare namespace Packages {
                 reverse(): AbstractStringBuilder;
                 chars(): java.util.stream.IntStream;
                 codePoints(): java.util.stream.IntStream;
+                repeat(arg0: int, arg1: int): AbstractStringBuilder;
+                repeat(arg0: CharSequence, arg1: int): AbstractStringBuilder;
 
             }
 
@@ -10216,6 +10096,12 @@ declare namespace Packages {
                 static isUnicodeIdentifierPart(arg0: int): boolean;
                 static isIdentifierIgnorable(arg0: char): boolean;
                 static isIdentifierIgnorable(arg0: int): boolean;
+                static isEmoji(arg0: int): boolean;
+                static isEmojiPresentation(arg0: int): boolean;
+                static isEmojiModifier(arg0: int): boolean;
+                static isEmojiModifierBase(arg0: int): boolean;
+                static isEmojiComponent(arg0: int): boolean;
+                static isExtendedPictographic(arg0: int): boolean;
                 static toLowerCase(arg0: char): number;
                 static toLowerCase(arg0: int): number;
                 static toUpperCase(arg0: char): number;
@@ -10333,9 +10219,10 @@ declare namespace Packages {
                 static readonly MAX_VALUE: number;
                 static readonly MIN_NORMAL: number;
                 static readonly MIN_VALUE: number;
+                static readonly SIZE: number;
+                static readonly PRECISION: number;
                 static readonly MAX_EXPONENT: number;
                 static readonly MIN_EXPONENT: number;
-                static readonly SIZE: number;
                 static readonly BYTES: number;
                 static readonly TYPE: JavaClass<number>;
 
@@ -10422,9 +10309,10 @@ declare namespace Packages {
                 static readonly MAX_VALUE: number;
                 static readonly MIN_NORMAL: number;
                 static readonly MIN_VALUE: number;
+                static readonly SIZE: number;
+                static readonly PRECISION: number;
                 static readonly MAX_EXPONENT: number;
                 static readonly MIN_EXPONENT: number;
-                static readonly SIZE: number;
                 static readonly BYTES: number;
                 static readonly TYPE: JavaClass<number>;
 
@@ -10440,6 +10328,8 @@ declare namespace Packages {
                 static floatToIntBits(arg0: float): number;
                 static floatToRawIntBits(arg0: float): number;
                 static intBitsToFloat(arg0: int): number;
+                static float16ToFloat(arg0: short): number;
+                static floatToFloat16(arg0: float): number;
                 static compare(arg0: float, arg1: float): number;
                 static sum(arg0: float, arg1: float): number;
                 static max(arg0: float, arg1: float): number;
@@ -10511,6 +10401,8 @@ declare namespace Packages {
                 static rotateLeft(arg0: int, arg1: int): number;
                 static rotateRight(arg0: int, arg1: int): number;
                 static reverse(arg0: int): number;
+                static compress(arg0: int, arg1: int): number;
+                static expand(arg0: int, arg1: int): number;
                 static signum(arg0: int): number;
                 static reverseBytes(arg0: int): number;
                 static sum(arg0: int, arg1: int): number;
@@ -10578,6 +10470,8 @@ declare namespace Packages {
                 static rotateLeft(arg0: long, arg1: int): number;
                 static rotateRight(arg0: long, arg1: int): number;
                 static reverse(arg0: long): number;
+                static compress(arg0: long, arg1: long): number;
+                static expand(arg0: long, arg1: long): number;
                 static signum(arg0: long): number;
                 static reverseBytes(arg0: long): number;
                 static sum(arg0: long, arg1: long): number;
@@ -10611,6 +10505,7 @@ declare namespace Packages {
                 getClassLoader(): ClassLoader;
                 getDescriptor(): java.lang.module.ModuleDescriptor;
                 getLayer(): ModuleLayer;
+                isNativeAccessEnabled(): boolean;
                 canRead(arg0: Module): boolean;
                 addReads(arg0: Module): Module;
                 isExported(arg0: string, arg1: Module): boolean;
@@ -10658,6 +10553,7 @@ declare namespace Packages {
                 addReads(arg0: Module, arg1: Module): ModuleLayer$Controller;
                 addExports(arg0: Module, arg1: string, arg2: Module): ModuleLayer$Controller;
                 addOpens(arg0: Module, arg1: string, arg2: Module): ModuleLayer$Controller;
+                enableNativeAccess(arg0: Module): ModuleLayer$Controller;
 
             }
 
@@ -10721,11 +10617,6 @@ declare namespace Packages {
 
             }
 
-            abstract class Record extends java.lang.Object {
-                static readonly class: JavaClass<Record>;
-                /** @deprecated */ static prototype: undefined;
-            }
-
             abstract class Runnable extends java.lang.Interface {
                 static readonly class: JavaClass<Runnable>;
                 /** @deprecated */ static prototype: undefined;
@@ -10733,6 +10624,33 @@ declare namespace Packages {
             interface Runnable {
 
                 run(): void;
+
+            }
+
+            interface Runtime$Version extends Comparable<Runtime$Version> {}
+            abstract class Runtime$Version extends java.lang.Object {
+                static readonly class: JavaClass<Runtime$Version>;
+                /** @deprecated */ static prototype: undefined;
+
+                static parse(arg0: string): Runtime$Version;
+
+                feature(): number;
+                interim(): number;
+                update(): number;
+                patch(): number;
+                /** @deprecated */
+                major(): number;
+                /** @deprecated */
+                minor(): number;
+                /** @deprecated */
+                security(): number;
+                version(): JavaList<number>;
+                pre(): java.util.Optional<string>;
+                build(): java.util.Optional<number>;
+                optional(): java.util.Optional<string>;
+                compareTo(arg0: Runtime$Version): number;
+                compareToIgnoreOptional(arg0: Runtime$Version): number;
+                equalsIgnoreOptional(arg0: any): boolean;
 
             }
 
@@ -10802,10 +10720,12 @@ declare namespace Packages {
                 endsWith(arg0: string): boolean;
                 indexOf(arg0: int): number;
                 indexOf(arg0: int, arg1: int): number;
+                indexOf(arg0: int, arg1: int, arg2: int): number;
                 lastIndexOf(arg0: int): number;
                 lastIndexOf(arg0: int, arg1: int): number;
                 indexOf(arg0: string): number;
                 indexOf(arg0: string, arg1: int): number;
+                indexOf(arg0: string, arg1: int, arg2: int): number;
                 lastIndexOf(arg0: string): number;
                 lastIndexOf(arg0: string, arg1: int): number;
                 substring(arg0: int): string;
@@ -10819,6 +10739,7 @@ declare namespace Packages {
                 replaceAll(arg0: string, arg1: string): string;
                 replace(arg0: CharSequence, arg1: CharSequence): string;
                 split(arg0: string, arg1: int): JavaArray<string>;
+                splitWithDelimiters(arg0: string, arg1: int): JavaArray<string>;
                 split(arg0: string): JavaArray<string>;
                 toLowerCase(arg0: java.util.Locale): string;
                 toLowerCase(): string;
@@ -10845,7 +10766,7 @@ declare namespace Packages {
 
             }
 
-            interface StringBuffer extends CharSequence, Comparable<StringBuffer>, java.io.Serializable {}
+            interface StringBuffer extends Appendable, CharSequence, Comparable<StringBuffer>, java.io.Serializable {}
             class StringBuffer extends AbstractStringBuilder {
                 static readonly class: JavaClass<StringBuffer>;
                 /** @deprecated */ static prototype: undefined;
@@ -10905,10 +10826,12 @@ declare namespace Packages {
                 lastIndexOf(arg0: string): number;
                 lastIndexOf(arg0: string, arg1: int): number;
                 reverse(): StringBuffer;
+                repeat(arg0: int, arg1: int): StringBuffer;
+                repeat(arg0: CharSequence, arg1: int): StringBuffer;
 
             }
 
-            interface StringBuilder extends CharSequence, Comparable<StringBuilder>, java.io.Serializable {}
+            interface StringBuilder extends Appendable, CharSequence, Comparable<StringBuilder>, java.io.Serializable {}
             class StringBuilder extends AbstractStringBuilder {
                 static readonly class: JavaClass<StringBuilder>;
                 /** @deprecated */ static prototype: undefined;
@@ -10953,6 +10876,8 @@ declare namespace Packages {
                 lastIndexOf(arg0: string): number;
                 lastIndexOf(arg0: string, arg1: int): number;
                 reverse(): StringBuilder;
+                repeat(arg0: int, arg1: int): StringBuilder;
+                repeat(arg0: CharSequence, arg1: int): StringBuilder;
 
             }
 
@@ -10969,7 +10894,11 @@ declare namespace Packages {
                 static yield(): void;
                 static sleep(arg0: long): void;
                 static sleep(arg0: long, arg1: int): void;
+                static sleep(arg0: java.time.Duration): void;
                 static onSpinWait(): void;
+                static ofPlatform(): Thread$Builder$OfPlatform;
+                static ofVirtual(): Thread$Builder$OfVirtual;
+                static startVirtualThread(arg0: MethodWrapper): Thread;
                 static interrupted(): boolean;
                 static activeCount(): number;
                 static enumerate(arg0: Thread[]): number;
@@ -10989,6 +10918,7 @@ declare namespace Packages {
                 constructor (arg0: ThreadGroup, arg1: MethodWrapper, arg2: string, arg3: long);
                 constructor (arg0: ThreadGroup, arg1: MethodWrapper, arg2: string, arg3: long, arg4: boolean);
 
+                isVirtual(): boolean;
                 start(): void;
                 run(): void;
                 /** @deprecated */
@@ -11010,6 +10940,7 @@ declare namespace Packages {
                 join(arg0: long): void;
                 join(arg0: long, arg1: int): void;
                 join(): void;
+                join(arg0: java.time.Duration): boolean;
                 setDaemon(arg0: boolean): void;
                 isDaemon(): boolean;
                 /** @deprecated */
@@ -11017,10 +10948,59 @@ declare namespace Packages {
                 getContextClassLoader(): ClassLoader;
                 setContextClassLoader(arg0: ClassLoader): void;
                 getStackTrace(): JavaArray<java.lang.StackTraceElement>;
+                /** @deprecated */
                 getId(): number;
+                threadId(): number;
                 getState(): Thread$State;
                 getUncaughtExceptionHandler(): Thread$UncaughtExceptionHandler;
                 setUncaughtExceptionHandler(arg0: Thread$UncaughtExceptionHandler): void;
+
+            }
+
+            abstract class Thread$Builder extends java.lang.Interface {
+                static readonly class: JavaClass<Thread$Builder>;
+                /** @deprecated */ static prototype: undefined;
+            }
+            interface Thread$Builder {
+
+                name(arg0: string): Thread$Builder;
+                name(arg0: string, arg1: long): Thread$Builder;
+                inheritInheritableThreadLocals(arg0: boolean): Thread$Builder;
+                uncaughtExceptionHandler(arg0: Thread$UncaughtExceptionHandler): Thread$Builder;
+                unstarted(arg0: MethodWrapper): Thread;
+                start(arg0: MethodWrapper): Thread;
+                factory(): java.util.concurrent.ThreadFactory;
+
+            }
+
+            abstract class Thread$Builder$OfPlatform extends java.lang.Interface {
+                static readonly class: JavaClass<Thread$Builder$OfPlatform>;
+                /** @deprecated */ static prototype: undefined;
+            }
+            interface Thread$Builder$OfPlatform extends Thread$Builder {
+
+                name(arg0: string): Thread$Builder$OfPlatform;
+                name(arg0: string, arg1: long): Thread$Builder$OfPlatform;
+                inheritInheritableThreadLocals(arg0: boolean): Thread$Builder$OfPlatform;
+                uncaughtExceptionHandler(arg0: Thread$UncaughtExceptionHandler): Thread$Builder$OfPlatform;
+                group(arg0: ThreadGroup): Thread$Builder$OfPlatform;
+                daemon(arg0: boolean): Thread$Builder$OfPlatform;
+                daemon(): Thread$Builder$OfPlatform;
+                priority(arg0: int): Thread$Builder$OfPlatform;
+                stackSize(arg0: long): Thread$Builder$OfPlatform;
+
+            }
+
+            abstract class Thread$Builder$OfVirtual extends java.lang.Interface {
+                static readonly class: JavaClass<Thread$Builder$OfVirtual>;
+                /** @deprecated */ static prototype: undefined;
+            }
+            interface Thread$Builder$OfVirtual extends Thread$Builder {
+
+                name(arg0: string): Thread$Builder$OfVirtual;
+                name(arg0: string, arg1: long): Thread$Builder$OfVirtual;
+                inheritInheritableThreadLocals(arg0: boolean): Thread$Builder$OfVirtual;
+                uncaughtExceptionHandler(arg0: Thread$UncaughtExceptionHandler): Thread$Builder$OfVirtual;
 
             }
 
@@ -11088,8 +11068,6 @@ declare namespace Packages {
                 destroy(): void;
                 list(): void;
                 uncaughtException(arg0: Thread, arg1: java.lang.Throwable): void;
-                /** @deprecated */
-                allowThreadSuspension(arg0: boolean): boolean;
 
             }
 
@@ -11125,12 +11103,15 @@ declare namespace Packages {
                 Number,
                 Package,
                 Readable,
-                Record,
                 Runnable,
+                Runtime$Version,
                 String,
                 StringBuffer,
                 StringBuilder,
                 Thread,
+                Thread$Builder,
+                Thread$Builder$OfPlatform,
+                Thread$Builder$OfVirtual,
                 Thread$State,
                 Thread$UncaughtExceptionHandler,
                 ThreadGroup,
@@ -11163,6 +11144,7 @@ declare namespace Packages {
                     /** @deprecated */ static prototype: undefined;
 
                     static of(arg0: string): ClassDesc;
+                    static ofInternalName(arg0: string): ClassDesc;
                     static of(arg0: string, arg1: string): ClassDesc;
                     static ofDescriptor(arg0: string): ClassDesc;
 
@@ -11180,6 +11162,7 @@ declare namespace Packages {
                     packageName(): string;
                     displayName(): string;
                     descriptorString(): string;
+                    resolveConstantDesc(arg0: java.lang.invoke.MethodHandles$Lookup): JavaClass<any>;
 
                 }
 
@@ -11276,6 +11259,7 @@ declare namespace Packages {
 
                     asType(arg0: MethodTypeDesc): MethodHandleDesc;
                     invocationType(): MethodTypeDesc;
+                    resolveConstantDesc(arg0: java.lang.invoke.MethodHandles$Lookup): java.lang.invoke.MethodHandle;
 
                 }
 
@@ -11284,6 +11268,8 @@ declare namespace Packages {
                     /** @deprecated */ static prototype: undefined;
 
                     static ofDescriptor(arg0: string): MethodTypeDesc;
+                    static of(arg0: ClassDesc): MethodTypeDesc;
+                    static of(arg0: ClassDesc, arg1: JavaList<ClassDesc>): MethodTypeDesc;
                     static of(arg0: ClassDesc, ...arg1: JavaVarArgs<ClassDesc>): MethodTypeDesc;
 
                 }
@@ -11300,6 +11286,7 @@ declare namespace Packages {
                     insertParameterTypes(arg0: int, ...arg1: JavaVarArgs<ClassDesc>): MethodTypeDesc;
                     descriptorString(): string;
                     displayDescriptor(): string;
+                    resolveConstantDesc(arg0: java.lang.invoke.MethodHandles$Lookup): java.lang.invoke.MethodType;
 
                 }
 
@@ -11312,6 +11299,465 @@ declare namespace Packages {
                     DynamicConstantDesc,
                     MethodHandleDesc,
                     MethodTypeDesc
+                }
+
+            }
+
+            namespace foreign {
+
+                abstract class AddressLayout extends java.lang.Interface {
+                    static readonly class: JavaClass<AddressLayout>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface AddressLayout extends ValueLayout {
+
+                    withName(arg0: string): AddressLayout;
+                    withoutName(): AddressLayout;
+                    withByteAlignment(arg0: long): AddressLayout;
+                    withOrder(arg0: java.nio.ByteOrder): AddressLayout;
+                    withTargetLayout(arg0: MemoryLayout): AddressLayout;
+                    withoutTargetLayout(): AddressLayout;
+                    targetLayout(): java.util.Optional<MemoryLayout>;
+
+                }
+
+                abstract class Arena extends java.lang.Interface {
+                    static readonly class: JavaClass<Arena>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    static ofAuto(): Arena;
+                    static global(): Arena;
+                    static ofConfined(): Arena;
+                    static ofShared(): Arena;
+
+                }
+                interface Arena extends java.lang.AutoCloseable, SegmentAllocator {
+
+                    allocate(arg0: long, arg1: long): MemorySegment;
+                    allocate(arg0: ValueLayout$OfByte, arg1: byte): MemorySegment;
+                    allocate(arg0: ValueLayout$OfChar, arg1: char): MemorySegment;
+                    allocate(arg0: ValueLayout$OfShort, arg1: short): MemorySegment;
+                    allocate(arg0: ValueLayout$OfInt, arg1: int): MemorySegment;
+                    allocate(arg0: ValueLayout$OfFloat, arg1: float): MemorySegment;
+                    allocate(arg0: ValueLayout$OfLong, arg1: long): MemorySegment;
+                    allocate(arg0: ValueLayout$OfDouble, arg1: double): MemorySegment;
+                    allocate(arg0: AddressLayout, arg1: MemorySegment): MemorySegment;
+                    allocate(arg0: MemoryLayout): MemorySegment;
+                    allocate(arg0: long): MemorySegment;
+                    scope(): MemorySegment$Scope;
+                    close(): void;
+
+                }
+
+                abstract class GroupLayout extends java.lang.Interface {
+                    static readonly class: JavaClass<GroupLayout>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface GroupLayout extends MemoryLayout {
+
+                    memberLayouts(): JavaList<MemoryLayout>;
+                    withName(arg0: string): GroupLayout;
+                    withoutName(): GroupLayout;
+                    withByteAlignment(arg0: long): GroupLayout;
+
+                }
+
+                abstract class MemoryLayout extends java.lang.Interface {
+                    static readonly class: JavaClass<MemoryLayout>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    static paddingLayout(arg0: long): PaddingLayout;
+                    static sequenceLayout(arg0: long, arg1: MemoryLayout): SequenceLayout;
+                    static sequenceLayout(arg0: MemoryLayout): SequenceLayout;
+                    static structLayout(...arg0: JavaVarArgs<MemoryLayout>): StructLayout;
+                    static unionLayout(...arg0: JavaVarArgs<MemoryLayout>): UnionLayout;
+
+                }
+                interface MemoryLayout {
+
+                    byteSize(): number;
+                    name(): java.util.Optional<string>;
+                    withName(arg0: string): MemoryLayout;
+                    withoutName(): MemoryLayout;
+                    byteAlignment(): number;
+                    withByteAlignment(arg0: long): MemoryLayout;
+                    byteOffset(...arg0: JavaVarArgs<MemoryLayout$PathElement>): number;
+                    byteOffsetHandle(...arg0: JavaVarArgs<MemoryLayout$PathElement>): java.lang.invoke.MethodHandle;
+                    varHandle(...arg0: JavaVarArgs<MemoryLayout$PathElement>): java.lang.invoke.VarHandle;
+                    sliceHandle(...arg0: JavaVarArgs<MemoryLayout$PathElement>): java.lang.invoke.MethodHandle;
+                    select(...arg0: JavaVarArgs<MemoryLayout$PathElement>): MemoryLayout;
+
+                }
+
+                abstract class MemoryLayout$PathElement extends java.lang.Interface {
+                    static readonly class: JavaClass<MemoryLayout$PathElement>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    static groupElement(arg0: string): MemoryLayout$PathElement;
+                    static groupElement(arg0: long): MemoryLayout$PathElement;
+                    static sequenceElement(arg0: long): MemoryLayout$PathElement;
+                    static sequenceElement(arg0: long, arg1: long): MemoryLayout$PathElement;
+                    static sequenceElement(): MemoryLayout$PathElement;
+                    static dereferenceElement(): MemoryLayout$PathElement;
+
+                }
+                interface MemoryLayout$PathElement {}
+
+                abstract class MemorySegment extends java.lang.Interface {
+                    static readonly class: JavaClass<MemorySegment>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    static readonly NULL: MemorySegment;
+
+                    static ofBuffer(arg0: java.nio.Buffer): MemorySegment;
+                    static ofArray(arg0: byte[]): MemorySegment;
+                    static ofArray(arg0: char[]): MemorySegment;
+                    static ofArray(arg0: short[]): MemorySegment;
+                    static ofArray(arg0: int[]): MemorySegment;
+                    static ofArray(arg0: float[]): MemorySegment;
+                    static ofArray(arg0: long[]): MemorySegment;
+                    static ofArray(arg0: double[]): MemorySegment;
+                    static ofAddress(arg0: long): MemorySegment;
+                    static copy(arg0: MemorySegment, arg1: long, arg2: MemorySegment, arg3: long, arg4: long): void;
+                    static copy(arg0: MemorySegment, arg1: ValueLayout, arg2: long, arg3: MemorySegment, arg4: ValueLayout, arg5: long, arg6: long): void;
+                    static copy(arg0: MemorySegment, arg1: ValueLayout, arg2: long, arg3: any, arg4: int, arg5: int): void;
+                    static copy(arg0: any, arg1: int, arg2: MemorySegment, arg3: ValueLayout, arg4: long, arg5: int): void;
+                    static mismatch(arg0: MemorySegment, arg1: long, arg2: long, arg3: MemorySegment, arg4: long, arg5: long): number;
+
+                }
+                interface MemorySegment {
+
+                    address(): number;
+                    heapBase(): java.util.Optional<any>;
+                    spliterator(arg0: MemoryLayout): java.util.Spliterator<MemorySegment>;
+                    elements(arg0: MemoryLayout): java.util.stream.Stream<MemorySegment>;
+                    scope(): MemorySegment$Scope;
+                    isAccessibleBy(arg0: java.lang.Thread): boolean;
+                    byteSize(): number;
+                    asSlice(arg0: long, arg1: long): MemorySegment;
+                    asSlice(arg0: long, arg1: long, arg2: long): MemorySegment;
+                    asSlice(arg0: long, arg1: MemoryLayout): MemorySegment;
+                    asSlice(arg0: long): MemorySegment;
+                    reinterpret(arg0: long): MemorySegment;
+                    reinterpret(arg0: Arena, arg1: MethodWrapper<MemorySegment>): MemorySegment;
+                    reinterpret(arg0: long, arg1: Arena, arg2: MethodWrapper<MemorySegment>): MemorySegment;
+                    isReadOnly(): boolean;
+                    asReadOnly(): MemorySegment;
+                    isNative(): boolean;
+                    isMapped(): boolean;
+                    asOverlappingSlice(arg0: MemorySegment): java.util.Optional<MemorySegment>;
+                    segmentOffset(arg0: MemorySegment): number;
+                    fill(arg0: byte): MemorySegment;
+                    copyFrom(arg0: MemorySegment): MemorySegment;
+                    mismatch(arg0: MemorySegment): number;
+                    isLoaded(): boolean;
+                    load(): void;
+                    unload(): void;
+                    force(): void;
+                    asByteBuffer(): java.nio.ByteBuffer;
+                    toArray(arg0: ValueLayout$OfByte): JavaArray<number>;
+                    toArray(arg0: ValueLayout$OfShort): JavaArray<number>;
+                    toArray(arg0: ValueLayout$OfChar): JavaArray<number>;
+                    toArray(arg0: ValueLayout$OfInt): JavaArray<number>;
+                    toArray(arg0: ValueLayout$OfFloat): JavaArray<number>;
+                    toArray(arg0: ValueLayout$OfLong): JavaArray<number>;
+                    toArray(arg0: ValueLayout$OfDouble): JavaArray<number>;
+                    getUtf8String(arg0: long): string;
+                    setUtf8String(arg0: long, arg1: string): void;
+                    get(arg0: ValueLayout$OfByte, arg1: long): number;
+                    set(arg0: ValueLayout$OfByte, arg1: long, arg2: byte): void;
+                    get(arg0: ValueLayout$OfBoolean, arg1: long): boolean;
+                    set(arg0: ValueLayout$OfBoolean, arg1: long, arg2: boolean): void;
+                    get(arg0: ValueLayout$OfChar, arg1: long): number;
+                    set(arg0: ValueLayout$OfChar, arg1: long, arg2: char): void;
+                    get(arg0: ValueLayout$OfShort, arg1: long): number;
+                    set(arg0: ValueLayout$OfShort, arg1: long, arg2: short): void;
+                    get(arg0: ValueLayout$OfInt, arg1: long): number;
+                    set(arg0: ValueLayout$OfInt, arg1: long, arg2: int): void;
+                    get(arg0: ValueLayout$OfFloat, arg1: long): number;
+                    set(arg0: ValueLayout$OfFloat, arg1: long, arg2: float): void;
+                    get(arg0: ValueLayout$OfLong, arg1: long): number;
+                    set(arg0: ValueLayout$OfLong, arg1: long, arg2: long): void;
+                    get(arg0: ValueLayout$OfDouble, arg1: long): number;
+                    set(arg0: ValueLayout$OfDouble, arg1: long, arg2: double): void;
+                    get(arg0: AddressLayout, arg1: long): MemorySegment;
+                    set(arg0: AddressLayout, arg1: long, arg2: MemorySegment): void;
+                    getAtIndex(arg0: ValueLayout$OfByte, arg1: long): number;
+                    getAtIndex(arg0: ValueLayout$OfBoolean, arg1: long): boolean;
+                    getAtIndex(arg0: ValueLayout$OfChar, arg1: long): number;
+                    setAtIndex(arg0: ValueLayout$OfChar, arg1: long, arg2: char): void;
+                    getAtIndex(arg0: ValueLayout$OfShort, arg1: long): number;
+                    setAtIndex(arg0: ValueLayout$OfByte, arg1: long, arg2: byte): void;
+                    setAtIndex(arg0: ValueLayout$OfBoolean, arg1: long, arg2: boolean): void;
+                    setAtIndex(arg0: ValueLayout$OfShort, arg1: long, arg2: short): void;
+                    getAtIndex(arg0: ValueLayout$OfInt, arg1: long): number;
+                    setAtIndex(arg0: ValueLayout$OfInt, arg1: long, arg2: int): void;
+                    getAtIndex(arg0: ValueLayout$OfFloat, arg1: long): number;
+                    setAtIndex(arg0: ValueLayout$OfFloat, arg1: long, arg2: float): void;
+                    getAtIndex(arg0: ValueLayout$OfLong, arg1: long): number;
+                    setAtIndex(arg0: ValueLayout$OfLong, arg1: long, arg2: long): void;
+                    getAtIndex(arg0: ValueLayout$OfDouble, arg1: long): number;
+                    setAtIndex(arg0: ValueLayout$OfDouble, arg1: long, arg2: double): void;
+                    getAtIndex(arg0: AddressLayout, arg1: long): MemorySegment;
+                    setAtIndex(arg0: AddressLayout, arg1: long, arg2: MemorySegment): void;
+
+                }
+
+                abstract class MemorySegment$Scope extends java.lang.Interface {
+                    static readonly class: JavaClass<MemorySegment$Scope>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface MemorySegment$Scope {
+
+                    isAlive(): boolean;
+
+                }
+
+                abstract class PaddingLayout extends java.lang.Interface {
+                    static readonly class: JavaClass<PaddingLayout>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface PaddingLayout extends MemoryLayout {
+
+                    withName(arg0: string): PaddingLayout;
+                    withoutName(): PaddingLayout;
+                    withByteAlignment(arg0: long): PaddingLayout;
+
+                }
+
+                abstract class SegmentAllocator extends java.lang.Interface {
+                    static readonly class: JavaClass<SegmentAllocator>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    static slicingAllocator(arg0: MemorySegment): SegmentAllocator;
+                    static prefixAllocator(arg0: MemorySegment): SegmentAllocator;
+
+                }
+                interface SegmentAllocator {
+
+                    allocateUtf8String(arg0: string): MemorySegment;
+                    allocate(arg0: ValueLayout$OfByte, arg1: byte): MemorySegment;
+                    allocate(arg0: ValueLayout$OfChar, arg1: char): MemorySegment;
+                    allocate(arg0: ValueLayout$OfShort, arg1: short): MemorySegment;
+                    allocate(arg0: ValueLayout$OfInt, arg1: int): MemorySegment;
+                    allocate(arg0: ValueLayout$OfFloat, arg1: float): MemorySegment;
+                    allocate(arg0: ValueLayout$OfLong, arg1: long): MemorySegment;
+                    allocate(arg0: ValueLayout$OfDouble, arg1: double): MemorySegment;
+                    allocate(arg0: AddressLayout, arg1: MemorySegment): MemorySegment;
+                    allocateArray(arg0: ValueLayout$OfByte, ...arg1: JavaVarArgs<byte>): MemorySegment;
+                    allocateArray(arg0: ValueLayout$OfShort, ...arg1: JavaVarArgs<short>): MemorySegment;
+                    allocateArray(arg0: ValueLayout$OfChar, ...arg1: JavaVarArgs<char>): MemorySegment;
+                    allocateArray(arg0: ValueLayout$OfInt, ...arg1: JavaVarArgs<int>): MemorySegment;
+                    allocateArray(arg0: ValueLayout$OfFloat, ...arg1: JavaVarArgs<float>): MemorySegment;
+                    allocateArray(arg0: ValueLayout$OfLong, ...arg1: JavaVarArgs<long>): MemorySegment;
+                    allocateArray(arg0: ValueLayout$OfDouble, ...arg1: JavaVarArgs<double>): MemorySegment;
+                    allocate(arg0: MemoryLayout): MemorySegment;
+                    allocateArray(arg0: MemoryLayout, arg1: long): MemorySegment;
+                    allocate(arg0: long): MemorySegment;
+                    allocate(arg0: long, arg1: long): MemorySegment;
+
+                }
+
+                abstract class SequenceLayout extends java.lang.Interface {
+                    static readonly class: JavaClass<SequenceLayout>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface SequenceLayout extends MemoryLayout {
+
+                    elementLayout(): MemoryLayout;
+                    elementCount(): number;
+                    withElementCount(arg0: long): SequenceLayout;
+                    reshape(...arg0: JavaVarArgs<long>): SequenceLayout;
+                    flatten(): SequenceLayout;
+                    withName(arg0: string): SequenceLayout;
+                    withoutName(): MemoryLayout;
+                    withByteAlignment(arg0: long): SequenceLayout;
+
+                }
+
+                abstract class StructLayout extends java.lang.Interface {
+                    static readonly class: JavaClass<StructLayout>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface StructLayout extends GroupLayout {
+
+                    withName(arg0: string): StructLayout;
+                    withoutName(): StructLayout;
+                    withByteAlignment(arg0: long): StructLayout;
+
+                }
+
+                abstract class UnionLayout extends java.lang.Interface {
+                    static readonly class: JavaClass<UnionLayout>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface UnionLayout extends GroupLayout {
+
+                    withName(arg0: string): UnionLayout;
+                    withoutName(): UnionLayout;
+                    withByteAlignment(arg0: long): UnionLayout;
+
+                }
+
+                abstract class ValueLayout extends java.lang.Interface {
+                    static readonly class: JavaClass<ValueLayout>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    static readonly ADDRESS: AddressLayout;
+                    static readonly JAVA_BYTE: ValueLayout$OfByte;
+                    static readonly JAVA_BOOLEAN: ValueLayout$OfBoolean;
+                    static readonly JAVA_CHAR: ValueLayout$OfChar;
+                    static readonly JAVA_SHORT: ValueLayout$OfShort;
+                    static readonly JAVA_INT: ValueLayout$OfInt;
+                    static readonly JAVA_LONG: ValueLayout$OfLong;
+                    static readonly JAVA_FLOAT: ValueLayout$OfFloat;
+                    static readonly JAVA_DOUBLE: ValueLayout$OfDouble;
+                    static readonly ADDRESS_UNALIGNED: AddressLayout;
+                    static readonly JAVA_CHAR_UNALIGNED: ValueLayout$OfChar;
+                    static readonly JAVA_SHORT_UNALIGNED: ValueLayout$OfShort;
+                    static readonly JAVA_INT_UNALIGNED: ValueLayout$OfInt;
+                    static readonly JAVA_LONG_UNALIGNED: ValueLayout$OfLong;
+                    static readonly JAVA_FLOAT_UNALIGNED: ValueLayout$OfFloat;
+                    static readonly JAVA_DOUBLE_UNALIGNED: ValueLayout$OfDouble;
+                }
+                interface ValueLayout extends MemoryLayout {
+
+                    order(): java.nio.ByteOrder;
+                    withOrder(arg0: java.nio.ByteOrder): ValueLayout;
+                    withoutName(): ValueLayout;
+                    arrayElementVarHandle(...arg0: JavaVarArgs<int>): java.lang.invoke.VarHandle;
+                    carrier(): JavaClass<any>;
+                    withName(arg0: string): ValueLayout;
+                    withByteAlignment(arg0: long): ValueLayout;
+
+                }
+
+                abstract class ValueLayout$OfBoolean extends java.lang.Interface {
+                    static readonly class: JavaClass<ValueLayout$OfBoolean>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface ValueLayout$OfBoolean extends ValueLayout {
+
+                    withName(arg0: string): ValueLayout$OfBoolean;
+                    withoutName(): ValueLayout$OfBoolean;
+                    withByteAlignment(arg0: long): ValueLayout$OfBoolean;
+                    withOrder(arg0: java.nio.ByteOrder): ValueLayout$OfBoolean;
+
+                }
+
+                abstract class ValueLayout$OfByte extends java.lang.Interface {
+                    static readonly class: JavaClass<ValueLayout$OfByte>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface ValueLayout$OfByte extends ValueLayout {
+
+                    withName(arg0: string): ValueLayout$OfByte;
+                    withoutName(): ValueLayout$OfByte;
+                    withByteAlignment(arg0: long): ValueLayout$OfByte;
+                    withOrder(arg0: java.nio.ByteOrder): ValueLayout$OfByte;
+
+                }
+
+                abstract class ValueLayout$OfChar extends java.lang.Interface {
+                    static readonly class: JavaClass<ValueLayout$OfChar>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface ValueLayout$OfChar extends ValueLayout {
+
+                    withName(arg0: string): ValueLayout$OfChar;
+                    withoutName(): ValueLayout$OfChar;
+                    withByteAlignment(arg0: long): ValueLayout$OfChar;
+                    withOrder(arg0: java.nio.ByteOrder): ValueLayout$OfChar;
+
+                }
+
+                abstract class ValueLayout$OfDouble extends java.lang.Interface {
+                    static readonly class: JavaClass<ValueLayout$OfDouble>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface ValueLayout$OfDouble extends ValueLayout {
+
+                    withName(arg0: string): ValueLayout$OfDouble;
+                    withoutName(): ValueLayout$OfDouble;
+                    withByteAlignment(arg0: long): ValueLayout$OfDouble;
+                    withOrder(arg0: java.nio.ByteOrder): ValueLayout$OfDouble;
+
+                }
+
+                abstract class ValueLayout$OfFloat extends java.lang.Interface {
+                    static readonly class: JavaClass<ValueLayout$OfFloat>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface ValueLayout$OfFloat extends ValueLayout {
+
+                    withName(arg0: string): ValueLayout$OfFloat;
+                    withoutName(): ValueLayout$OfFloat;
+                    withByteAlignment(arg0: long): ValueLayout$OfFloat;
+                    withOrder(arg0: java.nio.ByteOrder): ValueLayout$OfFloat;
+
+                }
+
+                abstract class ValueLayout$OfInt extends java.lang.Interface {
+                    static readonly class: JavaClass<ValueLayout$OfInt>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface ValueLayout$OfInt extends ValueLayout {
+
+                    withName(arg0: string): ValueLayout$OfInt;
+                    withoutName(): ValueLayout$OfInt;
+                    withByteAlignment(arg0: long): ValueLayout$OfInt;
+                    withOrder(arg0: java.nio.ByteOrder): ValueLayout$OfInt;
+
+                }
+
+                abstract class ValueLayout$OfLong extends java.lang.Interface {
+                    static readonly class: JavaClass<ValueLayout$OfLong>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface ValueLayout$OfLong extends ValueLayout {
+
+                    withName(arg0: string): ValueLayout$OfLong;
+                    withoutName(): ValueLayout$OfLong;
+                    withByteAlignment(arg0: long): ValueLayout$OfLong;
+                    withOrder(arg0: java.nio.ByteOrder): ValueLayout$OfLong;
+
+                }
+
+                abstract class ValueLayout$OfShort extends java.lang.Interface {
+                    static readonly class: JavaClass<ValueLayout$OfShort>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface ValueLayout$OfShort extends ValueLayout {
+
+                    withName(arg0: string): ValueLayout$OfShort;
+                    withoutName(): ValueLayout$OfShort;
+                    withByteAlignment(arg0: long): ValueLayout$OfShort;
+                    withOrder(arg0: java.nio.ByteOrder): ValueLayout$OfShort;
+
+                }
+
+                export {
+                    AddressLayout,
+                    Arena,
+                    GroupLayout,
+                    MemoryLayout,
+                    MemoryLayout$PathElement,
+                    MemorySegment,
+                    MemorySegment$Scope,
+                    PaddingLayout,
+                    SegmentAllocator,
+                    SequenceLayout,
+                    StructLayout,
+                    UnionLayout,
+                    ValueLayout,
+                    ValueLayout$OfBoolean,
+                    ValueLayout$OfByte,
+                    ValueLayout$OfChar,
+                    ValueLayout$OfDouble,
+                    ValueLayout$OfFloat,
+                    ValueLayout$OfInt,
+                    ValueLayout$OfLong,
+                    ValueLayout$OfShort
                 }
 
             }
@@ -11396,8 +11842,8 @@ declare namespace Packages {
                     findVirtual(arg0: JavaClassArg<any>, arg1: string, arg2: MethodType): MethodHandle;
                     findConstructor(arg0: JavaClassArg<any>, arg1: MethodType): MethodHandle;
                     findClass(arg0: string): JavaClass<any>;
-                    ensureInitialized(arg0: JavaClassArg<any>): JavaClass<any>;
-                    accessClass(arg0: JavaClassArg<any>): JavaClass<any>;
+                    ensureInitialized<T>(arg0: JavaClassArg<T>): JavaClass<T>;
+                    accessClass<T>(arg0: JavaClassArg<T>): JavaClass<T>;
                     findSpecial(arg0: JavaClassArg<any>, arg1: string, arg2: MethodType, arg3: JavaClassArg<any>): MethodHandle;
                     findGetter(arg0: JavaClassArg<any>, arg1: string, arg2: JavaClassArg<any>): MethodHandle;
                     findSetter(arg0: JavaClassArg<any>, arg1: string, arg2: JavaClassArg<any>): MethodHandle;
@@ -11673,6 +12119,7 @@ declare namespace Packages {
 
                     name(): string;
                     modifiers(): JavaSet<ModuleDescriptor$Modifier>;
+                    accessFlags(): JavaSet<java.lang.reflect.AccessFlag>;
                     isOpen(): boolean;
                     isAutomatic(): boolean;
                     requires(): JavaSet<ModuleDescriptor$Requires>;
@@ -11724,6 +12171,7 @@ declare namespace Packages {
                     /** @deprecated */ static prototype: undefined;
 
                     modifiers(): JavaSet<ModuleDescriptor$Exports$Modifier>;
+                    accessFlags(): JavaSet<java.lang.reflect.AccessFlag>;
                     isQualified(): boolean;
                     source(): string;
                     targets(): JavaSet<string>;
@@ -11763,6 +12211,7 @@ declare namespace Packages {
                     /** @deprecated */ static prototype: undefined;
 
                     modifiers(): JavaSet<ModuleDescriptor$Opens$Modifier>;
+                    accessFlags(): JavaSet<java.lang.reflect.AccessFlag>;
                     isQualified(): boolean;
                     source(): string;
                     targets(): JavaSet<string>;
@@ -11799,6 +12248,7 @@ declare namespace Packages {
                     /** @deprecated */ static prototype: undefined;
 
                     modifiers(): JavaSet<ModuleDescriptor$Requires$Modifier>;
+                    accessFlags(): JavaSet<java.lang.reflect.AccessFlag>;
                     name(): string;
                     compiledVersion(): java.util.Optional<ModuleDescriptor$Version>;
                     rawCompiledVersion(): java.util.Optional<string>;
@@ -11948,6 +12398,45 @@ declare namespace Packages {
 
             namespace reflect {
 
+                abstract class AccessFlag extends java.lang.Enum<AccessFlag> {
+                    static readonly class: JavaClass<AccessFlag>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    static readonly PUBLIC: AccessFlag;
+                    static readonly PRIVATE: AccessFlag;
+                    static readonly PROTECTED: AccessFlag;
+                    static readonly STATIC: AccessFlag;
+                    static readonly FINAL: AccessFlag;
+                    static readonly SUPER: AccessFlag;
+                    static readonly OPEN: AccessFlag;
+                    static readonly TRANSITIVE: AccessFlag;
+                    static readonly SYNCHRONIZED: AccessFlag;
+                    static readonly STATIC_PHASE: AccessFlag;
+                    static readonly VOLATILE: AccessFlag;
+                    static readonly BRIDGE: AccessFlag;
+                    static readonly TRANSIENT: AccessFlag;
+                    static readonly VARARGS: AccessFlag;
+                    static readonly NATIVE: AccessFlag;
+                    static readonly INTERFACE: AccessFlag;
+                    static readonly ABSTRACT: AccessFlag;
+                    static readonly STRICT: AccessFlag;
+                    static readonly SYNTHETIC: AccessFlag;
+                    static readonly ANNOTATION: AccessFlag;
+                    static readonly ENUM: AccessFlag;
+                    static readonly MANDATED: AccessFlag;
+                    static readonly MODULE: AccessFlag;
+
+                    static values(): JavaArray<AccessFlag>;
+                    static valueOf(arg0: string): AccessFlag;
+                    static maskToAccessFlags(arg0: int, arg1: java.lang.reflect.AccessFlag.Location): JavaSet<AccessFlag>;
+
+                    mask(): number;
+                    sourceModifier(): boolean;
+                    locations(): JavaSet<java.lang.reflect.AccessFlag.Location>;
+                    locations(arg0: ClassFileFormatVersion): JavaSet<java.lang.reflect.AccessFlag.Location>;
+
+                }
+
                 interface AccessibleObject extends AnnotatedElement {}
                 abstract class AccessibleObject extends java.lang.Object {
                     static readonly class: JavaClass<AccessibleObject>;
@@ -12000,6 +12489,44 @@ declare namespace Packages {
 
                 }
 
+                abstract class ClassFileFormatVersion extends java.lang.Enum<ClassFileFormatVersion> {
+                    static readonly class: JavaClass<ClassFileFormatVersion>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    static readonly RELEASE_0: ClassFileFormatVersion;
+                    static readonly RELEASE_1: ClassFileFormatVersion;
+                    static readonly RELEASE_2: ClassFileFormatVersion;
+                    static readonly RELEASE_3: ClassFileFormatVersion;
+                    static readonly RELEASE_4: ClassFileFormatVersion;
+                    static readonly RELEASE_5: ClassFileFormatVersion;
+                    static readonly RELEASE_6: ClassFileFormatVersion;
+                    static readonly RELEASE_7: ClassFileFormatVersion;
+                    static readonly RELEASE_8: ClassFileFormatVersion;
+                    static readonly RELEASE_9: ClassFileFormatVersion;
+                    static readonly RELEASE_10: ClassFileFormatVersion;
+                    static readonly RELEASE_11: ClassFileFormatVersion;
+                    static readonly RELEASE_12: ClassFileFormatVersion;
+                    static readonly RELEASE_13: ClassFileFormatVersion;
+                    static readonly RELEASE_14: ClassFileFormatVersion;
+                    static readonly RELEASE_15: ClassFileFormatVersion;
+                    static readonly RELEASE_16: ClassFileFormatVersion;
+                    static readonly RELEASE_17: ClassFileFormatVersion;
+                    static readonly RELEASE_18: ClassFileFormatVersion;
+                    static readonly RELEASE_19: ClassFileFormatVersion;
+                    static readonly RELEASE_20: ClassFileFormatVersion;
+                    static readonly RELEASE_21: ClassFileFormatVersion;
+
+                    static values(): JavaArray<ClassFileFormatVersion>;
+                    static valueOf(arg0: string): ClassFileFormatVersion;
+                    static latest(): ClassFileFormatVersion;
+                    static valueOf(arg0: java.lang.Runtime$Version): ClassFileFormatVersion;
+                    static fromMajor(arg0: int): ClassFileFormatVersion;
+
+                    major(): number;
+                    runtimeVersion(): java.lang.Runtime$Version;
+
+                }
+
                 abstract class Constructor<T> extends Executable {
                     static readonly class: JavaClass<Constructor<any>>;
                     /** @deprecated */ static prototype: undefined;
@@ -12034,6 +12561,7 @@ declare namespace Packages {
                     getDeclaringClass(): JavaClass<any>;
                     getName(): string;
                     getModifiers(): number;
+                    accessFlags(): JavaSet<AccessFlag>;
                     getTypeParameters(): JavaArray<TypeVariable<any>>;
                     getParameterTypes(): JavaArray<JavaClass<any>>;
                     getParameterCount(): number;
@@ -12064,6 +12592,7 @@ declare namespace Packages {
                     getDeclaringClass(): JavaClass<any>;
                     getName(): string;
                     getModifiers(): number;
+                    accessFlags(): JavaSet<AccessFlag>;
                     isEnumConstant(): boolean;
                     isSynthetic(): boolean;
                     getType(): JavaClass<any>;
@@ -12104,6 +12633,25 @@ declare namespace Packages {
 
                 }
 
+                abstract class Location extends java.lang.Enum<java.lang.reflect.AccessFlag.Location> {
+                    static readonly class: JavaClass<Location>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    static readonly CLASS: java.lang.reflect.AccessFlag.Location;
+                    static readonly FIELD: java.lang.reflect.AccessFlag.Location;
+                    static readonly METHOD: java.lang.reflect.AccessFlag.Location;
+                    static readonly INNER_CLASS: java.lang.reflect.AccessFlag.Location;
+                    static readonly METHOD_PARAMETER: java.lang.reflect.AccessFlag.Location;
+                    static readonly MODULE: java.lang.reflect.AccessFlag.Location;
+                    static readonly MODULE_REQUIRES: java.lang.reflect.AccessFlag.Location;
+                    static readonly MODULE_EXPORTS: java.lang.reflect.AccessFlag.Location;
+                    static readonly MODULE_OPENS: java.lang.reflect.AccessFlag.Location;
+
+                    static values(): JavaArray<java.lang.reflect.AccessFlag.Location>;
+                    static valueOf(arg0: string): java.lang.reflect.AccessFlag.Location;
+
+                }
+
                 abstract class Member extends java.lang.Interface {
                     static readonly class: JavaClass<Member>;
                     /** @deprecated */ static prototype: undefined;
@@ -12116,6 +12664,7 @@ declare namespace Packages {
                     getDeclaringClass(): JavaClass<any>;
                     getName(): string;
                     getModifiers(): number;
+                    accessFlags(): JavaSet<AccessFlag>;
                     isSynthetic(): boolean;
 
                 }
@@ -12158,6 +12707,7 @@ declare namespace Packages {
                     isNamePresent(): boolean;
                     getDeclaringExecutable(): Executable;
                     getModifiers(): number;
+                    accessFlags(): JavaSet<AccessFlag>;
                     getName(): string;
                     getParameterizedType(): Type;
                     getType(): JavaClass<any>;
@@ -12198,13 +12748,16 @@ declare namespace Packages {
                 }
 
                 export {
+                    AccessFlag,
                     AccessibleObject,
                     AnnotatedElement,
                     AnnotatedType,
+                    ClassFileFormatVersion,
                     Constructor,
                     Executable,
                     Field,
                     GenericDeclaration,
+                    Location,
                     Member,
                     Method,
                     Parameter,
@@ -12225,6 +12778,7 @@ declare namespace Packages {
 
                 static readonly ZERO: BigDecimal;
                 static readonly ONE: BigDecimal;
+                static readonly TWO: BigDecimal;
                 static readonly TEN: BigDecimal;
                 /** @deprecated */
                 static readonly ROUND_UP: number;
@@ -12351,6 +12905,7 @@ declare namespace Packages {
                 add(arg0: BigInteger): BigInteger;
                 subtract(arg0: BigInteger): BigInteger;
                 multiply(arg0: BigInteger): BigInteger;
+                parallelMultiply(arg0: BigInteger): BigInteger;
                 divide(arg0: BigInteger): BigInteger;
                 divideAndRemainder(arg0: BigInteger): JavaArray<BigInteger>;
                 remainder(arg0: BigInteger): BigInteger;
@@ -13402,6 +13957,7 @@ declare namespace Packages {
                     read(arg0: java.nio.ByteBuffer, arg1: long): number;
                     write(arg0: java.nio.ByteBuffer, arg1: long): number;
                     map(arg0: FileChannel$MapMode, arg1: long, arg2: long): java.nio.MappedByteBuffer;
+                    map(arg0: FileChannel$MapMode, arg1: long, arg2: long, arg3: java.lang.foreign.Arena): java.lang.foreign.MemorySegment;
                     lock(arg0: long, arg1: long, arg2: boolean): FileLock;
                     lock(): FileLock;
                     tryLock(arg0: long, arg1: long, arg2: boolean): FileLock;
@@ -13795,6 +14351,7 @@ declare namespace Packages {
 
                     static isSupported(arg0: string): boolean;
                     static forName(arg0: string): Charset;
+                    static forName(arg0: string, arg1: Charset): Charset;
                     static availableCharsets(): java.util.SortedMap<string, Charset>;
                     static defaultCharset(): Charset;
 
@@ -14277,6 +14834,8 @@ declare namespace Packages {
                         readAttributes<A extends java.nio.file.attribute.BasicFileAttributes>(arg0: java.nio.file.Path, arg1: JavaClassArg<A>, ...arg2: JavaVarArgs<java.nio.file.LinkOption>): A;
                         readAttributes(arg0: java.nio.file.Path, arg1: string, ...arg2: JavaVarArgs<java.nio.file.LinkOption>): JavaMap<string, any>;
                         setAttribute(arg0: java.nio.file.Path, arg1: string, arg2: any, ...arg3: JavaVarArgs<java.nio.file.LinkOption>): void;
+                        exists(arg0: java.nio.file.Path, ...arg1: JavaVarArgs<java.nio.file.LinkOption>): boolean;
+                        readAttributesIfExists<A extends java.nio.file.attribute.BasicFileAttributes>(arg0: java.nio.file.Path, arg1: JavaClassArg<A>, ...arg2: JavaVarArgs<java.nio.file.LinkOption>): A;
 
                     }
 
@@ -14767,6 +15326,7 @@ declare namespace Packages {
 
                 get(arg0: java.time.temporal.TemporalUnit): number;
                 getUnits(): JavaList<java.time.temporal.TemporalUnit>;
+                isPositive(): boolean;
                 isZero(): boolean;
                 isNegative(): boolean;
                 getSeconds(): number;
@@ -15468,6 +16028,7 @@ declare namespace Packages {
                 getTotalSeconds(): number;
                 getId(): string;
                 getRules(): java.time.zone.ZoneRules;
+                normalized(): ZoneId;
                 isSupported(arg0: java.time.temporal.TemporalField): boolean;
                 range(arg0: java.time.temporal.TemporalField): java.time.temporal.ValueRange;
                 get(arg0: java.time.temporal.TemporalField): number;
@@ -15618,6 +16179,7 @@ declare namespace Packages {
                     period(arg0: int, arg1: int, arg2: int): ChronoPeriod;
                     epochSecond(arg0: int, arg1: int, arg2: int, arg3: int, arg4: int, arg5: int, arg6: java.time.ZoneOffset): number;
                     epochSecond(arg0: Era, arg1: int, arg2: int, arg3: int, arg4: int, arg5: int, arg6: int, arg7: java.time.ZoneOffset): number;
+                    isIsoBased(): boolean;
                     compareTo(arg0: Chronology): number;
 
                 }
@@ -15735,6 +16297,7 @@ declare namespace Packages {
                     resolveDate(arg0: JavaMap<java.time.temporal.TemporalField, long>, arg1: java.time.format.ResolverStyle): java.time.LocalDate;
                     range(arg0: java.time.temporal.ChronoField): java.time.temporal.ValueRange;
                     period(arg0: int, arg1: int, arg2: int): java.time.Period;
+                    isIsoBased(): boolean;
 
                 }
 
@@ -15796,6 +16359,7 @@ declare namespace Packages {
                     static ofLocalizedTime(arg0: FormatStyle): DateTimeFormatter;
                     static ofLocalizedDateTime(arg0: FormatStyle): DateTimeFormatter;
                     static ofLocalizedDateTime(arg0: FormatStyle, arg1: FormatStyle): DateTimeFormatter;
+                    static ofLocalizedPattern(arg0: string): DateTimeFormatter;
                     static parsedExcessDays(): java.time.temporal.TemporalQuery<java.time.Period>;
                     static parsedLeapSecond(): java.time.temporal.TemporalQuery<boolean>;
 
@@ -16323,10 +16887,16 @@ declare namespace Packages {
                 toArray<T>(arg0: T[]): JavaArray<T>;
                 toArray<T>(arg0: java.util.function.IntFunction<T[]>): JavaArray<T>;
                 get(arg0: int): E;
+                getFirst(): E;
+                getLast(): E;
                 set(arg0: int, arg1: E): E;
                 add(arg0: E): boolean;
                 add(arg0: int, arg1: E): void;
+                addFirst(arg0: E): void;
+                addLast(arg0: E): void;
                 remove(arg0: int): E;
+                removeFirst(): E;
+                removeLast(): E;
                 remove(arg0: any): boolean;
                 clear(): void;
                 addAll(arg0: JavaCollection<E>): boolean;
@@ -16549,6 +17119,8 @@ declare namespace Packages {
                 static readonly class: JavaClass<HashMap<any, any>>;
                 /** @deprecated */ static prototype: undefined;
 
+                static newHashMap<K, V>(arg0: int): HashMap<K, V>;
+
                 constructor <K, V>(arg0: int, arg1: float);
                 constructor <K, V>(arg0: int);
                 constructor <K, V>();
@@ -16585,6 +17157,8 @@ declare namespace Packages {
             class HashSet<E> extends AbstractSet<E> {
                 static readonly class: JavaClass<HashSet<any>>;
                 /** @deprecated */ static prototype: undefined;
+
+                static newHashSet<T>(arg0: int): HashSet<T>;
 
                 constructor <E>();
                 constructor <E>(arg0: JavaCollection<E>);
@@ -16725,14 +17299,19 @@ declare namespace Packages {
                 static readonly PRIVATE_USE_EXTENSION: number;
                 static readonly UNICODE_LOCALE_EXTENSION: number;
 
+                static of(arg0: string, arg1: string, arg2: string): Locale;
+                static of(arg0: string, arg1: string): Locale;
+                static of(arg0: string): Locale;
                 static getDefault(): Locale;
                 static getDefault(arg0: Locale$Category): Locale;
                 static setDefault(arg0: Locale): void;
                 static setDefault(arg0: Locale$Category, arg1: Locale): void;
                 static getAvailableLocales(): JavaArray<Locale>;
+                static availableLocales(): java.util.stream.Stream<Locale>;
                 static getISOCountries(): JavaArray<string>;
                 static getISOCountries(arg0: Locale$IsoCountryCode): JavaSet<string>;
                 static getISOLanguages(): JavaArray<string>;
+                static caseFoldLanguageTag(arg0: string): string;
                 static forLanguageTag(arg0: string): Locale;
                 static filter(arg0: JavaList<Locale$LanguageRange>, arg1: JavaCollection<Locale>, arg2: Locale$FilteringMode): JavaList<Locale>;
                 static filter(arg0: JavaList<Locale$LanguageRange>, arg1: JavaCollection<Locale>): JavaList<Locale>;
@@ -16741,8 +17320,11 @@ declare namespace Packages {
                 static lookup(arg0: JavaList<Locale$LanguageRange>, arg1: JavaCollection<Locale>): Locale;
                 static lookupTag(arg0: JavaList<Locale$LanguageRange>, arg1: JavaCollection<string>): string;
 
+                /** @deprecated */
                 constructor (arg0: string, arg1: string, arg2: string);
+                /** @deprecated */
                 constructor (arg0: string, arg1: string);
+                /** @deprecated */
                 constructor (arg0: string);
 
                 getLanguage(): string;
@@ -17065,6 +17647,8 @@ declare namespace Packages {
                 static readonly class: JavaClass<Random>;
                 /** @deprecated */ static prototype: undefined;
 
+                static from(arg0: java.util.random.RandomGenerator): Random;
+
                 constructor ();
                 constructor (arg0: long);
 
@@ -17158,11 +17742,56 @@ declare namespace Packages {
 
             }
 
+            abstract class SequencedCollection<E> extends java.lang.Interface {
+                static readonly class: JavaClass<SequencedCollection<any>>;
+                /** @deprecated */ static prototype: undefined;
+            }
+            interface SequencedCollection<E> extends java.util.Collection<E> {
+
+                reversed(): SequencedCollection<E>;
+                addFirst(arg0: E): void;
+                addLast(arg0: E): void;
+                getFirst(): E;
+                getLast(): E;
+                removeFirst(): E;
+                removeLast(): E;
+
+            }
+
+            abstract class SequencedMap<K, V> extends java.lang.Interface {
+                static readonly class: JavaClass<SequencedMap<any, any>>;
+                /** @deprecated */ static prototype: undefined;
+            }
+            interface SequencedMap<K, V> extends java.util.Map<K, V> {
+
+                reversed(): SequencedMap<K, V>;
+                firstEntry(): Map$Entry<K, V>;
+                lastEntry(): Map$Entry<K, V>;
+                pollFirstEntry(): Map$Entry<K, V>;
+                pollLastEntry(): Map$Entry<K, V>;
+                putFirst(arg0: K, arg1: V): V;
+                putLast(arg0: K, arg1: V): V;
+                sequencedKeySet(): SequencedSet<K>;
+                sequencedValues(): SequencedCollection<V>;
+                sequencedEntrySet(): SequencedSet<Map$Entry<K, V>>;
+
+            }
+
+            abstract class SequencedSet<E> extends java.lang.Interface {
+                static readonly class: JavaClass<SequencedSet<any>>;
+                /** @deprecated */ static prototype: undefined;
+            }
+            interface SequencedSet<E> extends SequencedCollection<E>, java.util.Set<E> {
+
+                reversed(): SequencedSet<E>;
+
+            }
+
             abstract class SortedMap<K, V> extends java.lang.Interface {
                 static readonly class: JavaClass<SortedMap<any, any>>;
                 /** @deprecated */ static prototype: undefined;
             }
-            interface SortedMap<K, V> extends java.util.Map<K, V> {
+            interface SortedMap<K, V> extends SequencedMap<K, V> {
 
                 comparator(): Comparator<K>;
                 subMap(arg0: K, arg1: K): SortedMap<K, V>;
@@ -17173,6 +17802,9 @@ declare namespace Packages {
                 keySet(): JavaSet<K>;
                 values(): JavaCollection<V>;
                 entrySet(): JavaSet<Map$Entry<K, V>>;
+                putFirst(arg0: K, arg1: V): V;
+                putLast(arg0: K, arg1: V): V;
+                reversed(): SortedMap<K, V>;
 
             }
 
@@ -17373,6 +18005,36 @@ declare namespace Packages {
                 replaceAll(arg0: java.util.function.UnaryOperator<E>): void;
                 sort(arg0: MethodWrapper<E, E, int>): void;
                 spliterator(): Spliterator<E>;
+
+            }
+
+            interface WeakHashMap<K, V> extends java.util.Map<K, V> {}
+            class WeakHashMap<K, V> extends AbstractMap<K, V> {
+                static readonly class: JavaClass<WeakHashMap<any, any>>;
+                /** @deprecated */ static prototype: undefined;
+
+                static newWeakHashMap<K, V>(arg0: int): WeakHashMap<K, V>;
+
+                constructor <K, V>(arg0: int, arg1: float);
+                constructor <K, V>(arg0: int);
+                constructor <K, V>();
+                constructor <K, V>(arg0: JavaMap<K, V>);
+
+                size(): number;
+                isEmpty(): boolean;
+                get(arg0: any): V;
+                containsKey(arg0: any): boolean;
+                put(arg0: K, arg1: V): V;
+                putAll(arg0: JavaMap<K, V>): void;
+                remove(arg0: any): V;
+                remove(arg0: any, arg1: any): boolean;
+                clear(): void;
+                containsValue(arg0: any): boolean;
+                keySet(): JavaSet<K>;
+                values(): JavaCollection<V>;
+                entrySet(): JavaSet<Map$Entry<K, V>>;
+                forEach(arg0: MethodWrapper<K, V>): void;
+                replaceAll(arg0: MethodWrapper<K, V, V>): void;
 
             }
 
@@ -17896,6 +18558,9 @@ declare namespace Packages {
                 RandomAccess,
                 ResourceBundle,
                 ResourceBundle$Control,
+                SequencedCollection,
+                SequencedMap,
+                SequencedSet,
                 SortedMap,
                 Spliterator,
                 Spliterator$OfDouble,
@@ -17905,6 +18570,7 @@ declare namespace Packages {
                 SplittableRandom,
                 UUID,
                 Vector,
+                WeakHashMap,
                 _function as function
             }
 
@@ -17948,6 +18614,8 @@ declare namespace Packages {
                     get(arg0: long, arg1: TimeUnit): T;
                     join(): T;
                     getNow(arg0: T): T;
+                    resultNow(): T;
+                    exceptionNow(): java.lang.Throwable;
                     complete(arg0: T): boolean;
                     completeExceptionally(arg0: java.lang.Throwable): boolean;
                     thenApply<U>(arg0: MethodWrapper<T, any, U>): CompletableFuture<U>;
@@ -17996,6 +18664,7 @@ declare namespace Packages {
                     cancel(arg0: boolean): boolean;
                     isCancelled(): boolean;
                     isCompletedExceptionally(): boolean;
+                    state(): Future$State;
                     obtrudeValue(arg0: T): void;
                     obtrudeException(arg0: java.lang.Throwable): void;
                     getNumberOfDependents(): number;
@@ -18076,7 +18745,7 @@ declare namespace Packages {
                     static readonly class: JavaClass<ExecutorService>;
                     /** @deprecated */ static prototype: undefined;
                 }
-                interface ExecutorService extends Executor {
+                interface ExecutorService extends Executor, java.lang.AutoCloseable {
 
                     shutdown(): void;
                     shutdownNow(): JavaList<java.lang.Runnable>;
@@ -18090,6 +18759,7 @@ declare namespace Packages {
                     invokeAll<T>(arg0: JavaCollection<Callable<T>>, arg1: long, arg2: TimeUnit): JavaList<Future<T>>;
                     invokeAny<T>(arg0: JavaCollection<Callable<T>>): T;
                     invokeAny<T>(arg0: JavaCollection<Callable<T>>, arg1: long, arg2: TimeUnit): T;
+                    close(): void;
 
                 }
 
@@ -18104,6 +18774,33 @@ declare namespace Packages {
                     isDone(): boolean;
                     get(): V;
                     get(arg0: long, arg1: TimeUnit): V;
+                    resultNow(): V;
+                    exceptionNow(): java.lang.Throwable;
+                    state(): Future$State;
+
+                }
+
+                abstract class Future$State extends java.lang.Enum<Future$State> {
+                    static readonly class: JavaClass<Future$State>;
+                    /** @deprecated */ static prototype: undefined;
+
+                    static readonly RUNNING: Future$State;
+                    static readonly SUCCESS: Future$State;
+                    static readonly FAILED: Future$State;
+                    static readonly CANCELLED: Future$State;
+
+                    static values(): JavaArray<Future$State>;
+                    static valueOf(arg0: string): Future$State;
+
+                }
+
+                abstract class ThreadFactory extends java.lang.Interface {
+                    static readonly class: JavaClass<ThreadFactory>;
+                    /** @deprecated */ static prototype: undefined;
+                }
+                interface ThreadFactory {
+
+                    newThread(arg0: MethodWrapper): java.lang.Thread;
 
                 }
 
@@ -18146,6 +18843,8 @@ declare namespace Packages {
                     Executor,
                     ExecutorService,
                     Future,
+                    Future$State,
+                    ThreadFactory,
                     TimeUnit
                 }
 
@@ -18284,6 +18983,8 @@ declare namespace Packages {
                     useAnchoringBounds(arg0: boolean): Matcher;
                     hitEnd(): boolean;
                     requireEnd(): boolean;
+                    namedGroups(): JavaMap<string, number>;
+                    hasMatch(): boolean;
 
                 }
 
@@ -18295,11 +18996,16 @@ declare namespace Packages {
 
                     start(): number;
                     start(arg0: int): number;
+                    start(arg0: string): number;
                     end(): number;
                     end(arg0: int): number;
+                    end(arg0: string): number;
                     group(): string;
                     group(arg0: int): string;
+                    group(arg0: string): string;
                     groupCount(): number;
+                    namedGroups(): JavaMap<string, number>;
+                    hasMatch(): boolean;
 
                 }
 
@@ -18327,7 +19033,9 @@ declare namespace Packages {
                     matcher(arg0: java.lang.CharSequence): Matcher;
                     flags(): number;
                     split(arg0: java.lang.CharSequence, arg1: int): JavaArray<string>;
+                    splitWithDelimiters(arg0: java.lang.CharSequence, arg1: int): JavaArray<string>;
                     split(arg0: java.lang.CharSequence): JavaArray<string>;
+                    namedGroups(): JavaMap<string, number>;
                     asPredicate(): java.util.function.Predicate<string>;
                     asMatchPredicate(): java.util.function.Predicate<string>;
                     splitAsStream(arg0: java.lang.CharSequence): java.util.stream.Stream<string>;
@@ -20618,6 +21326,12 @@ declare namespace Packages {
                 printMessage(arg0: javax.tools.Diagnostic$Kind, arg1: java.lang.CharSequence, arg2: javax.lang.model.element.Element): void;
                 printMessage(arg0: javax.tools.Diagnostic$Kind, arg1: java.lang.CharSequence, arg2: javax.lang.model.element.Element, arg3: javax.lang.model.element.AnnotationMirror): void;
                 printMessage(arg0: javax.tools.Diagnostic$Kind, arg1: java.lang.CharSequence, arg2: javax.lang.model.element.Element, arg3: javax.lang.model.element.AnnotationMirror, arg4: javax.lang.model.element.AnnotationValue): void;
+                printError(arg0: java.lang.CharSequence): void;
+                printError(arg0: java.lang.CharSequence, arg1: javax.lang.model.element.Element): void;
+                printWarning(arg0: java.lang.CharSequence): void;
+                printWarning(arg0: java.lang.CharSequence, arg1: javax.lang.model.element.Element): void;
+                printNote(arg0: java.lang.CharSequence): void;
+                printNote(arg0: java.lang.CharSequence, arg1: javax.lang.model.element.Element): void;
 
             }
 
@@ -20716,6 +21430,10 @@ declare namespace Packages {
                 static readonly RELEASE_15: SourceVersion;
                 static readonly RELEASE_16: SourceVersion;
                 static readonly RELEASE_17: SourceVersion;
+                static readonly RELEASE_18: SourceVersion;
+                static readonly RELEASE_19: SourceVersion;
+                static readonly RELEASE_20: SourceVersion;
+                static readonly RELEASE_21: SourceVersion;
 
                 static values(): JavaArray<SourceVersion>;
                 static valueOf(arg0: string): SourceVersion;
@@ -20726,6 +21444,9 @@ declare namespace Packages {
                 static isName(arg0: java.lang.CharSequence, arg1: SourceVersion): boolean;
                 static isKeyword(arg0: java.lang.CharSequence): boolean;
                 static isKeyword(arg0: java.lang.CharSequence, arg1: SourceVersion): boolean;
+                static valueOf(arg0: java.lang.Runtime$Version): SourceVersion;
+
+                runtimeVersion(): java.lang.Runtime$Version;
 
             }
 
@@ -20833,7 +21554,11 @@ declare namespace Packages {
 
                     isClass(): boolean;
                     isInterface(): boolean;
+                    isDeclaredType(): boolean;
                     isField(): boolean;
+                    isExecutable(): boolean;
+                    isInitializer(): boolean;
+                    isVariable(): boolean;
 
                 }
 
@@ -20871,6 +21596,7 @@ declare namespace Packages {
                     isDefault(): boolean;
                     getThrownTypes(): JavaList<javax.lang.model.type.TypeMirror>;
                     getDefaultValue(): AnnotationValue;
+                    getEnclosingElement(): Element;
                     getSimpleName(): Name;
 
                 }
@@ -21098,6 +21824,7 @@ declare namespace Packages {
                     getNestingKind(): NestingKind;
                     getQualifiedName(): Name;
                     getSimpleName(): Name;
+                    isUnnamed(): boolean;
                     getSuperclass(): javax.lang.model.type.TypeMirror;
                     getInterfaces(): JavaList<javax.lang.model.type.TypeMirror>;
                     getTypeParameters(): JavaList<TypeParameterElement>;
@@ -21130,6 +21857,7 @@ declare namespace Packages {
                     getConstantValue(): any;
                     getSimpleName(): Name;
                     getEnclosingElement(): Element;
+                    isUnnamed(): boolean;
 
                 }
 
@@ -21393,6 +22121,7 @@ declare namespace Packages {
                     getPackageOf(arg0: javax.lang.model.element.Element): javax.lang.model.element.PackageElement;
                     getModuleOf(arg0: javax.lang.model.element.Element): javax.lang.model.element.ModuleElement;
                     getAllMembers(arg0: javax.lang.model.element.TypeElement): JavaList<javax.lang.model.element.Element>;
+                    getOutermostTypeElement(arg0: javax.lang.model.element.Element): javax.lang.model.element.TypeElement;
                     getAllAnnotationMirrors(arg0: javax.lang.model.element.Element): JavaList<javax.lang.model.element.AnnotationMirror>;
                     hides(arg0: javax.lang.model.element.Element, arg1: javax.lang.model.element.Element): boolean;
                     overrides(arg0: javax.lang.model.element.ExecutableElement, arg1: javax.lang.model.element.ExecutableElement, arg2: javax.lang.model.element.TypeElement): boolean;
@@ -21402,6 +22131,9 @@ declare namespace Packages {
                     isFunctionalInterface(arg0: javax.lang.model.element.TypeElement): boolean;
                     isAutomaticModule(arg0: javax.lang.model.element.ModuleElement): boolean;
                     recordComponentFor(arg0: javax.lang.model.element.ExecutableElement): javax.lang.model.element.RecordComponentElement;
+                    isCanonicalConstructor(arg0: javax.lang.model.element.ExecutableElement): boolean;
+                    isCompactConstructor(arg0: javax.lang.model.element.ExecutableElement): boolean;
+                    getFileObjectOf(arg0: javax.lang.model.element.Element): javax.tools.JavaFileObject;
 
                 }
 
@@ -21463,7 +22195,11 @@ declare namespace Packages {
 
                 /** @deprecated */
                 static getSubject(arg0: java.security.AccessControlContext): Subject;
+                static current(): Subject;
+                static callAs<T>(arg0: Subject, arg1: java.util.concurrent.Callable<T>): T;
+                /** @deprecated */
                 static doAs<T>(arg0: Subject, arg1: java.security.PrivilegedAction<T>): T;
+                /** @deprecated */
                 static doAs<T>(arg0: Subject, arg1: java.security.PrivilegedExceptionAction<T>): T;
                 /** @deprecated */
                 static doAsPrivileged<T>(arg0: Subject, arg1: java.security.PrivilegedAction<T>, arg2: java.security.AccessControlContext): T;
@@ -22030,19 +22766,6 @@ declare namespace Packages {
 
     namespace xyz.wagyourtail {
 
-        class Pair<T, U> extends java.lang.Object {
-            static readonly class: JavaClass<Pair<any, any>>;
-            /** @deprecated */ static prototype: undefined;
-
-            constructor <T, U>(t: T, u: U);
-
-            setU(u: U): void;
-            setT(t: T): void;
-            getU(): U;
-            getT(): T;
-
-        }
-
         /**
          * Is this even faster than just iterating through a LinkedHashSet / HashSet at this point?
          *  also should the node-length just always be 1?
@@ -22103,7 +22826,7 @@ declare namespace Packages {
 
         }
 
-        export { Pair, StringHashTrie }
+        export { StringHashTrie }
 
     }
     namespace xyz.wagyourtail {
@@ -23387,6 +24110,7 @@ declare namespace Packages {
                             }
 
                             /** @since 1.4.2 */
+                            interface CommandBuilder extends xyz.wagyourtail.jsmacros.core.classes.Registrable<CommandBuilder> {}
                             class CommandBuilder extends java.lang.Object {
                                 static readonly class: JavaClass<CommandBuilder>;
                                 /** @deprecated */ static prototype: undefined;
@@ -23504,13 +24228,13 @@ declare namespace Packages {
                                  * @since 1.5.2
                                  */
                                 otherwise(argLevel: int): CommandBuilder;
-                                register(): void;
+                                register(): CommandBuilder;
 
                                 /**
                                  * @since 1.6.5
                                  *  removes this command
                                  */
-                                unregister(): void;
+                                unregister(): CommandBuilder;
 
                             }
 
@@ -24875,7 +25599,7 @@ declare namespace Packages {
                              * @see IDraw2D
                              * @since 1.0.5
                              */
-                            interface Draw2D extends IDraw2D<Draw2D> {}
+                            interface Draw2D extends IDraw2D<Draw2D>, xyz.wagyourtail.jsmacros.core.classes.Registrable<Draw2D> {}
                             class Draw2D extends java.lang.Object {
                                 static readonly class: JavaClass<Draw2D>;
                                 /** @deprecated */ static prototype: undefined;
@@ -25138,6 +25862,7 @@ declare namespace Packages {
                              * @author Wagyourtail
                              * @since 1.0.6
                              */
+                            interface Draw3D extends xyz.wagyourtail.jsmacros.core.classes.Registrable<Draw3D> {}
                             class Draw3D extends java.lang.Object {
                                 static readonly class: JavaClass<Draw3D>;
                                 /** @deprecated */ static prototype: undefined;
@@ -30779,6 +31504,24 @@ declare namespace Packages {
 
                         }
 
+                        /** @since 1.9.1 */
+                        class BlockPredicateHelper extends xyz.wagyourtail.jsmacros.core.helpers.BaseHelper</* net.minecraft.predicate.BlockPredicate */ any> {
+                            static readonly class: JavaClass<BlockPredicateHelper>;
+                            /** @deprecated */ static prototype: undefined;
+
+                            constructor (base: /* net.minecraft.predicate.BlockPredicate */ any);
+
+                            /** @since 1.9.1 */
+                            getBlocks(): JavaList<xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockHelper> | null;
+                            /** @since 1.9.1 */
+                            getStatePredicate(): StatePredicateHelper | null;
+                            /** @since 1.9.1 */
+                            getNbtPredicate(): NbtPredicateHelper | null;
+                            /** @since 1.9.1 */
+                            test(state: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper): boolean;
+
+                        }
+
                         /** @since 1.4.2 */
                         class CommandContextHelper extends Events.BaseEvent {
                             static readonly class: JavaClass<CommandContextHelper>;
@@ -30940,12 +31683,6 @@ declare namespace Packages {
                              * @since 1.9.0
                              */
                             setGameMode(gameMode: Gamemode): this;
-
-                            /**
-                             * @return the current reach distance of the player.
-                             * @since 1.8.4
-                             */
-                            getReach(): number;
 
                             /**
                              * sets crosshair target to a block
@@ -31329,6 +32066,8 @@ declare namespace Packages {
 
                             /** @since 1.9.0 */
                             static wrapCompound(compound: /* net.minecraft.nbt.NbtCompound */ any | null): NBTElementHelper$NBTCompoundHelper | null;
+                            /** @since 1.9.1 */
+                            static wrap(element: /* net.minecraft.nbt.NbtElement */ any | null): NBTElementHelper<any>;
                             /** @since 1.5.1 */
                             static resolve(element: /* net.minecraft.nbt.NbtElement */ any | null): NBTElementHelper<any> | null;
 
@@ -31444,6 +32183,22 @@ declare namespace Packages {
                             asDouble(): number;
                             /** @since 1.5.1 */
                             asNumber(): number;
+
+                        }
+
+                        /** @since 1.9.1 */
+                        class NbtPredicateHelper extends xyz.wagyourtail.jsmacros.core.helpers.BaseHelper</* net.minecraft.predicate.NbtPredicate */ any> {
+                            static readonly class: JavaClass<NbtPredicateHelper>;
+                            /** @deprecated */ static prototype: undefined;
+
+                            constructor (base: /* net.minecraft.predicate.NbtPredicate */ any);
+
+                            /** @since 1.9.1 */
+                            test(entity: xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>): boolean;
+                            /** @since 1.9.1 */
+                            test(itemStack: xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper): boolean;
+                            /** @since 1.9.1 */
+                            test(nbtElement: NBTElementHelper<any>): boolean;
 
                         }
 
@@ -33003,18 +33758,6 @@ declare namespace Packages {
                             toPacket(clazz: JavaClassArg</* net.minecraft.network.packet.Packet */ any>): /* net.minecraft.network.packet.Packet<any> */ any;
 
                             /**
-                             * @param clientbound whether the packet is clientbound or serverbound
-                             * @param packetId the id of the packet
-                             * @return the packet for this buffer.
-                             * @see getPacketId(Class)
-                             * @see getNetworkStateId(Class)
-                             * @see isClientbound(Class)
-                             * @see isServerbound(Class)
-                             * @since 1.8.4
-                             */
-                            toPacket(clientbound: boolean, packetId: int): /* net.minecraft.network.packet.Packet<any> */ any;
-
-                            /**
                              * @param packetClass the class of the packet to get the id for
                              * @return the id of the packet.
                              * @since 1.8.4
@@ -33065,13 +33808,6 @@ declare namespace Packages {
                             sendPacket(clazz: JavaClassArg</* net.minecraft.network.packet.Packet<any> */ any>): this;
 
                             /**
-                             * @param channel the channel to send the packet on
-                             * @return self for chaining.
-                             * @since 1.8.4
-                             */
-                            sendCustomPacket(channel: string): this;
-
-                            /**
                              * @return self for chaining.
                              * @since 1.8.4
                              */
@@ -33093,13 +33829,6 @@ declare namespace Packages {
                             receivePacket(clazz: JavaClassArg</* net.minecraft.network.packet.Packet */ any>): this;
 
                             /**
-                             * @param channel the channel to receive the packet on
-                             * @return self for chaining.
-                             * @since 1.8.4
-                             */
-                            receiveCustomPacket(channel: string): this;
-
-                            /**
                              * These names are subject to change and are only for an easier access. They will probably not
                              *  change in the future, but it is not guaranteed.
                              * @return a list of all packet names.
@@ -33113,21 +33842,6 @@ declare namespace Packages {
                              * @since 1.8.4
                              */
                             reset(): this;
-
-                            /**
-                             * @param registry the registry the value is from
-                             * @param value the value to store
-                             * @return self for chaining.
-                             * @since 1.8.4
-                             */
-                            writeRegistryValue<T>(registry: /* net.minecraft.util.collection.IndexedIterable<T> */ any, value: T): this;
-
-                            /**
-                             * @param registry the registry the read value is from
-                             * @return the registry value.
-                             * @since 1.8.4
-                             */
-                            readRegistryValue<T>(registry: /* net.minecraft.util.collection.IndexedIterable<T> */ any): T;
 
                             /**
                              * @param key the registry key to store
@@ -33228,25 +33942,6 @@ declare namespace Packages {
                              * @since 1.8.4
                              */
                             readNullable<T>(reader: xyz.wagyourtail.jsmacros.core.MethodWrapper</* net.minecraft.network.PacketByteBuf */ any, any, T, any>): T;
-
-                            /**
-                             * This method chooses the left value if it's not null, otherwise it chooses the right value.
-                             * @param left the left value to store
-                             * @param right the right value to store
-                             * @param leftWriter the function to write the left value to the buffer
-                             * @param rightWriter the function to write the right value to the buffer
-                             * @return self for chaining.
-                             * @since 1.8.4
-                             */
-                            writeEither<L, R>(left: L, right: R, leftWriter: xyz.wagyourtail.jsmacros.core.MethodWrapper</* net.minecraft.network.PacketByteBuf */ any, L, any, any>, rightWriter: xyz.wagyourtail.jsmacros.core.MethodWrapper</* net.minecraft.network.PacketByteBuf */ any, R, any, any>): this;
-
-                            /**
-                             * @param leftReader the function to read the left value from the buffer
-                             * @param rightReader the function to read the right value from the buffer
-                             * @return the read object.
-                             * @since 1.8.4
-                             */
-                            readEither(leftReader: xyz.wagyourtail.jsmacros.core.MethodWrapper</* net.minecraft.network.PacketByteBuf */ any, any, any, any>, rightReader: xyz.wagyourtail.jsmacros.core.MethodWrapper</* net.minecraft.network.PacketByteBuf */ any, any, any, any>): any;
 
                             /**
                              * @param bytes the bytes to store
@@ -33404,39 +34099,6 @@ declare namespace Packages {
                             writeGlobalPos(dimension: CanOmitNamespace<Dimension>, x: int, y: int, z: int): this;
 
                             /**
-                             * @return the read global pos, the first element is the dimension, the second is the position.
-                             * @since 1.8.4
-                             */
-                            readGlobalPos(): xyz.wagyourtail.Pair<string, xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper>;
-
-                            /**
-                             * @param text the string to store
-                             * @return self for chaining.
-                             * @since 1.8.4
-                             */
-                            writeText(text: string): this;
-
-                            /**
-                             * @param builder the text builder whose text should be stored
-                             * @return self for chaining.
-                             * @since 1.8.4
-                             */
-                            writeText(builder: xyz.wagyourtail.jsmacros.client.api.classes.TextBuilder): this;
-
-                            /**
-                             * @param text the text to store
-                             * @return self for chaining.
-                             * @since 1.8.4
-                             */
-                            writeText(text: TextHelper): this;
-
-                            /**
-                             * @return the read text.
-                             * @since 1.8.4
-                             */
-                            readText(): TextHelper;
-
-                            /**
                              * @param constant the enum constant to store
                              * @return self for chaining.
                              * @since 1.8.4
@@ -33501,19 +34163,6 @@ declare namespace Packages {
                              * @since 1.8.4
                              */
                             readNbt(): NBTElementHelper<any>;
-
-                            /**
-                             * @param stack the item stack to store
-                             * @return self for chaining.
-                             * @since 1.8.4
-                             */
-                            writeItemStack(stack: xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper): this;
-
-                            /**
-                             * @return the read item stack.
-                             * @since 1.8.4
-                             */
-                            readItemStack(): xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
 
                             /**
                              * @param string the string to store
@@ -33655,31 +34304,6 @@ declare namespace Packages {
                              * @since 1.8.4
                              */
                             readBitSet(): java.util.BitSet;
-
-                            /**
-                             * @param profile the profile to store
-                             * @return self for chaining.
-                             * @since 1.8.4
-                             */
-                            writeGameProfile(profile: com.mojang.authlib.GameProfile): this;
-
-                            /**
-                             * @return the read game profile.
-                             * @since 1.8.4
-                             */
-                            readGameProfile(): com.mojang.authlib.GameProfile;
-
-                            /**
-                             * @return the read profile's name.
-                             * @since 1.8.4
-                             */
-                            readGameProfileName(): string;
-
-                            /**
-                             * @return the read profile's UUID.
-                             * @since 1.8.4
-                             */
-                            readGameProfileUuid(): java.util.UUID;
 
                             /**
                              * @return the readers current position.
@@ -34125,6 +34749,20 @@ declare namespace Packages {
 
                         }
 
+                        /** @since 1.9.1 */
+                        class StatePredicateHelper extends xyz.wagyourtail.jsmacros.core.helpers.BaseHelper</* net.minecraft.predicate.StatePredicate */ any> {
+                            static readonly class: JavaClass<StatePredicateHelper>;
+                            /** @deprecated */ static prototype: undefined;
+
+                            constructor (base: /* net.minecraft.predicate.StatePredicate */ any);
+
+                            /** @since 1.9.1 */
+                            test(state: xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper): boolean;
+                            /** @since 1.9.1 */
+                            test(state: xyz.wagyourtail.jsmacros.client.api.helpers.world.FluidStateHelper): boolean;
+
+                        }
+
                         class StatsHelper extends xyz.wagyourtail.jsmacros.core.helpers.BaseHelper</* net.minecraft.stat.StatHandler */ any> {
                             static readonly class: JavaClass<StatsHelper>;
                             /** @deprecated */ static prototype: undefined;
@@ -34514,6 +35152,7 @@ declare namespace Packages {
                             AdvancementHelper,
                             AdvancementManagerHelper,
                             AdvancementProgressHelper,
+                            BlockPredicateHelper,
                             CommandContextHelper,
                             CommandNodeHelper,
                             DyeColorHelper,
@@ -34524,6 +35163,7 @@ declare namespace Packages {
                             NBTElementHelper$NBTCompoundHelper,
                             NBTElementHelper$NBTListHelper,
                             NBTElementHelper$NBTNumberHelper,
+                            NbtPredicateHelper,
                             OptionsHelper,
                             OptionsHelper$AccessibilityOptionsHelper,
                             OptionsHelper$ChatOptionsHelper,
@@ -34532,6 +35172,7 @@ declare namespace Packages {
                             OptionsHelper$SkinOptionsHelper,
                             OptionsHelper$VideoOptionsHelper,
                             PacketByteBufferHelper,
+                            StatePredicateHelper,
                             StatsHelper,
                             StatusEffectHelper,
                             StyleHelper,
@@ -34687,15 +35328,6 @@ declare namespace Packages {
                                 hideCanPlace(hide: boolean): this;
 
                                 /**
-                                 * These flags are for banner patterns, potion effects, book information and other special
-                                 *  flags.
-                                 * @param hide whether to hide additional flags or not
-                                 * @return self for chaining.
-                                 * @since 1.8.4
-                                 */
-                                hideAdditional(hide: boolean): this;
-
-                                /**
                                  * @param hide whether to hide the color of colored leather armor or not
                                  * @return self for chaining.
                                  * @since 1.8.4
@@ -34769,12 +35401,6 @@ declare namespace Packages {
                                  * @since 1.8.4
                                  */
                                 getId(): EnchantmentId;
-
-                                /**
-                                 * @return the rarity of this enchantment.
-                                 * @since 1.8.4
-                                 */
-                                getRarity(): EnchantmentRarity;
 
                                 /**
                                  * Only accounts for enchantments of the same target type.
@@ -34899,11 +35525,11 @@ declare namespace Packages {
                              * @author Etheradon
                              * @since 1.8.4
                              */
-                            class FoodComponentHelper extends xyz.wagyourtail.jsmacros.core.helpers.BaseHelper</* net.minecraft.item.FoodComponent */ any> {
+                            class FoodComponentHelper extends xyz.wagyourtail.jsmacros.core.helpers.BaseHelper</* net.minecraft.component.type.FoodComponent */ any> {
                                 static readonly class: JavaClass<FoodComponentHelper>;
                                 /** @deprecated */ static prototype: undefined;
 
-                                constructor (base: /* net.minecraft.item.FoodComponent */ any);
+                                constructor (base: /* net.minecraft.component.type.FoodComponent */ any);
 
                                 /**
                                  * @return the amount of hunger this food restores.
@@ -34916,12 +35542,6 @@ declare namespace Packages {
                                  * @since 1.8.4
                                  */
                                 getSaturation(): number;
-
-                                /**
-                                 * @return `true` if this food can be eaten by wolves, `false` otherwise.
-                                 * @since 1.8.4
-                                 */
-                                isMeat(): boolean;
 
                                 /**
                                  * @return `true` if this food can be eaten even when the player is not hungry,
@@ -35123,15 +35743,6 @@ declare namespace Packages {
                                 static readonly class: JavaClass<ItemStackHelper>;
                                 /** @deprecated */ static prototype: undefined;
 
-                                /**
-                                 * The old implementation use used in {@link ItemStack} before 1.20. This only checks for the nbt data, the
-                                 *  items themselves are not compared.
-                                 * @param left the first item stack
-                                 * @param right the second item stack
-                                 * @return `true` if the two item stacks have equal nbt data, `false` otherwise.
-                                 */
-                                static areNbtEqual(left: /* net.minecraft.item.ItemStack */ any, right: /* net.minecraft.item.ItemStack */ any): boolean;
-
                                 constructor (id: CanOmitNamespace<ItemId>, count: int);
                                 constructor (i: /* net.minecraft.item.ItemStack */ any);
 
@@ -35292,8 +35903,6 @@ declare namespace Packages {
                                 isTool(): boolean;
                                 /** @since 1.8.2 */
                                 isWearable(): boolean;
-                                /** @since 1.8.2 */
-                                getMiningLevel(): number;
                                 isEmpty(): boolean;
                                 /** @since 1.1.3 [citation needed] */
                                 equals(ish: ItemStackHelper): boolean;
@@ -35368,13 +35977,13 @@ declare namespace Packages {
                                  * @return a list of all filters set for the can destroy flag.
                                  * @since 1.8.4
                                  */
-                                getDestroyRestrictions(): JavaList<string>;
+                                getDestroyRestrictions(): JavaList<xyz.wagyourtail.jsmacros.client.api.helpers.BlockPredicateHelper>;
 
                                 /**
                                  * @return a list of all filters set for the can place on flag.
                                  * @since 1.8.4
                                  */
-                                getPlaceRestrictions(): JavaList<string>;
+                                getPlaceRestrictions(): JavaList<xyz.wagyourtail.jsmacros.client.api.helpers.BlockPredicateHelper>;
 
                                 /**
                                  * @return `true` if enchantments are hidden, `false` otherwise.
@@ -35405,12 +36014,6 @@ declare namespace Packages {
                                  * @since 1.8.4
                                  */
                                 isCanPlaceHidden(): boolean;
-
-                                /**
-                                 * @return `true` if additional attributes are hidden, `false` otherwise.
-                                 * @since 1.8.4
-                                 */
-                                areAdditionalsHidden(): boolean;
 
                                 /**
                                  * @return `true` if dye of colored leather armor is hidden, `false` otherwise.
@@ -37607,12 +38210,6 @@ declare namespace Packages {
                                 isLocal(): boolean;
                                 getNbt(): xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper$NBTCompoundHelper;
 
-                                /**
-                                 * @return `true` if the server enforces secure chat, `false` otherwise.
-                                 * @since 1.8.4
-                                 */
-                                isSecureChatEnforced(): boolean;
-
                             }
 
                             /**
@@ -38921,13 +39518,8 @@ declare namespace Packages {
                                      * @since 1.8.4
                                      */
                                     getDefaultHealth(): number;
-
-                                    /**
-                                     * @return the entity's mob category, `UNDEAD`, `DEFAULT`, `ARTHROPOD`, or
-                                     *  `ILLAGER`, `AQUATIC` or `UNKNOWN`.
-                                     * @since 1.8.4
-                                     */
-                                    getMobCategory(): MobCategory;
+                                    /** @since 1.9.1 */
+                                    getMobTags(): JavaList<MobTag>;
 
                                     /**
                                      * @return if the entity is in a bed.
@@ -39268,7 +39860,7 @@ declare namespace Packages {
                                     /**
                                      * @return trade offer as nbt tag
                                      */
-                                    getNBT(): xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper$NBTCompoundHelper;
+                                    getNBT(): xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper<any>;
 
                                     /**
                                      * @return current number of uses
@@ -42217,6 +42809,22 @@ declare namespace Packages {
                     }
 
                     /**
+                     * @template R the return value of the methods. it's usually the self.
+                     * @author aMelonRind
+                     * @since 1.9.1
+                     */
+                    abstract class Registrable<R> extends java.lang.Interface {
+                        static readonly class: JavaClass<Registrable<any>>;
+                        /** @deprecated */ static prototype: undefined;
+                    }
+                    interface Registrable<R> {
+
+                        register(): R;
+                        unregister(): R;
+
+                    }
+
+                    /**
                      * @template T the type of the wrapped class
                      * @since 1.6.5
                      */
@@ -42245,6 +42853,7 @@ declare namespace Packages {
                         Mappings$ClassData,
                         Mappings$MappedClass,
                         Mappings$MethodData,
+                        Registrable,
                         WrappedClassInstance
                     }
 
@@ -42659,6 +43268,7 @@ declare namespace Packages {
                         readonly startTime: number;
                         readonly syncObject: java.lang.ref.WeakReference<any>;
                         readonly triggeringEvent: Events.BaseEvent;
+                        readonly eventListeners: java.util.WeakHashMap<xyz.wagyourtail.jsmacros.core.event.IEventListener, string>;
                         hasMethodWrapperBeenInvoked: boolean;
 
                         /**
@@ -42666,6 +43276,7 @@ declare namespace Packages {
                          */
                         getSyncObject(): any;
                         clearSyncObject(): void;
+                        shouldKeepAlive(): boolean;
                         /** @since 1.6.0 */
                         getBoundEvents(): JavaMap<java.lang.Thread, EventContainer<BaseScriptContext<T>>>;
                         /** @since 1.6.0 */
@@ -43540,6 +44151,9 @@ declare namespace Packages {
                         static readonly class: JavaClass<ServiceManager>;
                         /** @deprecated */ static prototype: undefined;
 
+                        static setAutoUnregisterKeepAlive(ctx: xyz.wagyourtail.jsmacros.core.language.BaseScriptContext<any>, keepAlive: boolean): void;
+                        static hasKeepAlive(ctx: xyz.wagyourtail.jsmacros.core.language.BaseScriptContext<any>): boolean;
+
                         constructor (runner: xyz.wagyourtail.jsmacros.core.Core<any, any>);
 
                         /**
@@ -43939,6 +44553,7 @@ type BlockDataHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.worl
 type BlockDisplayEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.display.BlockDisplayEntityHelper;
 type BlockHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockHelper;
 type BlockPosHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockPosHelper;
+type BlockPredicateHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.BlockPredicateHelper;
 type BlockStateHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper;
 type BoatEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.vehicle.BoatEntityHelper;
 type BossBarHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.BossBarHelper;
@@ -44081,6 +44696,7 @@ type NBTElementHelper$NBTCompoundHelper = Packages.xyz.wagyourtail.jsmacros.clie
 type NBTElementHelper$NBTListHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper$NBTListHelper;
 type NBTElementHelper$NBTNumberHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper$NBTNumberHelper;
 type NBTElementHelper<T = /* net.minecraft.nbt.NbtElement */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper<T>;
+type NbtPredicateHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.NbtPredicateHelper;
 type OcelotEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.passive.OcelotEntityHelper;
 type OptionsHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.OptionsHelper;
 type OptionsHelper$AccessibilityOptionsHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.OptionsHelper$AccessibilityOptionsHelper;
@@ -44092,7 +44708,6 @@ type OptionsHelper$VideoOptionsHelper = Packages.xyz.wagyourtail.jsmacros.client
 type OverlayContainer = Packages.xyz.wagyourtail.wagyourgui.overlays.OverlayContainer;
 type PacketByteBufferHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.PacketByteBufferHelper;
 type PaintingEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.decoration.PaintingEntityHelper;
-type Pair<T = any, U = any> = Packages.xyz.wagyourtail.Pair<T, U>;
 type PandaEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.passive.PandaEntityHelper;
 type ParrotEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.passive.ParrotEntityHelper;
 type PerExecLanguageLibrary<U = any, T extends Packages.xyz.wagyourtail.jsmacros.core.language.BaseScriptContext<U> = any> = Packages.xyz.wagyourtail.jsmacros.core.library.PerExecLanguageLibrary<U, T>;
@@ -44119,6 +44734,7 @@ type RecipeHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.invento
 type RecipeInventory<T = /* net.minecraft.client.gui.screen.ingame.HandledScreen<net.minecraft.screen.AbstractRecipeScreenHandler<any>> */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.RecipeInventory<T>;
 type Rect = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Rect;
 type Rect$Builder = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Rect$Builder;
+type Registrable<R = any> = Packages.xyz.wagyourtail.jsmacros.core.classes.Registrable<R>;
 type RegistryHelper = Packages.xyz.wagyourtail.jsmacros.client.api.classes.RegistryHelper;
 type RenderElement = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.RenderElement;
 type RenderElement3D<T extends Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components3d.RenderElement3D<any> = any> = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components3d.RenderElement3D<T>;
@@ -44145,6 +44761,7 @@ type SnowGolemEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helper
 type SpellcastingIllagerEntityHelper<T = /* net.minecraft.entity.mob.SpellcastingIllagerEntity */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.mob.SpellcastingIllagerEntityHelper<T>;
 type SpiderEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.mob.SpiderEntityHelper;
 type StateHelper<U = /* net.minecraft.state.State<any, any> */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.StateHelper<U>;
+type StatePredicateHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.StatePredicateHelper;
 type StatsHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.StatsHelper;
 type StatusEffectHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.StatusEffectHelper;
 type StoneCutterInventory = Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.StoneCutterInventory;
@@ -44325,7 +44942,6 @@ declare namespace KeyMod {
     type ctrl = 'key.keyboard.left.control';
     type alt = 'key.keyboard.left.alt';
 }
-type MobCategory = 'UNDEAD' | 'DEFAULT' | 'ARTHROPOD' | 'ILLAGER' | 'AQUATIC' | 'UNKNOWN';
 type NarratorMode = 'OFF' | 'ALL' | 'CHAT' | 'SYSTEM';
 type ParticleMode = 'minimal' | 'decreased' | 'all';
 type SlotUpdateType = 'HELD' | 'INVENTORY' | 'SCREEN';
