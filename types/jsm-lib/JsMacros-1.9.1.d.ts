@@ -3081,7 +3081,7 @@ declare namespace World {
      * @return the current dimension.
      * @since 1.1.2
      */
-    function getDimension(): Dimension | null;
+    function getDimension(): Dimension | string & {} | null;
 
     /**
      * @return the current biome.
@@ -35280,8 +35280,8 @@ declare namespace Packages {
                                 getNBT(): xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper$NBTCompoundHelper | null;
                                 /** @since 1.1.3 */
                                 getCreativeTab(): JavaList<xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper>;
-                                /** @deprecated */
-                                getItemID(): ItemId;
+                                // /** @deprecated */
+                                // getItemID(): ItemId;
                                 /** @since 1.6.4 */
                                 getItemId(): ItemId;
                                 /** @since 1.8.2 */
