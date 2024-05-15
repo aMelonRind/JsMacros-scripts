@@ -3,7 +3,7 @@
 /// <reference lib = "ES2022"/>
 
 /// <reference path = "./jsm-lib/Graal.d.ts"/>
-/// <reference path = "./jsm-lib/JsMacros-1.9.1.d.ts"/>
+/// <reference path = "./jsm-lib/JsMacros-1.9.2.d.ts"/>
 //// <reference path = "../../../builtTs.d.ts"/>
 /// <reference path = "./jsm-lib/WorldScannerBuilder.d.ts"/>
 /// <reference path = "./jsm-lib/McIdsAndEnums.d.ts"/>
