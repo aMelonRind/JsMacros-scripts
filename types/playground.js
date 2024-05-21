@@ -6,7 +6,8 @@
 // Most of the examples isn't relevant to each other, thus this file most likely won't work as a script.
 if (1) throw 'This is playground, not a script.'
 
-// The @ts-expect-error annotation are used to suppress errors. Remove them to see the error.
+// The @ts-expect-error annotation are used to suppress errors.
+// Web editors ignores ts-check so you probably won't see errors even if you removed them.
 
 // Some strings has defined set of contents based on their position.
 // Try delete the content of the string and press ctrl+space. It'll show you some suggestions.
