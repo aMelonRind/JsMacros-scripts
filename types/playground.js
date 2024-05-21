@@ -1,9 +1,6 @@
 //@ts-check
 // This imports types using triple-slash directives. If you set up the environent, you don't need to do this.
 /// <reference path = "./index.d.ts"/>
-// As in 2024-04-09, github.dev doesn't have project-wide typescript intellisense support.
-// You'll need to open this in vscode.dev or other IDE that supports it.
-// https://vscode.dev/github/aMelonRind/JsMacros-scripts/blob/main/types/playground.js
 
 // This file contains some examples, while you can play around with types.
 // Most of the examples isn't relevant to each other, thus this file most likely won't work as a script.
