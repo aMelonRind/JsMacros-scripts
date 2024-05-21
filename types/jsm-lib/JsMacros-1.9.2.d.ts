@@ -446,7 +446,7 @@ declare namespace Events {
     }
 
     interface OpenScreen extends BaseEvent {
-        readonly screen: Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.IScreen;
+        readonly screen: Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.IScreen | null;
         readonly screenName: ScreenName;
     }
 
@@ -2045,13 +2045,13 @@ declare namespace JsMacros {
      * @throws InterruptedException
      * @since 1.5.0 [citation needed]
      */
-    function waitForEvent<E extends keyof Events>(event: E, filter: MethodWrapper<Events[E], undefined, boolean>): FJsMacros$EventAndContext<Events[E]>;
+    function waitForEvent<E extends keyof Events>(event: E, filter: MethodWrapper<Events[E], undefined, boolean> | null): FJsMacros$EventAndContext<Events[E]>;
 
     /**
      * @throws InterruptedException
      * @since 1.9.0
      */
-    function waitForEvent<E extends keyof Events>(event: E, join: boolean, filter: MethodWrapper<Events[E], undefined, boolean>): FJsMacros$EventAndContext<Events[E]>;
+    function waitForEvent<E extends keyof Events>(event: E, join: boolean, filter: MethodWrapper<Events[E], undefined, boolean> | null): FJsMacros$EventAndContext<Events[E]>;
 
     /**
      * waits for an event. if this thread is bound to an event already, this will release current lock.
@@ -2062,7 +2062,7 @@ declare namespace JsMacros {
      * @throws InterruptedException
      * @since 1.5.0
      */
-    function waitForEvent<E extends keyof Events>(event: E, filter: MethodWrapper<Events[E], undefined, boolean>, runBeforeWaiting: MethodWrapper<JavaObject, JavaObject, JavaObject>): FJsMacros$EventAndContext<Events[E]>;
+    function waitForEvent<E extends keyof Events>(event: E, filter: MethodWrapper<Events[E], undefined, boolean> | null, runBeforeWaiting: MethodWrapper<JavaObject, JavaObject, JavaObject> | null): FJsMacros$EventAndContext<Events[E]>;
 
     /**
      * waits for an event. if this thread is bound to an event already, this will release current lock.
@@ -2073,7 +2073,7 @@ declare namespace JsMacros {
      * @throws InterruptedException
      * @since 1.9.0
      */
-    function waitForEvent<E extends keyof Events>(event: E, join: boolean, filter: MethodWrapper<Events[E], undefined, boolean>, runBeforeWaiting: MethodWrapper<JavaObject, JavaObject, JavaObject>): FJsMacros$EventAndContext<Events[E]>;
+    function waitForEvent<E extends keyof Events>(event: E, join: boolean, filter: MethodWrapper<Events[E], undefined, boolean> | null, runBeforeWaiting: MethodWrapper<JavaObject, JavaObject, JavaObject> | null): FJsMacros$EventAndContext<Events[E]>;
 
     /**
      * @return a list of script-added listeners.
