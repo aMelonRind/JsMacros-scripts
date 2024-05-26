@@ -3088,7 +3088,7 @@ declare namespace World {
      * @return all entities in the render distance, that match the specified entity type.
      * @since 1.8.4
      */
-    function getEntities<E extends CanOmitNamespace<EntityId>>(...types: E[]): JavaList<EntityTypeFromId<E>> | null;
+    function getEntities<E extends CanOmitNamespace<EntityId>>(...types: JavaVarArgs<E>): JavaList<EntityTypeFromId<E>> | null;
 
     /**
      * @param distance the maximum distance to search for entities
@@ -3103,7 +3103,7 @@ declare namespace World {
      * @return a list of entities within the specified distance to the player, that match the specified entity type.
      * @since 1.8.4
      */
-    function getEntities<E extends CanOmitNamespace<EntityId>>(distance: double, ...types: E[]): JavaList<EntityTypeFromId<E>> | null;
+    function getEntities<E extends CanOmitNamespace<EntityId>>(distance: double, ...types: JavaVarArgs<E>): JavaList<EntityTypeFromId<E>> | null;
 
     /**
      * @param filter the entity filter
@@ -24795,7 +24795,7 @@ declare namespace Packages {
                                  *  empty slots.
                                  * @since 1.8.4
                                  */
-                                findFreeSlot(...mapIdentifiers: InvMapId[]): number;
+                                findFreeSlot(...mapIdentifiers: JavaVarArgs<InvMapId>): number;
 
                                 /**
                                  * @return a map of all item ids and their total count inside the inventory.
@@ -24814,7 +24814,7 @@ declare namespace Packages {
                                  * @return a list of all items in the given inventory sections.
                                  * @since 1.8.4
                                  */
-                                getItems(...mapIdentifiers: InvMapId[]): JavaList<xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper>;
+                                getItems(...mapIdentifiers: JavaVarArgs<InvMapId>): JavaList<xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper>;
 
                                 /**
                                  * @param item the item to search for
@@ -24835,7 +24835,7 @@ declare namespace Packages {
                                  * @return all slots indexes in the given inventory sections.
                                  * @since 1.8.4
                                  */
-                                getSlots(...mapIdentifiers: InvMapId[]): JavaArray<number>;
+                                getSlots(...mapIdentifiers: JavaVarArgs<InvMapId>): JavaArray<number>;
 
                                 /**
                                  * @return the index of the selected hotbar slot.
@@ -24928,7 +24928,7 @@ declare namespace Packages {
                                  * checks if this inventory type equals to any of the specified types<br>
                                  * @since 1.9.0
                                  */
-                                is<T extends ScreenName>(...anyOf: T[]): this is T extends keyof InvNameToTypeMap ? InvNameToTypeMap[keyof InvNameToTypeMap] extends InvNameToTypeMap[T] ? Inventory : InvNameToTypeMap[T] : this;
+                                is<T extends ScreenName>(...anyOf: JavaVarArgs<T>): this is T extends keyof InvNameToTypeMap ? InvNameToTypeMap[keyof InvNameToTypeMap] extends InvNameToTypeMap[T] ? Inventory : InvNameToTypeMap[T] : this;
 
                                 /**
                                  * @return the inventory mappings different depending on the type of open container/inventory.
@@ -39202,7 +39202,7 @@ declare namespace Packages {
                                      * checks if this entity type equals to any of the specified types<br>
                                      * @since 1.9.0
                                      */
-                                    is<E extends CanOmitNamespace<EntityId>>(...anyOf: E[]): this is EntityTypeFromId<E>;
+                                    is<E extends CanOmitNamespace<EntityId>>(...anyOf: JavaVarArgs<E>): this is EntityTypeFromId<E>;
 
                                     /**
                                      * @return if the entity has the glowing effect.
