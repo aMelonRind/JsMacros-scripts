@@ -89,9 +89,12 @@ class Toggle {
     interval = Math.ceil(interval)
     outer: do for (value of cb()) {
       if (!toggle.check()) break outer
-      if (!onYield()) break
-      if (value === undefined) continue
+      if (value === undefined) {
+        if (!onYield()) break
+        continue
+      }
       if (typeof value === 'number') {
+        if (!onYield()) break
         if (!toggle.waitTick(value)) break outer
         continue
       }
