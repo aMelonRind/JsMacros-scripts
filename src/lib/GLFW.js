@@ -1,6 +1,5 @@
 // https://javadoc.lwjgl.org/org/lwjgl/glfw/GLFW.html
 const /** @type {*} */ GLFW = Java.type('org.lwjgl.glfw.GLFW')
-const Float = Java.type('java.lang.Float')
 const handle = Client.getMinecraft().method_22683().method_4490() // .getWindow().getHandle()
 
 class GLFWHelper {
@@ -18,7 +17,7 @@ class GLFWHelper {
    * @param {number} opacity 0.0-1.0
    */
   setOpacity(opacity = 1.0) {
-    GLFW.glfwSetWindowOpacity(handle, new Float(opacity))
+    GLFW.glfwSetWindowOpacity(handle, Math.fround(opacity))
   }
 
 }
