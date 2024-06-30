@@ -36034,7 +36034,7 @@ declare namespace Packages {
                                 constructor (base: /* net.minecraft.recipe.RecipeEntry<any> */ any, syncId: int);
 
                                 /** @since 1.3.1 */
-                                getId(): string;
+                                getId(): RecipeId;
 
                                 /**
                                  * get ingredients list
