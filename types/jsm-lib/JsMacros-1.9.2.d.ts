@@ -1952,7 +1952,7 @@ declare namespace JsMacros {
      * @see IEventListener
      * @since 1.9.1
      */
-    function on<E extends keyof Events>(event: E, filterer: EventFilterers[E], callback: MethodWrapper<Events[E], EventContainer>): Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener;
+    function on<E extends keyof Events>(event: E, filterer: EventFilterer, callback: MethodWrapper<Events[E], EventContainer>): Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener;
 
     /**
      * Creates a listener for an event, this function can be more efficient that running a script file when used properly.
@@ -1960,7 +1960,7 @@ declare namespace JsMacros {
      * @see IEventListener
      * @since 1.9.1
      */
-    function on<E extends keyof Events>(event: E, filterer: EventFilterers[E], joined: boolean, callback: MethodWrapper<Events[E], EventContainer>): Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener;
+    function on<E extends keyof Events>(event: E, filterer: EventFilterer, joined: boolean, callback: MethodWrapper<Events[E], EventContainer>): Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener;
 
     /**
      * Creates a single-run listener for an event, this function can be more efficient that running a script file when used properly.
@@ -37794,7 +37794,7 @@ declare namespace Packages {
                                  *  `false` otherwise.
                                  * @since 1.8.4
                                  */
-                                containsAny(...blocks: CanOmitNamespace<BlockId>[]): boolean;
+                                containsAny(...blocks: JavaVarArgs<CanOmitNamespace<BlockId>>): boolean;
 
                                 /**
                                  * @param blocks the blocks to search for
@@ -37802,7 +37802,7 @@ declare namespace Packages {
                                  *  otherwise.
                                  * @since 1.8.4
                                  */
-                                containsAll(...blocks: CanOmitNamespace<BlockId>[]): boolean;
+                                containsAll(...blocks: JavaVarArgs<CanOmitNamespace<BlockId>>): boolean;
 
                                 /**
                                  * @return a map of the raw heightmap data.
