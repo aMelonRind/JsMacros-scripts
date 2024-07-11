@@ -87,7 +87,7 @@ class ServerUtils {
    * @param {string} name 
    * @returns {ButtonBuilder<Ctx>}
    */
-  addButton(screenType, name) {
+  addButton(name, screenType = 'Survival Inventory') {
     return new ButtonBuilder(screenType, name)
   }
 
@@ -344,9 +344,9 @@ function enableRecvListener() {
 /**
  * a toggle button for uiutils because the mod doesn't have it.  
  * only works if you have uiutils installed.
- * @param {ScreenButtonsBuilder} group 
+ * @param {ServerUtils | ScreenButtonsBuilder} adder 
  */
-function addUiUtilToggleButton(group) {
+function addUiUtilToggleButton(adder) {
   /** @type {{ enabled: boolean }} */
   let uiu
   try { //@ts-ignore
@@ -356,7 +356,7 @@ function addUiUtilToggleButton(group) {
   }
   uiu.enabled = false
 
-  group.addButton('uiutils')
+  adder.addButton('uiutils')
     .setIcon('minecraft:debug_stick')
     .runs(() => uiu.enabled = !uiu.enabled)
     .build()
