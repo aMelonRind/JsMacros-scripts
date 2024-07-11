@@ -123,7 +123,7 @@ class ServerUtils {
       if (match) {
         const name = match[1]
         if (set.has(name)) {
-          Chat.say(cmd.replace('%palyer%', name))
+          Chat.say(cmd.replace('%player%', name))
           logger.log('Auto accepted tp.')
           return true
         }
