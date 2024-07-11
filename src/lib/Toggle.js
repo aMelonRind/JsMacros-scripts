@@ -5,7 +5,7 @@ const keyStopRequest = path + ':toggle:stopRequests'
 
 const isRenderThread = JavaWrapper.methodToJava(th => th.getName() === 'Render thread')
 
-const contexts = Java.from(JsMacros.getOpenContexts()).filter(c =>
+const contexts = JsMacros.getOpenContexts().filter(c =>
   c.getFile()?.getPath() === path &&
   c !== context.getCtx() &&
   c.getMainThread().isAlive()
