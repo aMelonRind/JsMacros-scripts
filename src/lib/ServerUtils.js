@@ -1,4 +1,10 @@
 //@ts-check
+// base module for dedicated server utilities service.
+// it can do the following:
+// * add quick buttons to screens
+// * auto accept tpa
+// * execute remote command with /msg
+// * block unwanted chat messages
 
 const logger = require('./Logger')
 
