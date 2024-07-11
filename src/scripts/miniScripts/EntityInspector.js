@@ -16,11 +16,24 @@ const getTextWidth = Client.getMinecraft().field_1772.method_1727
 /** @type {ScriptScreen} */
 let sc
 let lastNbtPath = ''
+let inspectSelf = false
 
 JsMacros.on('Key', JavaWrapper.methodToJava(e => {
   if (e.key !== 'key.mouse.middle'
   ||  !e.mods.endsWith('alt')
+  ||  e.action !== 1
   ||  Hud.getOpenScreen()) return
+  const p = Player.getPlayer()
+  if (p?.getPitch() === 90) {
+    if (inspectSelf) {
+      inspectSelf = false
+      openEntityInspectScreen(p)
+      return
+    } else {
+      inspectSelf = true
+    }
+  }
+  inspectSelf = false
   const trace = Player.rayTraceEntity(64)
   if (!trace) return
   openEntityInspectScreen(trace)
