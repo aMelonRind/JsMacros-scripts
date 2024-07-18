@@ -2,7 +2,8 @@
 
 /** @type {*} */
 const BeamJava = (((() => { // shift bracket color in java code to blue on vscode
-  const className = 'MelonRind$RenderElement$Beam' // + `$Test${GlobalVars.getAndIncrementInt('classtesting')}`
+  // TODO: remove 'ah'
+  const className = 'MelonRind$RenderElement$Beam' + 'ah' // + `$Test${GlobalVars.getAndIncrementInt('classtesting')}`
   try {
     return Java.type('xyz.wagyourtail.jsmacros.core.library.impl.classes.proxypackage.' + className)
   } catch {}
@@ -15,6 +16,7 @@ const BeamJava = (((() => { // shift bracket color in java code to blue on vscod
   const Identifier = 'net.minecraft.class_2960'
   const BeaconBlockEntityRenderer = 'net.minecraft.class_822'
 
+  const of = 'method_60654'
   const getInstance = 'method_1551'
   const world = 'field_1687'
   const getTime = 'method_8510'
@@ -45,13 +47,7 @@ const BeamJava = (((() => { // shift bracket color in java code to blue on vscod
     .addMethod(`public void setOuterRadius(double value) { outerRadius = (float) value; }`)
     .addMethod(`public void setSpeed(double value) { speed = (float) value; }`)
     .addMethod(`public void setTexture(String id) {
-      texture = id == null || DEFAULT_BEAM_TEXTURE.toString().equals(id) ? DEFAULT_BEAM_TEXTURE : new ${Identifier}(id);
-    }`)
-    .addMethod(`protected float[] _getRgb() {
-      int r = (color >> 16) & 0xFF;
-      int g = (color >>  8) & 0xFF;
-      int b =  color        & 0xFF;
-      return new float[] { r / 255.0f, g / 255.0f, b / 255.0f };
+      texture = id == null || DEFAULT_BEAM_TEXTURE.toString().equals(id) ? DEFAULT_BEAM_TEXTURE : ${Identifier}.${of}(id);
     }`)
     .addMethod(`protected float _getDelta(float tickDelta, float speed) {
       if (speed == 0.0f) return 0.0f;
@@ -63,7 +59,7 @@ const BeamJava = (((() => { // shift bracket color in java code to blue on vscod
       }
       return delta;
     }`)
-    .addMethod(`public void render(${DrawContext} drawContext, ${BufferBuilder} builder, float tickDelta) {
+    .addMethod(`public void render(${DrawContext} drawContext, float tickDelta) {
       ${MatrixStack} mat = drawContext.${getMatrices}();
       final float speed = this.speed;
       mat.${push}();
@@ -97,7 +93,7 @@ const BeamJava = (((() => { // shift bracket color in java code to blue on vscod
         time,
         0,
         length,
-        _getRgb(),
+        color,
         innerRadius,
         outerRadius
       );

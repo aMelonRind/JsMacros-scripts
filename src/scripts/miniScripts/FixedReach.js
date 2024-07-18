@@ -10,13 +10,13 @@ if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 const d3d = Hud.createDraw3D()
 const box = d3d.addBox(0, 0, 0, 0, 0, 0, 0x00FFFF, 0x000000, false)
 let pos = PositionCommon.createBlockPos(0, -999, 0)
-let im = Player.getInteractionManager()
+let im = Utils.requireNonNull(Player.interactions())
 /** @type {IEventListener?} */
 let scrollListener = null
 let state = false
 let pressed = false
 let configuring = false
-let distance = im.getReach()
+let distance = Player.getReach()
 
 const prefix = Chat.createTextBuilder()
   .append('[').withColor(0x6)
@@ -29,8 +29,8 @@ const scrollCallback = JavaWrapper.methodToJava(e => {
   e.cancel()
   configuring = true
   const decreasing = e.deltaY < 0
-  if (distance === (decreasing ? 0 : im.getReach())) return
-  const p = Player.getPlayer()
+  if (distance === (decreasing ? 0 : Player.getReach())) return
+  const p = Utils.requireNonNull(Player.getPlayer())
   const look = PositionCommon.createLookingVector(p).normalize().getEnd()
   const pos = look.scale(distance).add(p.getEyePos())
   let sub = pos.sub(pos.toBlockPos().toPos3D())
@@ -44,7 +44,7 @@ const scrollCallback = JavaWrapper.methodToJava(e => {
   if (sub.y < 0.0001) sub.y++
   if (sub.z < 0.0001) sub.z++
   dd += Math.min(sub.x / vec.x, sub.y / vec.y, sub.z / vec.z) / 2
-  distance = decreasing ? Math.max(0, distance - dd) : Math.min(im.getReach(), distance + dd)
+  distance = decreasing ? Math.max(0, distance - dd) : Math.min(Player.getReach(), distance + dd)
   Chat.actionbar(Chat.createTextBuilder().append(prefix).append(`distance set to ${distance.toFixed(4)}`).build())
   updateTarget()
 })
@@ -90,14 +90,10 @@ JsMacros.on('Key', JavaWrapper.methodToJava(e => {
 
 JsMacros.on('Tick', JavaWrapper.methodToJava(updateTarget))
 
-JsMacros.on('DimensionChange', JavaWrapper.methodToJava(() => {
-  im = Player.getInteractionManager()
-}))
-
 function updateTarget() {
   if (!state) return
-  if (distance > im.getReach()) distance = im.getReach()
-  const p = Player.getPlayer()
+  if (distance > Player.getReach()) distance = Player.getReach()
+  const p = Utils.requireNonNull(Player.getPlayer())
   const newPos = PositionCommon
     .createLookingVector(p)
     .normalize()

@@ -77,24 +77,24 @@ JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
   /** @type {Record<string, number>} */
   const rawAttr = {}
   /** @type {NBTElementHelper$NBTListHelper} */// @ts-ignore
-  const att = horse.getNBT().get('Attributes')
+  const att = horse.getNBT().get('attributes')
   for (let a = 0; a < att.length(); a++)
     // @ts-ignore
-    rawAttr[att.get(a).get('Name').asString()] = att.get(a).get('Base').asDouble()
+    rawAttr[att.get(a).get('id').asString()] = att.get(a).get('base').asDouble()
   if (!rawAttr['minecraft:generic.movement_speed']
-  ||  !rawAttr['minecraft:horse.jump_strength']
+  ||  !rawAttr['minecraft:generic.jump_strength']
   ||  !rawAttr['minecraft:generic.max_health'])
     return keep = 8
   const recognizableStat = { // convert attributes to recognizable format
     speed: (42.16 * rawAttr['minecraft:generic.movement_speed'] - 0.001).toFixed(3),
-    jump: (-0.1817584952 * (rawAttr['minecraft:horse.jump_strength'] ** 3) + // wiki function
-            3.689713992  * (rawAttr['minecraft:horse.jump_strength'] ** 2) +
-            2.128599134  *  rawAttr['minecraft:horse.jump_strength'] - 0.343930367).toFixed(2),
+    jump: (-0.1817584952 * (rawAttr['minecraft:generic.jump_strength'] ** 3) + // wiki function
+            3.689713992  * (rawAttr['minecraft:generic.jump_strength'] ** 2) +
+            2.128599134  *  rawAttr['minecraft:generic.jump_strength'] - 0.343930367).toFixed(2),
     health: rawAttr['minecraft:generic.max_health'].toFixed(1)
   }
   const percentStat = {
     speed:  ((rawAttr['minecraft:generic.movement_speed'] - 0.1125) / 0.225 * 100).toFixed(1),
-    jump:   ((rawAttr['minecraft:horse.jump_strength']    - 0.4   ) / 0.6   * 100).toFixed(1),
+    jump:   ((rawAttr['minecraft:generic.jump_strength']    - 0.4   ) / 0.6   * 100).toFixed(1),
     health: ((rawAttr['minecraft:generic.max_health']     - 15    ) / 15    * 100).toFixed(1)
   }
   const rarity = {
