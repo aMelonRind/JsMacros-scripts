@@ -81,6 +81,8 @@ reg('ScreenHandlerSlotUpdateS2CPacket', p => {
   check(p.method_11449()) // .getStack()
 })
 
+// one more, 'EntityTrackerUpdateS2CPacket', but that's probably too heavy for script to handle
+
 module.exports = ref
 
 

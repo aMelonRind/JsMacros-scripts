@@ -25777,22 +25777,22 @@ declare namespace Packages {
                                  * @see IDraw2D.addItem(int, int, String)
                                  * @since 1.0.5
                                  */
-                                addItem(x: int, y: int, id: ItemId): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
-                                addItem(x: int, y: int, zIndex: int, id: ItemId): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, id: CanOmitNamespace<ItemId>): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, zIndex: int, id: CanOmitNamespace<ItemId>): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
 
                                 /**
                                  * @see IDraw2D.addItem(int, int, String, boolean)
                                  * @since 1.2.0
                                  */
-                                addItem(x: int, y: int, id: ItemId, overlay: boolean): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
-                                addItem(x: int, y: int, zIndex: int, id: ItemId, overlay: boolean): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, id: CanOmitNamespace<ItemId>, overlay: boolean): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, zIndex: int, id: CanOmitNamespace<ItemId>, overlay: boolean): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
 
                                 /**
                                  * @see IDraw2D.addItem(int, int, String, boolean, double, double)
                                  * @since 1.2.0
                                  */
-                                addItem(x: int, y: int, id: ItemId, overlay: boolean, scale: double, rotation: double): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
-                                addItem(x: int, y: int, zIndex: int, id: ItemId, overlay: boolean, scale: double, rotation: double): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, id: CanOmitNamespace<ItemId>, overlay: boolean, scale: double, rotation: double): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, zIndex: int, id: CanOmitNamespace<ItemId>, overlay: boolean, scale: double, rotation: double): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
 
                                 /**
                                  * @see IDraw2D.addItem(int, int, ItemStackHelper)
@@ -26465,7 +26465,7 @@ declare namespace Packages {
                                  * @return added item
                                  * @since 1.2.7
                                  */
-                                addItem(x: int, y: int, id: ItemId): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, id: CanOmitNamespace<ItemId>): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
 
                                 /**
                                  * @param x left most corner
@@ -26475,7 +26475,7 @@ declare namespace Packages {
                                  * @return added item
                                  * @since 1.4.0
                                  */
-                                addItem(x: int, y: int, zIndex: int, id: ItemId): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, zIndex: int, id: CanOmitNamespace<ItemId>): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
 
                                 /**
                                  * @param x left most corner
@@ -26485,7 +26485,7 @@ declare namespace Packages {
                                  * @return added item
                                  * @since 1.2.7
                                  */
-                                addItem(x: int, y: int, id: ItemId, overlay: boolean): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, id: CanOmitNamespace<ItemId>, overlay: boolean): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
 
                                 /**
                                  * @param x left most corner
@@ -26496,7 +26496,7 @@ declare namespace Packages {
                                  * @return added item
                                  * @since 1.4.0
                                  */
-                                addItem(x: int, y: int, zIndex: int, id: ItemId, overlay: boolean): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, zIndex: int, id: CanOmitNamespace<ItemId>, overlay: boolean): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
 
                                 /**
                                  * @param x left most corner
@@ -26508,7 +26508,7 @@ declare namespace Packages {
                                  * @return added item
                                  * @since 1.2.7
                                  */
-                                addItem(x: int, y: int, id: ItemId, overlay: boolean, scale: double, rotation: double): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, id: CanOmitNamespace<ItemId>, overlay: boolean, scale: double, rotation: double): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
 
                                 /**
                                  * @param x left most corner
@@ -26521,7 +26521,7 @@ declare namespace Packages {
                                  * @return added item
                                  * @since 1.4.0
                                  */
-                                addItem(x: int, y: int, zIndex: int, id: ItemId, overlay: boolean, scale: double, rotation: double): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
+                                addItem(x: int, y: int, zIndex: int, id: CanOmitNamespace<ItemId>, overlay: boolean, scale: double, rotation: double): xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item;
 
                                 /**
                                  * @param x left most corner
@@ -28177,7 +28177,7 @@ declare namespace Packages {
                                     static readonly class: JavaClass<Item>;
                                     /** @deprecated */ static prototype: undefined;
 
-                                    constructor (x: int, y: int, zIndex: int, id: ItemId, overlay: boolean, scale: double, rotation: float);
+                                    constructor (x: int, y: int, zIndex: int, id: CanOmitNamespace<ItemId>, overlay: boolean, scale: double, rotation: float);
                                     constructor (x: int, y: int, zIndex: int, i: xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper, overlay: boolean, scale: double, rotation: float);
                                     constructor (x: int, y: int, zIndex: int, itemStack: xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper, overlay: boolean, scale: double, rotation: float, ovText: string);
 

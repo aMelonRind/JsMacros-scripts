@@ -28,10 +28,10 @@ JsMacros.on('Key', JavaWrapper.methodToJava(e => {
     if (inspectSelf) {
       inspectSelf = false
       openEntityInspectScreen(p)
-      return
     } else {
       inspectSelf = true
     }
+    return
   }
   inspectSelf = false
   const trace = Player.rayTraceEntity(64)

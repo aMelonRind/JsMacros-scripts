@@ -123,7 +123,7 @@ class ServerUtils {
       if (match) {
         const name = match[1]
         if (set.has(name)) {
-          Chat.say(cmd.replace('%player%', name))
+          JavaWrapper.methodToJavaAsync(() => Chat.say(cmd.replace('%player%', name))).run()
           logger.log('Auto accepted tp.')
           return true
         }
@@ -197,7 +197,7 @@ class Button {
 
   /**
    * @param {string} name 
-   * @param {ItemId?} [icon] 
+   * @param {CanOmitNamespace<ItemId>?} [icon] 
    * @param {() => any} [action] 
    * @param {(ctx: BaseContext & Ctx) => any} [condition] 
    * @param {((ctx: ButtonContext & Ctx) => any)?} [onAdd] 
@@ -250,7 +250,7 @@ class ButtonBuilder {
 
   /**
    * the icon for this button
-   * @param {ItemId} item 
+   * @param {CanOmitNamespace<ItemId>} item 
    */
   setIcon(item) {
     this.icon = item
