@@ -6,6 +6,7 @@ module.exports = 0
 
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 
+const RegistryHelper     = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.RegistryHelper')
 const LivingEntityHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.LivingEntityHelper')
 const NBTElementHelper   = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper')
 const ItemStackHelper    = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper')
@@ -144,7 +145,7 @@ function openEntityInspectScreen(entity) {
  * @param {string} textIfEmpty 
  */
 function addItem(x, y, item, textIfEmpty = 'No Item!') {
-  if (item instanceof NBTElementHelper) item = ItemStack.method_7915(item.getRaw()) // .fromNbt()
+  if (item instanceof NBTElementHelper) item = ItemStack.method_57359(RegistryHelper.NBT_OPS_UNLIMITED, item.getRaw()) // .fromNbtOrEmpty()
   if (item && !(item instanceof ItemStackHelper)) item = new ItemStackHelper(item)
   if (!item || item.isEmpty()) {
     sc.addItem(x, y, 'minecraft:barrier')

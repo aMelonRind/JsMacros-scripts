@@ -329,8 +329,6 @@ class ButtonBuilder {
 
 }
 
-module.exports = { ServerUtils, addUiUtilToggleButton }
-
 function enableRecvListener() {
   recvListener ??= JsMacros.on('RecvMessage', true, JavaWrapper.methodToJava((e, ctx) => {
     const str = e.text?.getString()
@@ -361,6 +359,8 @@ function addUiUtilToggleButton(adder) {
     .runs(() => uiu.enabled = !uiu.enabled)
     .build()
 }
+
+module.exports = { ServerUtils, addUiUtilToggleButton }
 
 /**
  * @typedef {{

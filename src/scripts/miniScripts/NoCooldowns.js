@@ -8,7 +8,7 @@ module.exports = 0
 if (!World.isWorldLoaded()) JsMacros.waitForEvent('ChunkLoad')
 
 const mc = Client.getMinecraft()
-let im = Player.getInteractionManager()?.getRaw()
+let im = Player.interactions()?.getRaw()
 let p = Player.getPlayer()?.getRaw()
 
 const bcdf = Reflection.getDeclaredField(im.getClass(), 'field_3716')
@@ -21,12 +21,19 @@ const jcdf = Reflection.getDeclaredField(Java.type('net.minecraft.class_1309'), 
 jcdf.setAccessible(true)
 
 JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
-  if (im) bcdf.set(im, 0)
+  if (im) {
+    if (Player.getCurrentPlayerInput().sneaking) {
+      if (bcdf.get(im) > 2)
+        bcdf.set(im, 2)
+    } else {
+      bcdf.set(im, 0)
+    }
+  }
   if (p && jcdf.get(p) > 5) jcdf.set(p, 5)
   if (icdf.get(mc) > 2) icdf.set(mc, 2)
 }))
 
 JsMacros.on('DimensionChange', JavaWrapper.methodToJava(() => {
-  im = Player.getInteractionManager()?.getRaw() ?? im
+  im = Player.interactions()?.getRaw() ?? im
   p = Player.getPlayer()?.getRaw() ?? p
 }))
