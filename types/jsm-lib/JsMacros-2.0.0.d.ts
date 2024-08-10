@@ -450,6 +450,81 @@ declare namespace Events {
         readonly screenName: ScreenName;
     }
 
+    interface Particle extends BaseEvent, Cancellable {
+        readonly raw: /* net.minecraft.network.packet.s2c.play.ParticleS2CPacket */ any;
+        readonly type: string;
+        readonly x: number;
+        readonly y: number;
+        readonly z: number;
+        readonly offsetX: number;
+        readonly offsetY: number;
+        readonly offsetZ: number;
+        readonly speed: number;
+        readonly count: number;
+        readonly longDistance: boolean;
+
+        /**
+         * for DustParticleEffect: "dust"
+         */
+        getColor(): [r: number, g: number, b: number];
+
+        /**
+         * for EntityEffectParticleEffect: "entity_effect"
+         */
+        getEntityColor(): [r: number, g: number, b: number, a: number];
+
+        /**
+         * for DustParticleEffect: "dust"
+         */
+        getHexColor(): number;
+
+        /**
+         * for EntityEffectParticleEffect: "entity_effect"
+         */
+        getEntityHexColor(): [rgb: number, alpha: number];
+
+        /**
+         * for DustColorTransitionParticleEffect: "dust_color_transition"
+         */
+        getTransitionColor(): [r1: number, g1: number, b1: number, r2: number, g2: number, b2: number];
+
+        /**
+         * for DustColorTransitionParticleEffect: "dust_color_transition"
+         */
+        getTransitionHexColor(): [from: number, to: number];
+
+        /**
+         * for SculkChargeParticleEffect: "sculk_charge"
+         */
+        getRoll(): number;
+
+        /**
+         * for ShriekParticleEffect: "shriek"
+         */
+        getDelay(): number;
+
+        /**
+         * for dust effects: "dust", "dust_color_transition"
+         */
+        getScale(): number;
+
+        /**
+         * for ItemStackParticleEffect: "item"
+         */
+        getItem(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
+
+        /**
+         * for VibrationParticleEffect: "vibration"
+         */
+        getArrivalInTicks(): number;
+
+        /**
+         * for BlockStateParticleEffect: "block", "block_marker", "falling_dust", "dust_pillar"
+         */
+        getBlock(): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.BlockStateHelper;
+
+    }
+
     interface PlayerJoin extends BaseEvent {
         readonly UUID: string;
         readonly player: Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.PlayerListEntryHelper;
@@ -764,6 +839,7 @@ interface Events {
     NameChange: Events.NameChange;
     OpenContainer: Events.OpenContainer;
     OpenScreen: Events.OpenScreen;
+    Particle: Events.Particle;
     PlayerJoin: Events.PlayerJoin;
     PlayerLeave: Events.PlayerLeave;
     ProfileLoad: Events.ProfileLoad;
@@ -2082,9 +2158,16 @@ declare namespace JsMacros {
     function listeners(event: keyof Events): JavaList<Packages.xyz.wagyourtail.jsmacros.core.event.IEventListener>;
 
     /**
+     * use this to create java-side fast event filterers.
+     * @since 2.0.0
+     */
+    function eventFilters(): Packages.xyz.wagyourtail.jsmacros.core.event.EventFilters;
+
+    /**
      * create an event filterer.<br>  
      *  this exists to reduce lag when listening to frequently triggered events.
      * @since 1.9.1
+     * @deprecated moved to JsMacros.eventFilters().compile(...)
      */
     function createEventFilterer<E extends keyof EventFilterers>(event: E): EventFilterers[E];
 
@@ -2092,6 +2175,7 @@ declare namespace JsMacros {
      * create a composed event filterer.<br>  
      *  this filterer combines multiple filterers together with and/or logic.
      * @since 1.9.1
+     * @deprecated moved to JsMacros.eventFilters()
      */
     function createComposedEventFilterer(initial: Packages.xyz.wagyourtail.jsmacros.core.event.EventFilterer): Packages.xyz.wagyourtail.jsmacros.core.event.impl.FiltererComposed;
 
@@ -2099,6 +2183,7 @@ declare namespace JsMacros {
      * create a modulus event filterer.<br>  
      *  this filterer only let every nth event pass through.
      * @since 1.9.1
+     * @deprecated moved to JsMacros.eventFilters()
      */
     function createModulusEventFilterer(quotient: int): Packages.xyz.wagyourtail.jsmacros.core.event.impl.FiltererModulus;
 
@@ -2107,6 +2192,7 @@ declare namespace JsMacros {
      *  this checks if the base is already inverted.<br>  
      *  e.g. `filterer == invert(invert(filterer))` would be `true`.
      * @since 1.9.1
+     * @deprecated moved to JsMacros.eventFilters()
      */
     function invertEventFilterer(base: Packages.xyz.wagyourtail.jsmacros.core.event.EventFilterer): Packages.xyz.wagyourtail.jsmacros.core.event.EventFilterer;
 
@@ -2276,11 +2362,21 @@ declare namespace Player {
     function rayTraceEntity(distance: int): Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any> | null;
 
     /**
-     * Write to a sign screen if a sign screen is currently open.
-     * @return of success.
+     * Write to a sign screen if a sign screen is currently open.<br>  
+     *  If the given string is null, the text will remain unchanged.
+     * @return of success (sign screen is open).
      * @since 1.2.2
      */
-    function writeSign(l1: string, l2: string, l3: string, l4: string): boolean;
+    function writeSign(l1: string | null, l2: string | null, l3: string | null, l4: string | null): boolean;
+
+    /**
+     * Write a line to a sign screen if a sign screen is currently open.
+     * @param index the index of the message. should be in between 0 and 3
+     * @param message the message to write
+     * @return of success (sign screen is open).
+     * @since 2.0.0
+     */
+    function writeSign(index: int, message: string): boolean;
 
     /**
      * @param callback calls your method as a {@link Consumer}<{@link TextHelper}>
@@ -3129,7 +3225,7 @@ declare namespace World {
      * @return the current dimension.
      * @since 1.1.2
      */
-    function getDimension(): Dimension | string & {} | null;
+    function getDimension(): Dimension | null;
 
     /**
      * @return the current biome.
@@ -22557,6 +22653,7 @@ declare namespace Packages {
                 processors(arg0: JavaList<javax.annotation.processing.Processor>): CompileOptions;
                 options(...arg0: JavaVarArgs<string>): CompileOptions;
                 options(arg0: JavaList<string>): CompileOptions;
+                classLoader(arg0: java.lang.ClassLoader): CompileOptions;
 
             }
 
@@ -22566,6 +22663,8 @@ declare namespace Packages {
 
                 static compile(arg0: string, arg1: string): Reflect;
                 static compile(arg0: string, arg1: string, arg2: CompileOptions): Reflect;
+                static process(arg0: string, arg1: string): void;
+                static process(arg0: string, arg1: string, arg2: CompileOptions): void;
                 /** @deprecated */
                 static on(arg0: string): Reflect;
                 /** @deprecated */
@@ -23417,6 +23516,22 @@ declare namespace Packages {
                         class RegistryHelper extends java.lang.Object {
                             static readonly class: JavaClass<RegistryHelper>;
                             /** @deprecated */ static prototype: undefined;
+
+                            /**
+                             * implemented in mixins to make this equal to any owner. used by NBT_PASS_OPS
+                             */
+                            static readonly ALL_EQUALITY_OWNER: /* net.minecraft.registry.entry.RegistryEntryOwner<any> */ any;
+
+                            /**
+                             * for encoding unlimited data into NbtElement for getNBT methods
+                             */
+                            static readonly NBT_OPS_UNLIMITED: /* net.minecraft.registry.RegistryOps<net.minecraft.nbt.NbtElement> */ any;
+
+                            /**
+                             * for encoding unlimited data into NbtElement for getNBT methods<br>  
+                             *  for methods accepts WrapperLookup and only uses WrapperLookup#getOps()
+                             */
+                            static readonly WRAPPER_LOOKUP_UNLIMITED: /* net.minecraft.registry.RegistryWrapper$WrapperLookup */ any;
 
                             static parseIdentifier(id: string): /* net.minecraft.util.Identifier */ any;
                             static parseNameSpace(id: string): string;
@@ -25059,7 +25174,7 @@ declare namespace Packages {
                              * @author Etheradon
                              * @since 1.8.4
                              */
-                            abstract class RecipeInventory<T = /* net.minecraft.client.gui.screen.ingame.HandledScreen<net.minecraft.screen.AbstractRecipeScreenHandler<any>> */ any> extends Inventory<T> {
+                            abstract class RecipeInventory<T = /* net.minecraft.client.gui.screen.ingame.HandledScreen<net.minecraft.screen.AbstractRecipeScreenHandler<any, any>> */ any> extends Inventory<T> {
                                 static readonly class: JavaClass<RecipeInventory<any>>;
                                 /** @deprecated */ static prototype: undefined;
 
@@ -25820,6 +25935,18 @@ declare namespace Packages {
                                  * @since 1.0.5
                                  */
                                 removeItem(i: xyz.wagyourtail.jsmacros.client.api.classes.render.components.Item): Draw2D;
+
+                                /**
+                                 * wraps the element, so it renders on screen with projected world position
+                                 * @since 2.0.0
+                                 */
+                                addWorldPosWrapped(pos: xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D, base: xyz.wagyourtail.jsmacros.client.api.classes.render.components.RenderElement): xyz.wagyourtail.jsmacros.client.api.classes.render.components.WorldPosWrapper;
+
+                                /**
+                                 * wraps the element, so it renders on screen with projected world position
+                                 * @since 2.0.0
+                                 */
+                                addWorldPosWrapped(x: double, y: double, z: double, base: xyz.wagyourtail.jsmacros.client.api.classes.render.components.RenderElement): xyz.wagyourtail.jsmacros.client.api.classes.render.components.WorldPosWrapper;
                                 init(): void;
                                 getElementsByZIndex(): java.util.Iterator<xyz.wagyourtail.jsmacros.client.api.classes.render.components.RenderElement>;
 
@@ -26009,6 +26136,8 @@ declare namespace Packages {
                                 addDraw2D(x: double, y: double, z: double, xRot: double, yRot: double, zRot: double, width: double, height: double, minSubdivisions: int, renderBack: boolean, cull: boolean): xyz.wagyourtail.jsmacros.client.api.classes.render.components3d.Surface;
                                 /** @since 1.6.5 */
                                 removeDraw2D(surface: xyz.wagyourtail.jsmacros.client.api.classes.render.components3d.Surface): void;
+                                /** @since 2.0.0 */
+                                addEntityFollower(base: xyz.wagyourtail.jsmacros.client.api.classes.render.components3d.RenderElement3D<any>, entity: xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>): xyz.wagyourtail.jsmacros.client.api.classes.render.components3d.EntityFollowWrapper;
 
                                 /**
                                  * @return a new {@link Box.Builder} instance.
@@ -26744,8 +26873,8 @@ declare namespace Packages {
 
                                 /** @since 1.2.7 */
                                 getScreenClassName(): string;
-                                /** @since 1.0.5 */
-                                getTitleText(): string;
+                                /** @since 1.0.5 (TextHelper since 1.9.3) */
+                                getTitleText(): xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper;
 
                                 /**
                                  * in `1.3.1` updated to work with all button widgets not just ones added by scripts.
@@ -29641,6 +29770,43 @@ declare namespace Packages {
 
                                 }
 
+                                /**
+                                 * a 2d element wrapper that converts world pos to screen pos first
+                                 * @author aMelonRind
+                                 * @since 2.0.0
+                                 */
+                                interface WorldPosWrapper extends RenderElement {}
+                                class WorldPosWrapper extends java.lang.Object {
+                                    static readonly class: JavaClass<WorldPosWrapper>;
+                                    /** @deprecated */ static prototype: undefined;
+
+                                    /**
+                                     * the global variable for scale threshold, will affect newly created wrapper
+                                     */
+                                    static globalScaleThreshold: number;
+
+                                    constructor (pos: xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D, base: RenderElement);
+                                    constructor (pos: xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D, base: RenderElement, zIndex: int);
+
+                                    followedEntity: xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any> | null;
+                                    pos: xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D;
+                                    base: RenderElement;
+                                    zIndex: number;
+                                    scaleThreshold: number;
+                                    shouldRemove: boolean;
+
+                                    /**
+                                     * follows an entity. the pos will be treated as offset if entity is not null.
+                                     */
+                                    setFollowed(entity: xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any> | null): WorldPosWrapper;
+                                    setPos(pos: xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D): WorldPosWrapper;
+                                    setPos(x: double, y: double, z: double): WorldPosWrapper;
+                                    setBase(element: RenderElement): WorldPosWrapper;
+                                    setScaleThreshold(threshold: double): WorldPosWrapper;
+                                    getZIndex(): number;
+
+                                }
+
                                 export {
                                     Alignable,
                                     Draw2DElement,
@@ -29656,7 +29822,8 @@ declare namespace Packages {
                                     RenderElement,
                                     RenderElementBuilder,
                                     Text,
-                                    Text$Builder
+                                    Text$Builder,
+                                    WorldPosWrapper
                                 }
 
                             }
@@ -29986,6 +30153,29 @@ declare namespace Packages {
                                 }
 
                                 /**
+                                 * a 3d element wrapper that follows entity
+                                 * @author aMelonRind
+                                 * @since 2.0.0
+                                 */
+                                interface EntityFollowWrapper extends RenderElement3D<EntityFollowWrapper> {}
+                                class EntityFollowWrapper extends java.lang.Object {
+                                    static readonly class: JavaClass<EntityFollowWrapper>;
+                                    /** @deprecated */ static prototype: undefined;
+
+                                    constructor (base: RenderElement3D<any>, entity: xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>);
+
+                                    base: RenderElement3D<any>;
+                                    entity: xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>;
+                                    shouldRemove: boolean;
+
+                                    setBase(base: RenderElement3D<any>): EntityFollowWrapper;
+                                    setEntity(entity: xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any>): EntityFollowWrapper;
+                                    render(drawContext: /* net.minecraft.client.gui.DrawContext */ any, tickDelta: float): void;
+                                    compareToSame(other: EntityFollowWrapper): number;
+
+                                }
+
+                                /**
                                  * @author aMelonRind
                                  * @since 1.9.0
                                  */
@@ -29993,12 +30183,10 @@ declare namespace Packages {
                                     static readonly class: JavaClass<EntityTraceLine>;
                                     /** @deprecated */ static prototype: undefined;
 
-                                    static dirty: boolean;
-
                                     constructor (entity: xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any> | null, color: int, yOffset: double);
                                     constructor (entity: xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any> | null, color: int, alpha: int, yOffset: double);
 
-                                    entity: /* net.minecraft.entity.Entity */ any | null;
+                                    entity: xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<any> | null;
                                     yOffset: number;
                                     shouldRemove: boolean;
 
@@ -30013,7 +30201,7 @@ declare namespace Packages {
                                      * @since 1.9.0
                                      */
                                     setYOffset(yOffset: double): this;
-                                    render(drawContext: /* net.minecraft.client.gui.DrawContext */ any, builder: /* net.minecraft.client.render.BufferBuilder */ any, tickDelta: float): void;
+                                    render(drawContext: /* net.minecraft.client.gui.DrawContext */ any, tickDelta: float): void;
 
                                 }
 
@@ -30343,6 +30531,8 @@ declare namespace Packages {
                                 abstract class RenderElement3D<T extends RenderElement3D<any>> extends java.lang.Interface {
                                     static readonly class: JavaClass<RenderElement3D<any>>;
                                     /** @deprecated */ static prototype: undefined;
+
+                                    static readonly mc: /* net.minecraft.client.MinecraftClient */ any;
                                 }
                                 interface RenderElement3D<T extends RenderElement3D<any>> extends java.lang.Comparable<RenderElement3D<any>> {
 
@@ -30777,7 +30967,7 @@ declare namespace Packages {
                                      */
                                     setAlpha(alpha: int): this;
                                     compareToSame(other: TraceLine): number;
-                                    render(drawContext: /* net.minecraft.client.gui.DrawContext */ any, builder: /* net.minecraft.client.render.BufferBuilder */ any, tickDelta: float): void;
+                                    render(drawContext: /* net.minecraft.client.gui.DrawContext */ any, tickDelta: float): void;
 
                                 }
 
@@ -30890,6 +31080,7 @@ declare namespace Packages {
                                 export {
                                     Box,
                                     Box$Builder,
+                                    EntityFollowWrapper,
                                     EntityTraceLine,
                                     EntityTraceLine$Builder,
                                     Line3D,
@@ -31190,6 +31381,7 @@ declare namespace Packages {
                         /**
                          * @author aMelonRind
                          * @since 1.9.1
+                         * @deprecated
                          */
                         interface FiltererBlockUpdate extends xyz.wagyourtail.jsmacros.core.event.EventFilterer {}
                         class FiltererBlockUpdate extends java.lang.Object {
@@ -31229,6 +31421,7 @@ declare namespace Packages {
                         /**
                          * @author aMelonRind
                          * @since 1.9.1
+                         * @deprecated
                          */
                         interface FiltererRecvPacket extends xyz.wagyourtail.jsmacros.core.event.EventFilterer {}
                         class FiltererRecvPacket extends java.lang.Object {
@@ -31248,6 +31441,7 @@ declare namespace Packages {
                         /**
                          * @author aMelonRind
                          * @since 1.9.1
+                         * @deprecated
                          */
                         interface FiltererSendPacket extends xyz.wagyourtail.jsmacros.core.event.EventFilterer {}
                         class FiltererSendPacket extends java.lang.Object {
@@ -35340,12 +35534,12 @@ declare namespace Packages {
                              * @author Etheradon
                              * @since 1.8.4
                              */
-                            class EnchantmentHelper extends xyz.wagyourtail.jsmacros.core.helpers.BaseHelper</* net.minecraft.enchantment.Enchantment */ any> {
+                            class EnchantmentHelper extends xyz.wagyourtail.jsmacros.core.helpers.BaseHelper</* net.minecraft.registry.entry.RegistryEntry<net.minecraft.enchantment.Enchantment> */ any> {
                                 static readonly class: JavaClass<EnchantmentHelper>;
                                 /** @deprecated */ static prototype: undefined;
 
-                                constructor (base: /* net.minecraft.enchantment.Enchantment */ any);
-                                constructor (base: /* net.minecraft.enchantment.Enchantment */ any, level: int);
+                                constructor (base: /* net.minecraft.registry.entry.RegistryEntry<net.minecraft.enchantment.Enchantment> */ any);
+                                constructor (base: /* net.minecraft.registry.entry.RegistryEntry<net.minecraft.enchantment.Enchantment> */ any, level: int);
                                 constructor (enchantment: CanOmitNamespace<EnchantmentId>);
 
                                 /**
@@ -35431,12 +35625,6 @@ declare namespace Packages {
                                  * @since 1.8.4
                                  */
                                 getCompatibleEnchantments(ignoreType: boolean): JavaList<EnchantmentHelper>;
-
-                                /**
-                                 * @return the type of item this enchantment is compatible with.
-                                 * @since 1.8.4
-                                 */
-                                getTargetType(): EnchantmentTargetType;
 
                                 /**
                                  * The weight of an enchantment is bound to its rarity. The higher the weight, the more likely
@@ -35784,7 +35972,7 @@ declare namespace Packages {
                                  *  enchanted with the specified enchantment.
                                  * @since 1.8.4
                                  */
-                                getEnchantment(id: EnchantmentId): EnchantmentHelper | null;
+                                getEnchantment(id: CanOmitNamespace<EnchantmentId>): EnchantmentHelper | null;
 
                                 /**
                                  * @param enchantment the enchantment to check for
@@ -35888,11 +36076,11 @@ declare namespace Packages {
                                  */
                                 getMaxCount(): number;
                                 /** @since 1.1.6, was a {@link String} until 1.5.1 */
-                                getNBT(): xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper$NBTCompoundHelper | null;
+                                getNBT(): NBTElementHelper$NBTCompoundHelper;
                                 /** @since 1.1.3 */
                                 getCreativeTab(): JavaList<xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper>;
-                                // /** @deprecated */
-                                // getItemID(): ItemId;
+                                /** @deprecated */
+                                getItemID(): ItemId;
                                 /** @since 1.6.4 */
                                 getItemId(): ItemId;
                                 /** @since 1.8.2 */
@@ -36070,7 +36258,7 @@ declare namespace Packages {
                                  * @return the type of this recipe.
                                  * @since 1.8.4
                                  */
-                                getType(): string;
+                                getType(): RecipeTypeId;
 
                                 /**
                                  * @return `true` if the recipe can be crafted with the current inventory, `false`
@@ -36371,24 +36559,32 @@ declare namespace Packages {
                                  * @return self for chaining.
                                  */
                                 enabledTexture(enabled: /* net.minecraft.util.Identifier */ any): this;
+                                /** @since 1.9.3 */
+                                enabledTexture(enabled: string): ButtonWidgetHelper$TexturedButtonBuilder;
 
                                 /**
                                  * @since 1.9.0
                                  * @return self for chaining.
                                  */
                                 disabledTexture(disabled: /* net.minecraft.util.Identifier */ any): this;
+                                /** @since 1.9.3 */
+                                disabledTexture(disabled: string): ButtonWidgetHelper$TexturedButtonBuilder;
 
                                 /**
                                  * @since 1.9.0
                                  * @return self for chaining.
                                  */
                                 enabledFocusedTexture(enabledFocused: /* net.minecraft.util.Identifier */ any): this;
+                                /** @since 1.9.3 */
+                                enabledFocusedTexture(enabledFocused: string): ButtonWidgetHelper$TexturedButtonBuilder;
 
                                 /**
                                  * @since 1.9.0
                                  * @return self for chaining.
                                  */
                                 disabledFocusedTexture(disabledFocused: /* net.minecraft.util.Identifier */ any): this;
+                                /** @since 1.9.3 */
+                                disabledFocusedTexture(disabledFocused: string): ButtonWidgetHelper$TexturedButtonBuilder;
                                 createWidget(): ButtonWidgetHelper</* net.minecraft.client.gui.widget.TexturedButtonWidget */ any>;
 
                             }
@@ -36484,6 +36680,8 @@ declare namespace Packages {
                             class ClickableWidgetHelper<B extends ClickableWidgetHelper<B, T>, T = /* net.minecraft.client.gui.widget.ClickableWidget */ any> extends xyz.wagyourtail.jsmacros.core.helpers.BaseHelper<T> {
                                 static readonly class: JavaClass<ClickableWidgetHelper<any, any>>;
                                 /** @deprecated */ static prototype: undefined;
+
+                                static clickedOn(screen: xyz.wagyourtail.jsmacros.client.api.classes.render.IScreen): void;
 
                                 constructor <B extends ClickableWidgetHelper<B, T>, T extends /* net.minecraft.client.gui.widget.ClickableWidget */ any>(btn: T);
                                 constructor <B extends ClickableWidgetHelper<B, T>, T extends /* net.minecraft.client.gui.widget.ClickableWidget */ any>(btn: T, zIndex: int);
@@ -36891,6 +37089,8 @@ declare namespace Packages {
                                 getPlayerScores(): JavaMap<string, number>;
                                 /** @since 1.8.0 */
                                 scoreToDisplayName(): JavaMap<number, xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper>;
+                                /** @since 2.0.0 */
+                                getTexts(): JavaList<xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper>;
                                 /** @since 1.7.0 */
                                 getKnownPlayers(): JavaList<string>;
                                 /** @since 1.8.0 */
@@ -38736,6 +38936,14 @@ declare namespace Packages {
                                 getDusted(): number;
                                 /** @since 1.9.0 */
                                 isCracked(): boolean;
+                                /** @since 2.0.0 */
+                                isCrafting(): boolean;
+                                /** @since 2.0.0 */
+                                getTrialSpawnerState(): string;
+                                /** @since 2.0.0 */
+                                getVaultState(): string;
+                                /** @since 2.0.0 */
+                                isOminous(): boolean;
 
                             }
 
@@ -39288,6 +39496,12 @@ declare namespace Packages {
                                     isAlive(): boolean;
 
                                     /**
+                                     * Checks if the entity is still alive and in the same world as player.
+                                     * @since 2.0.0
+                                     */
+                                    isReallyAlive(): boolean;
+
+                                    /**
                                      * @return UUID of the entity, random* if not a player, otherwise the player's uuid.
                                      * @since 1.6.5
                                      */
@@ -39488,6 +39702,12 @@ declare namespace Packages {
                                      * @since 1.2.7
                                      */
                                     getFootArmor(): xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
+
+                                    /**
+                                     * Checks if the entity is still alive and in the same world as player, and health > 0.
+                                     * @since 2.0.0
+                                     */
+                                    isReallyAliveAndHealthy(): boolean;
 
                                     /**
                                      * @return entity's health
@@ -39860,7 +40080,7 @@ declare namespace Packages {
                                     /**
                                      * @return trade offer as nbt tag
                                      */
-                                    getNBT(): xyz.wagyourtail.jsmacros.client.api.helpers.NBTElementHelper<any>;
+                                    getNBT(): NBTElementHelper$NBTCompoundHelper;
 
                                     /**
                                      * @return current number of uses
@@ -42707,6 +42927,7 @@ declare namespace Packages {
 
                     /**
                      * override to return true if the method can't join to the context it was wrapped/created in, ie for languages that don't allow multithreading.
+                     * @deprecated
                      */
                     preventSameScriptJoin(): boolean;
 
@@ -42996,6 +43217,7 @@ declare namespace Packages {
                         readonly cancellableEvents: JavaSet<string>;
                         readonly joinableEvents: JavaSet<string>;
                         readonly filterableEvents: JavaMap<string, JavaClass<EventFilterer>>;
+                        readonly event2Class: JavaMap<string, JavaClass<Events.BaseEvent>>;
 
                         clearMacros(): void;
                         /** @since 1.1.2 [citation needed] */
@@ -43042,6 +43264,7 @@ declare namespace Packages {
 
                         canFilter(event: keyof Events): boolean;
                         test(event: Events.BaseEvent): boolean;
+                        shouldStopJoinTriggering(): boolean;
 
                     }
 
@@ -43051,7 +43274,104 @@ declare namespace Packages {
                     }
                     interface EventFilterer$Compound extends EventFilterer {
 
+                        getChildren(): java.util.stream.Stream<EventFilterer>;
                         checkCyclicRef(base: EventFilterer$Compound): void;
+                        shouldStopJoinTriggering(): boolean;
+
+                    }
+
+                    /**
+                     * @author aMelonRind
+                     * @since 2.0.0
+                     */
+                    class EventFilters extends java.lang.Object {
+                        static readonly class: JavaClass<EventFilters>;
+                        /** @deprecated */ static prototype: undefined;
+
+                        static readonly CONSTANT_TRUE: EventFilterer;
+
+                        constructor ();
+
+                        /**
+                         * Create a composed event filterer.<br>  
+                         *  This filterer combines multiple filterers together with and/or logic.
+                         * @since 1.9.1 (was in FJsMacros before 2.0.0)
+                         */
+                        composed(initial: EventFilterer): xyz.wagyourtail.jsmacros.core.event.impl.FiltererComposed;
+
+                        /**
+                         * Create a modulus event filterer.<br>  
+                         *  This filterer only let every nth event pass through.
+                         * @since 1.9.1 (was in FJsMacros before 2.0.0)
+                         */
+                        modulus(quotient: int): xyz.wagyourtail.jsmacros.core.event.impl.FiltererModulus;
+
+                        /**
+                         * Inverts the base filterer's result.<br>  
+                         *  This checks if the base is already inverted.<br>  
+                         *  e.g. `filterer == invert(invert(filterer))` would be `true`.
+                         * @since 1.9.1 (was in FJsMacros before 2.0.0)
+                         */
+                        invert(base: EventFilterer): EventFilterer;
+
+                        /**
+                         * Create a limited event filterer.<br>  
+                         *  This filterer only lets the first n event pass through.
+                         * @since 2.0.0
+                         */
+                        limited(limit: int): xyz.wagyourtail.jsmacros.core.event.impl.FiltererLimited;
+
+                        /**
+                         * A filter that blocks the `Cannot join {} on same context as it's creation.` error.<br>  
+                         *  Works by itself or being in any position of compound, ignoring logic.
+                         * @since 2.0.0
+                         */
+                        noJoinTriggering(): EventFilterer;
+
+                        /**
+                         * Compiles a generic event filterer with java code.<br>  
+                         *  Basically the same as {@link EventFilters.compile}(String, String) with event being BaseEvent.
+                         * @param code the java method body
+                         * @return the compiled filterer
+                         * @since 2.0.0
+                         */
+                        compile(code: string): EventFilters$Compiled;
+
+                        /**
+                         * Compiles an event filterer with java code.<br>  
+                         *  Available variables are `event` and members of CompiledCommons.<br>  
+                         *  It tries to insert `return` and `;` if the provided code is single line and doesn't have `;` at the end.  
+                         *  Examples:  
+                         *  ```  
+                         *  compile('RecvPacket', 'eq(event.type, "BlockUpdateS2CPacket")')
+                         *  compile('Key', 'event.action == 1 && eq(event.key, "key.keyboard.w")')
+                         *  compile('Sound', `
+                         *       float pitch = event.pitch;  
+                         *       // whatever multi-line stuff here
+                         *       return pitch == 0.625f;  
+                         *  `)
+                         *  ```
+                         * @param event the target event
+                         * @param code the java method body
+                         * @return the compiled filterer
+                         * @since 2.0.0
+                         */
+                        compile(event: keyof Events, code: string): EventFilters$Compiled;
+                        getGlobalsForCompiled(): JavaMap<any, any>;
+
+                    }
+
+                    /**
+                     * base class of compiled filterer.
+                     */
+                    interface EventFilters$Compiled extends EventFilterer {}
+                    class EventFilters$Compiled extends java.lang.Object {
+                        static readonly class: JavaClass<EventFilters$Compiled>;
+                        /** @deprecated */ static prototype: undefined;
+
+                        constructor ();
+
+                        test(event: Events.BaseEvent): boolean;
 
                     }
 
@@ -43078,6 +43398,8 @@ declare namespace Packages {
                         BaseEventRegistry,
                         EventFilterer,
                         EventFilterer$Compound,
+                        EventFilters,
+                        EventFilters$Compiled,
                         IEventListener
                     }
 
@@ -43111,7 +43433,27 @@ declare namespace Packages {
                              * @return self for chaining
                              */
                             or(filterer: xyz.wagyourtail.jsmacros.core.event.EventFilterer): this;
-                            checkCyclicRef(base: xyz.wagyourtail.jsmacros.core.event.EventFilterer$Compound): void;
+                            getChildren(): java.util.stream.Stream<xyz.wagyourtail.jsmacros.core.event.EventFilterer>;
+
+                        }
+
+                        /**
+                         * @author aMelonRind
+                         * @since 2.0.0
+                         */
+                        interface FiltererLimited extends xyz.wagyourtail.jsmacros.core.event.EventFilterer {}
+                        class FiltererLimited extends java.lang.Object {
+                            static readonly class: JavaClass<FiltererLimited>;
+                            /** @deprecated */ static prototype: undefined;
+
+                            constructor (limit: int);
+
+                            limit: number;
+                            count: number;
+
+                            test(event: Events.BaseEvent): boolean;
+                            setMax(limit: int): FiltererLimited;
+                            reset(): FiltererLimited;
 
                         }
 
@@ -43129,13 +43471,12 @@ declare namespace Packages {
                             quotient: number;
                             count: number;
 
-                            canFilter(event: string): boolean;
                             test(event: Events.BaseEvent): boolean;
                             setQuotient(quotient: int): FiltererModulus;
 
                         }
 
-                        export { FiltererComposed, FiltererModulus }
+                        export { FiltererComposed, FiltererLimited, FiltererModulus }
 
                     }
 
@@ -43153,6 +43494,8 @@ declare namespace Packages {
                     }
                     interface Extension {
 
+                        getExtensionName(): string;
+
                         /**
                          * @return the *minimum* version of the jsMacros core that this extension is compatible with.
                          * @since 1.9.0
@@ -43165,35 +43508,8 @@ declare namespace Packages {
                          */
                         maxCoreVersion(): string;
                         init(): void;
-                        getPriority(): number;
-                        getLanguageImplName(): string;
-                        extensionMatch(file: java.io.File): Extension$ExtMatch;
-                        defaultFileExtension(): string;
-
-                        /**
-                         * @return a single static instance of the language definition
-                         */
-                        getLanguage(runner: xyz.wagyourtail.jsmacros.core.Core<any, any>): xyz.wagyourtail.jsmacros.core.language.BaseLanguage<any, any>;
-                        getLibraries(): JavaSet<JavaClass<xyz.wagyourtail.jsmacros.core.library.BaseLibrary>>;
                         getDependencies(): JavaSet<java.net.URL>;
-                        wrapException(t: java.lang.Throwable): xyz.wagyourtail.jsmacros.core.language.BaseWrappedException<any>;
                         getTranslations(lang: string): JavaMap<string, string>;
-                        isGuestObject(o: any): boolean;
-
-                    }
-
-                    abstract class Extension$ExtMatch extends java.lang.Enum<Extension$ExtMatch> {
-                        static readonly class: JavaClass<Extension$ExtMatch>;
-                        /** @deprecated */ static prototype: undefined;
-
-                        static readonly NOT_MATCH: Extension$ExtMatch;
-                        static readonly MATCH: Extension$ExtMatch;
-                        static readonly MATCH_WITH_NAME: Extension$ExtMatch;
-
-                        static values(): JavaArray<Extension$ExtMatch>;
-                        static valueOf(name: string): Extension$ExtMatch;
-
-                        isMatch(): boolean;
 
                     }
 
@@ -43205,16 +43521,68 @@ declare namespace Packages {
 
                         isExtensionLoaded(name: string): boolean;
                         notLoaded(): boolean;
-                        getHighestPriorityExtension(): Extension;
+                        getHighestPriorityExtension(): LanguageExtension;
                         getAllExtensions(): JavaSet<Extension>;
-                        getExtensionForFile(file: java.io.File): Extension | null;
-                        getExtensionForName(lang: string): Extension;
+                        getAllLanguageExtensions(): JavaSet<LanguageExtension>;
+                        getAllLibraryExtensions(): JavaSet<LibraryExtension>;
+                        getExtensionForFile(file: java.io.File): LanguageExtension | null;
+                        getExtensionForName(extName: string): Extension;
                         loadExtensions(): void;
                         isGuestObject(obj: any): boolean;
 
                     }
 
-                    export { Extension, Extension$ExtMatch, ExtensionLoader }
+                    abstract class LanguageExtension extends java.lang.Interface {
+                        static readonly class: JavaClass<LanguageExtension>;
+                        /** @deprecated */ static prototype: undefined;
+                    }
+                    interface LanguageExtension extends Extension {
+
+                        getPriority(): number;
+                        extensionMatch(file: java.io.File): LanguageExtension$ExtMatch;
+                        defaultFileExtension(): string;
+
+                        /**
+                         * @return a single static instance of the language definition
+                         */
+                        getLanguage(runner: xyz.wagyourtail.jsmacros.core.Core<any, any>): xyz.wagyourtail.jsmacros.core.language.BaseLanguage<any, any>;
+                        wrapException(t: java.lang.Throwable): xyz.wagyourtail.jsmacros.core.language.BaseWrappedException<any>;
+                        isGuestObject(o: any): boolean;
+
+                    }
+
+                    abstract class LanguageExtension$ExtMatch extends java.lang.Enum<LanguageExtension$ExtMatch> {
+                        static readonly class: JavaClass<LanguageExtension$ExtMatch>;
+                        /** @deprecated */ static prototype: undefined;
+
+                        static readonly NOT_MATCH: LanguageExtension$ExtMatch;
+                        static readonly MATCH: LanguageExtension$ExtMatch;
+                        static readonly MATCH_WITH_NAME: LanguageExtension$ExtMatch;
+
+                        static values(): JavaArray<LanguageExtension$ExtMatch>;
+                        static valueOf(name: string): LanguageExtension$ExtMatch;
+
+                        isMatch(): boolean;
+
+                    }
+
+                    abstract class LibraryExtension extends java.lang.Interface {
+                        static readonly class: JavaClass<LibraryExtension>;
+                        /** @deprecated */ static prototype: undefined;
+                    }
+                    interface LibraryExtension extends Extension {
+
+                        getLibraries(): JavaSet<JavaClass<xyz.wagyourtail.jsmacros.core.library.BaseLibrary>>;
+
+                    }
+
+                    export {
+                        Extension,
+                        ExtensionLoader,
+                        LanguageExtension,
+                        LanguageExtension$ExtMatch,
+                        LibraryExtension
+                    }
 
                 }
 
@@ -44610,14 +44978,16 @@ type EnchantmentHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.in
 type EndCrystalEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.decoration.EndCrystalEntityHelper;
 type EnderDragonEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.boss.EnderDragonEntityHelper;
 type EndermanEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.mob.EndermanEntityHelper;
+type EntityFollowWrapper = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components3d.EntityFollowWrapper;
 type EntityHelper<T = /* net.minecraft.entity.Entity */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.EntityHelper<T>;
 type EntityTraceLine = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components3d.EntityTraceLine;
 type EntityTraceLine$Builder = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components3d.EntityTraceLine$Builder;
 type EventContainer<T extends Packages.xyz.wagyourtail.jsmacros.core.language.BaseScriptContext<any> = any> = Packages.xyz.wagyourtail.jsmacros.core.language.EventContainer<T>;
 type EventFilterer = Packages.xyz.wagyourtail.jsmacros.core.event.EventFilterer;
 type EventFilterer$Compound = Packages.xyz.wagyourtail.jsmacros.core.event.EventFilterer$Compound;
+type EventFilters = Packages.xyz.wagyourtail.jsmacros.core.event.EventFilters;
+type EventFilters$Compiled = Packages.xyz.wagyourtail.jsmacros.core.event.EventFilters$Compiled;
 type Extension = Packages.xyz.wagyourtail.jsmacros.core.extensions.Extension;
-type Extension$ExtMatch = Packages.xyz.wagyourtail.jsmacros.core.extensions.Extension$ExtMatch;
 type ExtensionLoader = Packages.xyz.wagyourtail.jsmacros.core.extensions.ExtensionLoader;
 type FJsMacros$EventAndContext<E extends Events.BaseEvent = any> = Packages.xyz.wagyourtail.jsmacros.core.library.impl.FJsMacros$EventAndContext<E>;
 type FallingBlockEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.other.FallingBlockEntityHelper;
@@ -44625,6 +44995,7 @@ type FileHandler = Packages.xyz.wagyourtail.jsmacros.core.library.impl.classes.F
 type FileHandler$FileLineIterator = Packages.xyz.wagyourtail.jsmacros.core.library.impl.classes.FileHandler$FileLineIterator;
 type FiltererBlockUpdate = Packages.xyz.wagyourtail.jsmacros.client.api.event.filterer.FiltererBlockUpdate;
 type FiltererComposed = Packages.xyz.wagyourtail.jsmacros.core.event.impl.FiltererComposed;
+type FiltererLimited = Packages.xyz.wagyourtail.jsmacros.core.event.impl.FiltererLimited;
 type FiltererModulus = Packages.xyz.wagyourtail.jsmacros.core.event.impl.FiltererModulus;
 type FiltererRecvPacket = Packages.xyz.wagyourtail.jsmacros.client.api.event.filterer.FiltererRecvPacket;
 type FiltererSendPacket = Packages.xyz.wagyourtail.jsmacros.client.api.event.filterer.FiltererSendPacket;
@@ -44670,8 +45041,11 @@ type ItemFrameEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helper
 type ItemHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemHelper;
 type ItemStackHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.ItemStackHelper;
 type JsMacrosThreadPool = Packages.xyz.wagyourtail.jsmacros.core.threads.JsMacrosThreadPool;
+type LanguageExtension = Packages.xyz.wagyourtail.jsmacros.core.extensions.LanguageExtension;
+type LanguageExtension$ExtMatch = Packages.xyz.wagyourtail.jsmacros.core.extensions.LanguageExtension$ExtMatch;
 type Library = Packages.xyz.wagyourtail.jsmacros.core.library.Library;
 type LibraryBuilder = Packages.xyz.wagyourtail.jsmacros.core.library.impl.classes.LibraryBuilder;
+type LibraryExtension = Packages.xyz.wagyourtail.jsmacros.core.extensions.LibraryExtension;
 type LibraryRegistry = Packages.xyz.wagyourtail.jsmacros.core.library.LibraryRegistry;
 type Line = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Line;
 type Line$Builder = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Line$Builder;
@@ -44731,7 +45105,7 @@ type ProxyBuilder<T = any> = Packages.xyz.wagyourtail.jsmacros.core.library.impl
 type PufferfishEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.passive.PufferfishEntityHelper;
 type RabbitEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.passive.RabbitEntityHelper;
 type RecipeHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.inventory.RecipeHelper;
-type RecipeInventory<T = /* net.minecraft.client.gui.screen.ingame.HandledScreen<net.minecraft.screen.AbstractRecipeScreenHandler<any>> */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.RecipeInventory<T>;
+type RecipeInventory<T = /* net.minecraft.client.gui.screen.ingame.HandledScreen<net.minecraft.screen.AbstractRecipeScreenHandler<any, any>> */ any> = Packages.xyz.wagyourtail.jsmacros.client.api.classes.inventory.RecipeInventory<T>;
 type Rect = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Rect;
 type Rect$Builder = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.Rect$Builder;
 type Registrable<R = any> = Packages.xyz.wagyourtail.jsmacros.core.classes.Registrable<R>;
@@ -44802,6 +45176,7 @@ type WitchEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.wo
 type WitherEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.boss.WitherEntityHelper;
 type WitherSkullEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.projectile.WitherSkullEntityHelper;
 type WolfEntityHelper = Packages.xyz.wagyourtail.jsmacros.client.api.helpers.world.entity.specialized.passive.WolfEntityHelper;
+type WorldPosWrapper = Packages.xyz.wagyourtail.jsmacros.client.api.classes.render.components.WorldPosWrapper;
 type WorldScanner = Packages.xyz.wagyourtail.jsmacros.client.api.classes.worldscanner.WorldScanner;
 type WorldScannerBuilder = Packages.xyz.wagyourtail.jsmacros.client.api.classes.worldscanner.WorldScannerBuilder;
 type WrappedClassInstance<T = any> = Packages.xyz.wagyourtail.jsmacros.core.classes.WrappedClassInstance<T>;
