@@ -21,7 +21,7 @@ const jcdf = Reflection.getDeclaredField(Java.type('net.minecraft.class_1309'), 
 jcdf.setAccessible(true)
 
 JsMacros.on('Tick', JavaWrapper.methodToJava(() => {
-  if (im) {
+  if (im && World.isWorldLoaded()) {
     if (Player.getCurrentPlayerInput().sneaking) {
       if (bcdf.get(im) > 2)
         bcdf.set(im, 2)
