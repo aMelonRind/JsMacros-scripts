@@ -3225,7 +3225,7 @@ declare namespace World {
      * @return the current dimension.
      * @since 1.1.2
      */
-    function getDimension(): Dimension | null;
+    function getDimension(): Dimension | string & {} | null;
 
     /**
      * @return the current biome.
