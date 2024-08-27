@@ -36079,8 +36079,8 @@ declare namespace Packages {
                                 getNBT(): NBTElementHelper$NBTCompoundHelper;
                                 /** @since 1.1.3 */
                                 getCreativeTab(): JavaList<xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper>;
-                                /** @deprecated */
-                                getItemID(): ItemId;
+                                // /** @deprecated */
+                                // getItemID(): ItemId;
                                 /** @since 1.6.4 */
                                 getItemId(): ItemId;
                                 /** @since 1.8.2 */

@@ -35,9 +35,9 @@ const scrollCallback = JavaWrapper.methodToJava(e => {
   const pos = look.scale(distance).add(p.getEyePos())
   let sub = pos.sub(pos.toBlockPos().toPos3D())
   const vec = decreasing ? look.scale(-1) : look
-  if (vec.x > 0) sub.x = 1 - sub.x; else vec.x = -vec.x
-  if (vec.y > 0) sub.y = 1 - sub.y; else vec.y = -vec.y
-  if (vec.z > 0) sub.z = 1 - sub.z; else vec.z = -vec.z
+  if (vec.x > 0) sub.x = 1 - sub.x; else vec.x = -vec.x + 0
+  if (vec.y > 0) sub.y = 1 - sub.y; else vec.y = -vec.y + 0
+  if (vec.z > 0) sub.z = 1 - sub.z; else vec.z = -vec.z + 0
   let dd = Math.min(sub.x / vec.x, sub.y / vec.y, sub.z / vec.z)
   sub = sub.sub(vec.scale(dd))
   if (sub.x < 0.0001) sub.x++

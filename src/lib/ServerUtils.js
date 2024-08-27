@@ -330,7 +330,7 @@ class ButtonBuilder {
 }
 
 function enableRecvListener() {
-  recvListener ??= JsMacros.on('RecvMessage', true, JavaWrapper.methodToJava((e, ctx) => {
+  recvListener ??= JsMacros.on('RecvMessage', JsMacros.eventFilters().noJoinTriggering(), true, JavaWrapper.methodToJava((e, ctx) => {
     const str = e.text?.getString()
     if (!str) return
     if (joinedRecvListeners.some(lis => lis(str, e) || e.text == null)) return
