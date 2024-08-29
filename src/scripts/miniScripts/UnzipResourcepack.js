@@ -5,13 +5,8 @@ JsMacros.assertEvent(event, 'Key')
 /** @type {*} */
 const FileOutputStream = Java.type('java.io.FileOutputStream')
 
-const ZipResourcePack = Java.type('net.minecraft.class_3258')
-const zipFileF = Reflection.getDeclaredField(ZipResourcePack, 'field_45038')
-zipFileF.setAccessible(true)
-
-const ZipFileWrapper = Java.type('net.minecraft.class_3258$class_8616')
-const openM = Reflection.getDeclaredMethod(ZipFileWrapper, 'method_52426')
-openM.setAccessible(true)
+/** @type {*} */
+const ZipFile = Java.type('java.util.zip.ZipFile')
 
 const destDir = file.toPath().getParent().resolve('./unzip resourcepack/')
 
@@ -20,16 +15,21 @@ const destDir = file.toPath().getParent().resolve('./unzip resourcepack/')
  * @param {string} name 
  */
 function exec(name) {
-  name = `file/${name}.zip`
-  // .method_14444() .getEnabledProfiles()
-  for (const prof of Client.getMinecraft().method_1520().method_14441()) { // .getResourcePackManager().getProfiles()
-    if (prof.method_14463() !== name) continue
-    const zipFileWrap = zipFileF.get(prof.method_14458()) // .createResourcePack()
-    const zipFile = openM.invoke(zipFileWrap)
+  let path = file.toPath().toAbsolutePath()
+  if (!path.toString().includes('\\.minecraft\\')) {
+    throw "can't find .minecraft folder"
+  }
+  do path = path.getParent()
+  while (path.getFileName().toString() !== '.minecraft');
+  path = path.resolve(`resourcepacks/${name}.zip`)
+  const fil = path.toFile()
+  if (!fil.isFile()) return
+  const zipFile = new ZipFile(fil)
+  try {
     Chat.log('file found, unzipping...')
     unzip(zipFile)
-    zipFileWrap.close()
-    break
+  } finally {
+    zipFile.close()
   }
 }
 
