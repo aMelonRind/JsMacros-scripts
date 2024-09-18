@@ -6,18 +6,11 @@ const pos = Player.getPlayer().getPos()
 const x = Math.floor(pos.getX())
 const y = Math.floor(pos.getY() + 0.2)
 const z = Math.floor(pos.getZ())
-const snbt = `{
-  BlockEntityTag: {
-    Command: "setblock ~ ~ ~ end_gateway{ExactTeleport:1,ExitPortal:{X:${x},Y:${y},Z:${z}}}",
-    auto: 1b
-  },
-  display: {
-    Name: '{"text":"Gateway to ${x}, ${y}, ${z}","italic":false}',
-    Lore: [
-      '{"text":"Destination: ${x}, ${y}, ${z}","italic":false}'
-    ]
-  }
-}`.replaceAll(/\n\s*(?:(\w+:) )?/g, '$1')
+const cmd = `setblock ~ ~ ~ end_gateway{ExactTeleport:1,exit_portal:[I;${x},${y},${z}]}`
+const name = `{"text":"Gateway to ${x}, ${y}, ${z}","italic":false}`
+const lore = `{"text":"Destination: ${x}, ${y}, ${z}","italic":false}`
+const snbt = `{BlockEntityTag:{Command:'${cmd}',auto:1},display:{Name:'${name}',Lore:['${lore}']}}`
+const components = `[block_entity_data={id:'',Command:'${cmd}',auto:1},item_name='${name}',lore=['${lore}']]`
 
 try {
   if (Player.getGameMode() !== 'creative') throw null
@@ -34,5 +27,8 @@ try {
   }`)) // ItemStack.fromNbt(StringNbtReader.parse(snbt))
   Client.getMinecraft().method_1562().method_2883(new CreativeInventoryActionC2SPacket(slot - 9, item))
 } catch (e) {
-  Chat.say(`/give @s command_block${snbt}`)
+  const version = Client.mcVersion().split('.')
+  const minor = parseInt(version[1]) || 0
+  const patch = parseInt(version[2]) || 0
+  Chat.say(`/give @s command_block${minor > 20 || minor === 20 && patch >= 5 ? components : snbt}`)
 }
