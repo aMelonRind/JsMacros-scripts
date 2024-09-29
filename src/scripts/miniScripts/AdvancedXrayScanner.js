@@ -25,7 +25,11 @@ const directions = ['up', 'down', 'north', 'south', 'east', 'west']
 /** @type {MethodWrapper<Pos3D, any, boolean>} */
 const cantBreath = JavaWrapper.methodToJava(pos => {
   const bpos = pos.toBlockPos()
-  return !directions.some(dir => World.getBlock(bpos[dir]())?.getBlockStateHelper().isAir())
+  return !directions.some(dir => {
+    const block = World.getBlock(bpos[dir]())
+    if (!block) return false
+    return block.getBlockStateHelper().isAir() || block.getId() === 'minecraft:fire'
+  })
 })
 
 // region entry class
@@ -45,6 +49,7 @@ class BlockSearchEntry {
       const color = ((c.red() & 255) << 16) | ((c.green() & 255) << 8) | (c.blue() & 255)
       entries.push(new BlockSearchEntry(id, color))
     }
+    this.world = null
     this.checkWorld()
   }
 
@@ -204,7 +209,6 @@ JsMacros.on('OpenScreen', JavaWrapper.methodToJavaAsync(e => {
         ent.map.clear()
         ent.el.off()
       }
-      BlockSearchEntry.world = null
       BlockSearchEntry.init()
       BlockSearchEntry.scanAround()
     }))
