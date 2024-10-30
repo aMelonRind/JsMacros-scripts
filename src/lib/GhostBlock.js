@@ -34,7 +34,7 @@ function setGhostRaw(pos, state) {
  */
 function setGhostRawOnThread(pos, state) {
   const world = World.getRaw()
-  if (!world.method_22340(pos) || !world.method_24794(pos)) return false // .isPosLoaded() .isInBuildLimit()
+  if (!world?.method_22340(pos) || !world.method_24794(pos)) return false // .isPosLoaded() .isInBuildLimit()
   return world.method_8652(pos, state, 18) // .setBlockState
 }
 
