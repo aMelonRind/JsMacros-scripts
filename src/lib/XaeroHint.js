@@ -34,7 +34,7 @@ function registerXaeroHint(ip, detector) {
 
     Client.runOnMainThread(JavaWrapper.methodToJava(() => {
       WorldMapSession.getCurrentSession()?.getMapProcessor()?.onServerLevelId(result)
-      logger.log(`dimension id set to ${result}`)
+      // logger.log(`dimension id set to ${result}`)
     }))
   })
   if (World.isWorldLoaded()) {

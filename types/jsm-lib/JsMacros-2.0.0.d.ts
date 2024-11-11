@@ -36076,7 +36076,7 @@ declare namespace Packages {
                                  */
                                 getMaxCount(): number;
                                 /** @since 1.1.6, was a {@link String} until 1.5.1 */
-                                getNBT(): NBTElementHelper$NBTCompoundHelper;
+                                getNBT(): NBTElementHelper$NBTCompoundHelper | null;
                                 /** @since 1.1.3 */
                                 getCreativeTab(): JavaList<xyz.wagyourtail.jsmacros.client.api.helpers.TextHelper>;
                                 // /** @deprecated */

@@ -53,7 +53,7 @@ const ref = {
 /** @type {(type: PacketName, cb: (packet: any) => any) => IEventListener} */
 const reg = (type, cb) => JsMacros.on(
   'RecvPacket',
-  JsMacros.createEventFilterer('RecvPacket').setType(type),
+  JsMacros.eventFilters().compile('RecvPacket', `eq(event.type, "${type}")`),
   // true, // optional
   JavaWrapper.methodToJava(e => {
     const p = e.packet
