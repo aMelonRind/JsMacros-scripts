@@ -14,7 +14,7 @@ const found = new Map()
 
 JsMacros.on('ChunkLoad', JavaWrapper.methodToJavaAsync(check))
 if (!check()) {
-  Chat.log('§aNo custom recipe found!')
+  Chat.log('§aNo custom recipe found.')
 }
 
 function check() {
