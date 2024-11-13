@@ -26,7 +26,7 @@ let recvListeners = []
 
 const buttonCb = JavaWrapper.methodToJavaAsync(btn => {
   if (!currentScreen) return
-  buttons.get(currentScreen)?.get(btn.getLabel().getString())?.action()
+  buttons.get(currentScreen)?.get(btn.getLabel().getString())?.action({btn})
 })
 
 let instance = null
@@ -198,7 +198,7 @@ class Button {
   /**
    * @param {string} name 
    * @param {CanOmitNamespace<ItemId>?} [icon] 
-   * @param {() => any} [action] 
+   * @param {(ctx: { btn: ClickableWidgetHelper }) => any} [action] 
    * @param {(ctx: BaseContext & Ctx) => any} [condition] 
    * @param {((ctx: ButtonContext & Ctx) => any)?} [onAdd] 
    */
@@ -259,7 +259,7 @@ class ButtonBuilder {
 
   /**
    * sets the action
-   * @param {() => any} action 
+   * @param {(ctx: { btn: ClickableWidgetHelper }) => any} action 
    */
   runs(action) {
     this.action = action
