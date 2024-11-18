@@ -2,7 +2,7 @@
 
 /**
  * @param {string} ip 
- * @param {() => int?} detector 
+ * @param {(dim: Dimension) => int?} detector 
  * @return {IEventListener?}
  */
 function registerXaeroHint(ip, detector) {
@@ -15,10 +15,11 @@ function registerXaeroHint(ip, detector) {
   }
   const logger = require('./Logger')
   ip += '/'
-  const callback = JavaWrapper.methodToJavaAsync(() => {
+  /** @type {MethodWrapper<Events.DimensionChange>} */
+  const callback = JavaWrapper.methodToJavaAsync(({ dimension }) => {
     Client.waitTick() // wait a tick because this event didn't provide any shit and is injected too early
     if (!World.getCurrentServerAddress()?.startsWith(ip)) return
-    const result = detector()
+    const result = detector(dimension)
     if (result == null) {
       logger.log(`Registered Xaero Hint cannot determine this world. (${World.getDimension()})`)
       return
