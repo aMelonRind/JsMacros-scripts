@@ -15,7 +15,7 @@ function registerXaeroHint(ip, detector) {
   }
   const logger = require('./Logger')
   ip += '/'
-  /** @type {MethodWrapper<Events.DimensionChange>} */
+  /** @type {MethodWrapper<{ readonly dimension: Dimension }>} */
   const callback = JavaWrapper.methodToJavaAsync(({ dimension }) => {
     Client.waitTick() // wait a tick because this event didn't provide any shit and is injected too early
     if (!World.getCurrentServerAddress()?.startsWith(ip)) return
@@ -39,7 +39,10 @@ function registerXaeroHint(ip, detector) {
     }))
   })
   if (World.isWorldLoaded()) {
-    callback.run()
+    const dimension = World.getDimension()
+    if (dimension) {
+      callback.accept({ dimension })
+    }
   }
   return JsMacros.on('DimensionChange', callback)
 }
