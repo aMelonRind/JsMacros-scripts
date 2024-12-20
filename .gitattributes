@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+/types/jsm-lib/JsMacros-*.d.ts linguist-generated
+/types/jsm-lib/McIdsAndEnums.d.ts linguist-generated
