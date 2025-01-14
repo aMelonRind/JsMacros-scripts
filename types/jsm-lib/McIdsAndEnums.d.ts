@@ -6241,7 +6241,7 @@ type Dimension =
 | string & {}
 
 //@Custom
-type ScreenName = string
+type ScreenName = string & {}
 | HandledScreenName
 
 //@Custom
