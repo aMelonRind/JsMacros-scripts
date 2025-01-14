@@ -33,6 +33,30 @@ JsMacros.on('Key', JavaWrapper.methodToJava(e => {
   openEntityInspectScreen(trace)
 }))
 
+const cmd = Chat.getCommandManager().createCommandBuilder('einspect')
+  .executes(JavaWrapper.methodToJava(() => {
+    Chat.log('Usage: /einspect <player>')
+    return true
+  }))
+  .wordArg('player')
+    .suggest(JavaWrapper.methodToJava((ctx, suggester) => {
+      suggester.suggestMatching(World.getLoadedPlayers()?.map(p => p.getPlayerName()) ?? [])
+    }))
+    .executes(JavaWrapper.methodToJava(ctx => {
+      const name = ctx.getArg('player')
+      const p = World.getLoadedPlayers()?.find(p => p.getPlayerName() === name)
+      if (!p) {
+        Chat.log(`Player ${name} not found`)
+      } else {
+        JavaWrapper.methodToJavaAsync(() => {
+          Client.waitTick()
+          openEntityInspectScreen(p)
+        }).run()
+      }
+      return true
+    }))
+  .register()
+
 /**
  * @param {EntityHelper} entity 
  * @returns 
@@ -164,14 +188,14 @@ function getItem(item) {
         return
       }
     } else if (Player.getPlayer()?.getRaw().method_5687(2)) { // .hasPermissionLevel
-      return Chat.say(`/give @s ${item.getItemId()}${item.getNBT().asString()}`)
+      return Chat.say(`/give @s ${item.getItemId()}${item.getNBT()?.asString()}`)
     }
 
     Chat.log(
       Chat.createTextBuilder()
         .append("Don't have /give permission to get ").append(item.getName()).append('\n')
         .append('Click here to copy tags to clipboard.')
-        .withClickEvent('COPY_TO_CLIPBOARD', `${item.getItemId()}${item.getNBT().asString().replace(/"/g, '\\"')}`)
+        .withClickEvent('COPY_TO_CLIPBOARD', `${item.getItemId()}${item.getNBT()?.asString().replace(/"/g, '\\"')}`)
     )
   }
 }
@@ -196,3 +220,5 @@ function putNbtOutput(out, maxwidth, str) {
   }
   out.setText(str).alignHorizontally('center')
 }
+
+event.unregisterOnStop(true, cmd)
